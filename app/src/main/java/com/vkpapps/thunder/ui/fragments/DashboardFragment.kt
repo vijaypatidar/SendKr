@@ -1,0 +1,75 @@
+package com.vkpapps.thunder.ui.fragments
+
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnFlingListener
+import com.vkpapps.thunder.R
+import com.vkpapps.thunder.connection.ClientHelper
+import com.vkpapps.thunder.interfaces.OnFragmentAttachStatusListener
+import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.thunder.interfaces.OnUserListRequestListener
+import com.vkpapps.thunder.interfaces.OnUsersUpdateListener
+import com.vkpapps.thunder.ui.adapter.ClientAdapter
+
+/**
+ * @author VIJAY PATIDAR
+ */
+class DashboardFragment : Fragment(), OnUsersUpdateListener {
+    private var users: List<ClientHelper>? = null
+    private var onUserListRequestListener: OnUserListRequestListener? = null
+    private var clientAdapter: ClientAdapter? = null
+    private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
+    private var onFragmentAttachStatusListener: OnFragmentAttachStatusListener? = null
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_dashboard, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        //Nothing to display when user is client
+        if (users == null) return
+        clientAdapter = ClientAdapter(users, view)
+        val recyclerView: RecyclerView = view.findViewById(R.id.clientList)
+        recyclerView.itemAnimator = DefaultItemAnimator()
+        recyclerView.layoutManager = LinearLayoutManager(view.context)
+        recyclerView.onFlingListener = object : OnFlingListener() {
+            override fun onFling(velocityX: Int, velocityY: Int): Boolean {
+                onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                return false
+            }
+        }
+        recyclerView.adapter = clientAdapter
+        clientAdapter?.notifyDataSetChangedAndHideIfNull()
+    }
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onNavigationVisibilityListener = context as OnNavigationVisibilityListener
+        onUserListRequestListener = context as OnUserListRequestListener
+        onFragmentAttachStatusListener = context as OnFragmentAttachStatusListener
+        onFragmentAttachStatusListener?.onFragmentAttached(this)
+        users = onUserListRequestListener?.onRequestUsers()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        onFragmentAttachStatusListener?.onFragmentDetached(this)
+        onUserListRequestListener = null
+        onNavigationVisibilityListener = null
+        onFragmentAttachStatusListener = null
+    }
+
+    override fun onUserUpdated() {
+        clientAdapter?.notifyDataSetChangedAndHideIfNull()
+    }
+}

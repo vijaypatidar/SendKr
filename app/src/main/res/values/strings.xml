@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Thunder</string>
+    <string name="save">save</string>
+    <string name="hint_name">enter name</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_share">Share</string>
+    <string name="create_party">CREATE GROUP</string>
+    <string name="join_party">JOIN GROUP</string>
+    <string name="about">about</string>
+    <string name="about_cap">About</string>
+    <string name="developer">Developer Profile</string>
+    <string name="app_description">A modern and easy to use app for sharing file without internet.</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="privacy_policy_url">https://vijaypatidar.me</string>
+    <string name="accept_policy">By using the app you agree to the Sender <a href="https://vijaypatidar.me">Privacy Policy</a></string>
+    <string name="cancel">Cancel</string>
+    <string name="i_agree">I Agree</string>
+    <string name="github_url">https://github.com/vijaypatidar31</string>
+    <string name="empty_client_list">No device connected</string>
+    <string name="empty_directory">Directory is empty</string>
+    <string name="title_file">Files</string>
+    <string name="title_apps">Apps</string>
+    <string name="made_in_india">Made with ❤ in India</string>
+    <string name="files">Files</string>
+    <string name="title_audio">Audio</string>
+    <string name="empty_photo">"No picture found "</string>
+    <string name="empty_video">no video found</string>
+    <string name="Setting">Settings</string>
+</resources>
