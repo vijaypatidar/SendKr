@@ -31,7 +31,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
     private OnPhotoSelectListener onPhotoSelectListener;
     private View view;
 
-    public PhotoAdapter(List<PhotoInfo> photoInfos,@NonNull OnPhotoSelectListener onPhotoSelectListener, View view) {
+    public PhotoAdapter(List<PhotoInfo> photoInfos, @NonNull OnPhotoSelectListener onPhotoSelectListener, View view) {
         this.photoInfos = photoInfos;
         this.onPhotoSelectListener = onPhotoSelectListener;
         this.view = view;
@@ -49,24 +49,24 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         final PhotoInfo photoInfo = photoInfos.get(position);
         final File file = new File(photoInfo.getPath());
-        if (file.exists()) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                try {
-                    Bitmap thumbnail = ThumbnailUtils.createImageThumbnail(file, new Size(512, 512), new CancellationSignal());
-                    holder.picture.setImageBitmap(thumbnail);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else
-                Picasso.get().load(file).into(holder.picture);
-        }
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            try {
+                Bitmap thumbnail = ThumbnailUtils.createImageThumbnail(file, new Size(512, 512), new CancellationSignal());
+                holder.picture.setImageBitmap(thumbnail);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else
+            Picasso.get().load(file).into(holder.picture);
+
         holder.btnSelected.setVisibility(photoInfo.isSelected() ? View.VISIBLE : View.GONE);
         holder.itemView.setOnClickListener(v -> {
             photoInfo.setSelected(!photoInfo.isSelected());
             holder.btnSelected.setVisibility(photoInfo.isSelected() ? View.VISIBLE : View.GONE);
-            if (photoInfo.isSelected()){
+            if (photoInfo.isSelected()) {
                 onPhotoSelectListener.onPhotoSelected(photoInfo);
-            }else {
+            } else {
                 onPhotoSelectListener.onPhotoDeselected(photoInfo);
             }
         });

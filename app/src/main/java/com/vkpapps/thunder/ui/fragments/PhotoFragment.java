@@ -92,9 +92,11 @@ public class PhotoFragment extends Fragment implements PreparePhotoList.OnPhotoL
         if (selectedCount == 0) {
             btnSend.setAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom));
             btnSend.setVisibility(View.GONE);
+            onNavigationVisibilityListener.onNavVisibilityChange(true);
         } else {
             btnSend.setAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom));
             btnSend.setVisibility(View.VISIBLE);
+            onNavigationVisibilityListener.onNavVisibilityChange(false);
         }
     }
 

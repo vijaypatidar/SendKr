@@ -96,10 +96,12 @@ public class AudioFragment extends Fragment implements AudioAdapter.OnAudioSelec
         if (btnSend.getVisibility()== View.VISIBLE&&selectedCount>0)return;
         if (selectedCount==0){
             btnSend.setAnimation( AnimationUtils.loadAnimation(requireContext(),R.anim.slide_out_to_bottom));
-            btnSend.setVisibility( View.GONE);
+            btnSend.setVisibility(View.GONE);
+            onNavigationVisibilityListener.onNavVisibilityChange(true);
         }else{
             btnSend.setAnimation(AnimationUtils.loadAnimation(requireContext(),R.anim.slide_in_from_bottom));
-            btnSend.setVisibility(  View.VISIBLE);
+            btnSend.setVisibility(View.VISIBLE);
+            onNavigationVisibilityListener.onNavVisibilityChange(false);
         }
     }
 }

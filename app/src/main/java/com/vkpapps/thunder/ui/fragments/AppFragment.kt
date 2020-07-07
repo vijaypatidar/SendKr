@@ -109,9 +109,11 @@ class AppFragment : Fragment(), PrepareAppList.OnAppListPrepareListener, AppAdap
         if (selectedCount==0){
             btnSend.animation = AnimationUtils.loadAnimation(requireContext(),R.anim.slide_out_to_bottom)
             btnSend.visibility = View.GONE
+            onNavigationVisibilityListener?.onNavVisibilityChange(true)
         }else{
             btnSend.animation = AnimationUtils.loadAnimation(requireContext(),R.anim.slide_in_from_bottom)
             btnSend.visibility = View.VISIBLE
+            onNavigationVisibilityListener?.onNavVisibilityChange(false)
         }
     }
 }
