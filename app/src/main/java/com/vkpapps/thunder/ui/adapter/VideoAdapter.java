@@ -7,6 +7,7 @@ import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -41,9 +42,15 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyHolder holder,final int position) {
         final PhotoInfo photoInfo = photoInfos.get(position);
-        File file = new File(photoInfo.getPath());
+        final File file = new File(photoInfo.getPath());
+
+        holder.btnSelected.setChecked(photoInfo.isSelected());
+        holder.btnSelected.setOnClickListener(v ->{
+            photoInfo.setSelected(!photoInfo.isSelected());
+            holder.btnSelected.setChecked(photoInfo.isSelected());
+        });
         if (file.exists()) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                 try {
@@ -54,6 +61,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
                 }
             }
         }
+
+
     }
 
     @Override
@@ -63,10 +72,12 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
 
     static class MyHolder extends RecyclerView.ViewHolder {
         private AppCompatImageView picture;
+        private RadioButton btnSelected;
 
         MyHolder(@NonNull View itemView) {
             super(itemView);
             picture = itemView.findViewById(R.id.picture);
+            btnSelected = itemView.findViewById(R.id.btnSelect);
         }
     }
 

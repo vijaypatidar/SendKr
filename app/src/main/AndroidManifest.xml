@@ -22,7 +22,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-4043007075380826~2360517416" />
+            android:value="ca-app-pub-4043007075380826~7990289716" />
         <meta-data
             android:name="com.google.android.gms.ads.AD_MANAGER_APP"
             android:value="true" />
@@ -34,9 +34,9 @@
             android:theme="@style/AppTheme" />
 
         <service
-            android:label="File service"
             android:name="com.vkpapps.thunder.service.FileService"
-            android:exported="false" />
+            android:exported="false"
+            android:label="File service" />
 
         <activity
             android:name="com.vkpapps.thunder.ui.activity.SplashActivity"

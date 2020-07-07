@@ -41,7 +41,7 @@ public class PhotoFragment extends Fragment implements PreparePhotoList.OnPhotoL
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         RecyclerView recyclerView = view.findViewById(R.id.photoList);
-        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 3));
 
         photoAdapter = new PhotoAdapter(photoInfos, view);
         recyclerView.setAdapter(photoAdapter);

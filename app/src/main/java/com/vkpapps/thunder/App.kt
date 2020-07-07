@@ -18,10 +18,7 @@ class App : Application() {
         context = applicationContext
         user = UserUtils(this).loadUser()
         val storageManager = StorageManager(this)
-        Thread {
-            storageManager.allAudioFromDevice
-        }.start()
-        storageManager.deleteDir(storageManager.songDir)
+        storageManager.allAudioFromDevice
         Logger.logger = BuildConfig.DEBUG
     }
 

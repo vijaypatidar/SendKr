@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.ads.AdView;
 import com.squareup.picasso.Picasso;
 import com.vkpapps.thunder.R;
-import com.vkpapps.thunder.model.AudioModel;
+import com.vkpapps.thunder.model.AudioInfo;
 import com.vkpapps.thunder.utils.AdsUtils;
 import com.vkpapps.thunder.utils.StorageManager;
 
@@ -29,14 +30,16 @@ import java.util.List;
  * @author VIJAY PATIDAR
  */
 public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHolder> {
-    private List<AudioModel> audioModels;
+    private List<AudioInfo> audioInfos;
     private OnAudioSelectedListener onAudioSelectedListener;
     private File imageRoot;
+    private LayoutInflater inflater;
 
-    public AudioAdapter(List<AudioModel> audioModels, OnAudioSelectedListener onAudioSelectedListener, Context context) {
-        this.audioModels = audioModels;
+    public AudioAdapter(List<AudioInfo> audioInfos, OnAudioSelectedListener onAudioSelectedListener,@NonNull Context context) {
+        this.audioInfos = audioInfos;
         this.onAudioSelectedListener = onAudioSelectedListener;
         imageRoot = new StorageManager(context).getImageDir();
+        inflater = LayoutInflater.from(context);
     }
 
     @NonNull
@@ -44,39 +47,44 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     public AudioViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View inflate;
         if (viewType == 1) {
-            inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.audio_list_item, parent, false);
+            inflate = inflater.inflate(R.layout.audio_list_item, parent, false);
         } else {
-            inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.local_list_item_ad_view, parent, false);
+            inflate =inflater.inflate(R.layout.local_list_item_ad_view, parent, false);
         }
         return new AudioViewHolder(inflate);
     }
 
     @Override
     public int getItemViewType(int position) {
-        return audioModels.get(position) == null ? 0 : 1;
+        return audioInfos.get(position) == null ? 0 : 1;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AudioViewHolder holder, int position) {
-        AudioModel audioModel = audioModels.get(position);
-        if (audioModel == null) {
+    public void onBindViewHolder(@NonNull final AudioViewHolder holder, int position) {
+        final AudioInfo audioinfo = audioInfos.get(position);
+        if (audioinfo == null) {
             AdView adView = (AdView) holder.itemView;
             AdsUtils.INSTANCE.getAdRequest(adView);
         } else {
-            holder.audioTitle.setText(audioModel.getName());
-            holder.audioArtist.setText(audioModel.getArtist());
-            holder.itemView.setOnClickListener(v -> onAudioSelectedListener.onAudioSelected(audioModel));
+            holder.audioTitle.setText(audioinfo.getName());
+            holder.btnSelect.setChecked(audioinfo.isSelected());
+
+            holder.itemView.setOnClickListener(v -> onAudioSelectedListener.onAudioSelected(audioinfo));
             holder.itemView.setOnLongClickListener(v -> {
-                onAudioSelectedListener.onAudioLongSelected(audioModel);
+                onAudioSelectedListener.onAudioLongSelected(audioinfo);
                 return true;
+            });
+            holder.btnSelect.setOnClickListener((v) -> {
+                audioinfo.setSelected(!audioinfo.isSelected());
+                holder.btnSelect.setChecked(audioinfo.isSelected());
             });
 
             ImageView audioIcon = holder.audioIcon;
-            File file = new File(imageRoot, audioModel.getName().trim());
+            File file = new File(imageRoot, audioinfo.getName().trim());
             if (!file.exists()) {
                 try {
                     android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                    mmr.setDataSource(audioModel.getPath());
+                    mmr.setDataSource(audioinfo.getPath());
                     byte[] data = mmr.getEmbeddedPicture();
                     // convert the byte array to a bitmap
                     if (data != null) {
@@ -98,24 +106,24 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
 
     @Override
     public int getItemCount() {
-        return (audioModels == null) ? 0 : audioModels.size();
+        return (audioInfos == null) ? 0 : audioInfos.size();
     }
 
     public interface OnAudioSelectedListener {
-        void onAudioSelected(AudioModel audioMode);
+        void onAudioSelected(AudioInfo audioMode);
 
-        void onAudioLongSelected(AudioModel audioModel);
+        void onAudioLongSelected(AudioInfo audioinfo);
     }
 
     static class AudioViewHolder extends RecyclerView.ViewHolder {
-        TextView audioTitle, audioArtist;
+        TextView audioTitle;
         ImageView audioIcon;
-
+        RadioButton btnSelect;
         AudioViewHolder(@NonNull View itemView) {
             super(itemView);
             audioIcon = itemView.findViewById(R.id.audio_icon);
             audioTitle = itemView.findViewById(R.id.audio_title);
-            audioArtist = itemView.findViewById(R.id.audio_artist);
+            btnSelect = itemView.findViewById(R.id.btnSelect);
         }
     }
 }

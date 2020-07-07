@@ -1,8 +1,13 @@
 package com.vkpapps.thunder.ui.adapter;
 
+import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
+import android.os.CancellationSignal;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -10,9 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 import com.vkpapps.thunder.R;
+import com.vkpapps.thunder.analitics.Logger;
+import com.vkpapps.thunder.model.AppInfo;
 import com.vkpapps.thunder.model.PhotoInfo;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -39,10 +47,23 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         final PhotoInfo photoInfo = photoInfos.get(position);
-        File file = new File(photoInfo.getPath());
+        final File file = new File(photoInfo.getPath());
         if (file.exists()) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                try {
+                    Bitmap thumbnail = ThumbnailUtils.createImageThumbnail(file, new Size(512, 512), new CancellationSignal());
+                    holder.picture.setImageBitmap(thumbnail);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            else
             Picasso.get().load(file).into(holder.picture);
         }
+        holder.btnSelected.setOnClickListener((v) -> {
+            photoInfo.setSelected(!photoInfo.isSelected());
+            holder.btnSelected.setChecked(photoInfo.isSelected());
+        });
     }
 
     @Override
@@ -52,10 +73,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
 
     static class MyHolder extends RecyclerView.ViewHolder {
         private AppCompatImageView picture;
+        private RadioButton btnSelected;
 
         MyHolder(@NonNull View itemView) {
             super(itemView);
             picture = itemView.findViewById(R.id.picture);
+            btnSelected= itemView.findViewById(R.id.btnSelect);
         }
     }
 

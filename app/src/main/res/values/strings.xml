@@ -28,4 +28,5 @@
     <string name="empty_photo">"No picture found "</string>
     <string name="empty_video">no video found</string>
     <string name="Setting">Settings</string>
+    <string name="send">send</string>
 </resources>

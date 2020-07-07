@@ -34,19 +34,19 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        String file = files[position];
+        final String file = files[position];
         if (holder instanceof MyViewHolder) {
-            MyViewHolder myViewHolder = (MyViewHolder) holder;
-            File file1 = new File(file);
-
+            final MyViewHolder myViewHolder = (MyViewHolder) holder;
+            final File file1 = new File(file);
             myViewHolder.fileName.setText(file1.getName());
-            if (file1.isDirectory()){
+
+            if (true){
                 myViewHolder.icon.setImageResource(R.drawable.ic_folder);
                 myViewHolder.itemView.setOnClickListener(v -> {
                     Navigation.findNavController(view).navigate(new NavDirections() {
                         @Override
                         public int getActionId() {
-                            return R.id.navigation_files;
+                            return R.id.fileFragment;
                         }
 
                         @NonNull

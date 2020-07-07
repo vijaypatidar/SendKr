@@ -42,7 +42,7 @@ public class VideoFragment extends Fragment implements PrepareVideoList.OnVideoL
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         RecyclerView recyclerView = view.findViewById(R.id.videoList);
-        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 3));
 
         adapter = new VideoAdapter(photoInfos, view);
         recyclerView.setOnFlingListener(new RecyclerView.OnFlingListener() {

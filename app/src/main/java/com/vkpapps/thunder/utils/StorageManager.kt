@@ -2,13 +2,9 @@ package com.vkpapps.thunder.utils
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
 import android.os.Environment
 import android.provider.MediaStore
-import com.vkpapps.thunder.analitics.Logger.d
-import com.vkpapps.thunder.model.AudioModel
+import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.utils.PermissionUtils.checkStoragePermission
 import java.io.File
 import java.io.FileInputStream
@@ -90,43 +86,39 @@ class StorageManager(private val context: Context) {
     }
 
     // inserting null value , this null values will be replaced by adView when displayed on RecyclerView
-    val allAudioFromDevice: List<AudioModel?>
+    val allAudioFromDevice: List<AudioInfo?>
         get() {
-            if (audioModels.size == 0) {
+            if (audioInfos.size == 0) {
                 if (checkStoragePermission(context)) {
-                    audioModels = ArrayList()
+                    audioInfos = ArrayList()
                     val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    val projection = arrayOf(MediaStore.Audio.AudioColumns.DATA, MediaStore.Audio.AudioColumns.TITLE, MediaStore.Audio.AudioColumns.ALBUM, MediaStore.Audio.ArtistColumns.ARTIST)
+                    val projection = arrayOf(MediaStore.Audio.AudioColumns.DATA, MediaStore.Audio.AudioColumns.TITLE)
                     val c = context.contentResolver.query(uri, projection, null, null, null)
                     if (c != null) {
                         while (c.moveToNext()) {
-                            val audioModel = AudioModel()
                             val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
                             val name = c.getString(1).trim { it <= ' ' }
-                            val album = c.getString(2)
-                            val artist = c.getString(3)
+                            val audioModel = AudioInfo()
                             audioModel.name = name
-                            audioModel.album = album
-                            audioModel.artist = artist
                             audioModel.path = path
-                            audioModels.add(audioModel)
-                            Collections.sort(audioModels, Comparator { o1: AudioModel?, o2: AudioModel? -> o1!!.name.compareTo(o2!!.name) })
+                            audioInfos.add(audioModel)
+                            Collections.sort(audioInfos, Comparator { o1: AudioInfo?, o2: AudioInfo? -> o1!!.name.compareTo(o2!!.name) })
                         }
                         c.close()
                     }
                 }
                 // inserting null value , this null values will be replaced by adView when displayed on RecyclerView
                 var i = 5
-                while (i < audioModels.size) {
-                    audioModels.add(i, null)
+                while (i < audioInfos.size) {
+                    audioInfos.add(i, null)
                     i += 45
                 }
             }
-            return audioModels
+            return audioInfos
         }
 
     companion object {
-        private var audioModels: MutableList<AudioModel?> = ArrayList()
+        private var audioInfos: MutableList<AudioInfo?> = ArrayList()
     }
 
 }

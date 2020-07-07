@@ -34,10 +34,10 @@ public class GenericFragment extends Fragment {
 
         MyPagerAdapter adapter = new MyPagerAdapter(getChildFragmentManager());
 
-        adapter.addFragment(new FileFragment(),"Files");
-        adapter.addFragment(new AudioFragment(),"Music");
         adapter.addFragment(new PhotoFragment(),"Photos");
+        adapter.addFragment(new AudioFragment(),"Music");
         adapter.addFragment(new VideoFragment(),"Videos");
+        adapter.addFragment(new FileFragment(),"Files");
 
         viewPager.setAdapter(adapter);
 

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener;
 import com.vkpapps.thunder.ui.adapter.FileAdapter;
+import com.vkpapps.thunder.utils.StorageManager;
 
 import java.io.File;
 /***
@@ -39,7 +40,7 @@ public class FileFragment extends Fragment {
         if (getArguments() != null && getArguments().containsKey(FILE_ROOT)) {
             rootDir = getArguments().getString(FILE_ROOT);
         } else {
-            rootDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+            rootDir = new StorageManager(requireContext()).getDownloadDir().getAbsolutePath();
         }
     }
 

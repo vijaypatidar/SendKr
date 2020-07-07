@@ -11,8 +11,10 @@ public class FileRequest implements Serializable {
     public static final int DOWNLOAD_REQUEST = 13;
     public static final int UPLOAD_REQUEST_CONFIRM = 14;
     public static final int DOWNLOAD_REQUEST_CONFIRM = 15;
+
     public static final int FILE_TYPE_MUSIC = 16;
     public static final int FILE_TYPE_PROFILE_PIC = 17;
+    public static final int FILE_TYPE_APP = 18;
 
     private int action;
     private String fileName;

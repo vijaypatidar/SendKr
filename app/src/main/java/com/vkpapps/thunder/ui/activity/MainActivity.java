@@ -1,6 +1,7 @@
 package com.vkpapps.thunder.ui.activity;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements  OnNavigationVisi
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_app)
+                R.id.navigation_home, R.id.navigation_app,R.id.navigation_dashboard, R.id.navigation_files)
                 .build();
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);

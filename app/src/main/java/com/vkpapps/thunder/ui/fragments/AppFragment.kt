@@ -6,17 +6,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.aysnc.PrepareAppList
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.AppInfo
+import com.vkpapps.thunder.model.FileRequest
 import com.vkpapps.thunder.ui.adapter.AppAdapter
 import com.vkpapps.thunder.ui.dialog.LoadingDialogs
+import kotlinx.android.synthetic.main.fragment_app.*
 
 /***
  * @author VIJAY PATIDAR
@@ -37,11 +39,11 @@ class AppFragment : Fragment(), PrepareAppList.OnAppListPrepareListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val recyclerView = view.findViewById<RecyclerView>(R.id.appList)
+
         adapter = AppAdapter(appInfos)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.onFlingListener = object : OnFlingListener() {
+        appList.adapter = adapter
+        appList.layoutManager = LinearLayoutManager(requireContext())
+        appList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
                 onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
                 return false
@@ -51,6 +53,19 @@ class AppFragment : Fragment(), PrepareAppList.OnAppListPrepareListener {
         prepareAppList.execute()
         loadingDialog = LoadingDialogs(requireContext()).loadingDialog
         loadingDialog?.show()
+
+        btnSend.setOnClickListener {
+            val selected = ArrayList<FileRequest>()
+            appInfos.forEach {
+                if (it.isSelected){
+                    it.isSelected = false
+                    selected.add(FileRequest(FileRequest.DOWNLOAD_REQUEST,it.name,it.source,FileRequest.FILE_TYPE_APP))
+                }
+            }
+            adapter?.notifyDataSetChanged()
+            onFileRequestPrepareListener?.sendFiles(selected,FileRequest.FILE_TYPE_APP)
+            Toast.makeText(requireContext(),"${selected.size} apps added to send queue",Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onAppListPrepared(appInfos: List<AppInfo>) {

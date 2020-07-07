@@ -9,4 +9,5 @@
     <color name="gray">#607D8B</color>
     <color name="profile_frag_background">#009688</color>
     <color name="green">#00de7a</color>
+    <color name="unselected_menu_item">#BDBDBD</color>
 </resources>

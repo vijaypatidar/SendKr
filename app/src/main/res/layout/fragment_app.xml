@@ -4,10 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:cardCornerRadius="@dimen/top_corner_radius">
+    app:cardCornerRadius="@dimen/top_corner_radius"
+    tools:context=".ui.fragments.AppFragment">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/appList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.fragments.AppFragment" />
+        android:layout_height="match_parent"/>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/send"/>
 </androidx.cardview.widget.CardView>

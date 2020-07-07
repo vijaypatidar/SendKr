@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,13 +37,13 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder,final int position) {
-        AppHolder appHolder = (AppHolder) holder;
+    public void onBindViewHolder(@NonNull  RecyclerView.ViewHolder holder,int position) {
+        final AppHolder appHolder = (AppHolder) holder;
         final AppInfo appInfo = appInfos.get(position);
 
         appHolder.appTitle.setText(appInfo.getName());
         appHolder.appIcon.setImageDrawable(appInfo.getIcon());
-        appHolder.btnSelected.setSelected(appInfo.isSelected());
+        appHolder.btnSelected.setChecked(appInfo.isSelected());
 
         appHolder.itemView.setOnClickListener(v -> {
             StorageManager storageManager = new StorageManager(v.getContext());
@@ -50,8 +51,9 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     source -> Logger.d("==================================================done"));
         });
 
-        appHolder.btnSelected.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            appInfo.setSelected(isChecked);
+        appHolder.btnSelected.setOnClickListener((v) -> {
+            appInfo.setSelected(!appInfo.isSelected());
+            appHolder.btnSelected.setChecked(appInfo.isSelected());
         });
     }
 
@@ -63,7 +65,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     static class AppHolder extends RecyclerView.ViewHolder {
         TextView appTitle;
         AppCompatImageView appIcon;
-        CheckBox btnSelected;
+        RadioButton btnSelected;
 
         public AppHolder(@NonNull View itemView) {
             super(itemView);

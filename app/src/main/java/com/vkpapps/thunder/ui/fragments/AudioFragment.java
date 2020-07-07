@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener;
-import com.vkpapps.thunder.model.AudioModel;
+import com.vkpapps.thunder.model.AudioInfo;
 import com.vkpapps.thunder.ui.adapter.AudioAdapter;
 import com.vkpapps.thunder.utils.PermissionUtils;
 import com.vkpapps.thunder.utils.StorageManager;
@@ -44,7 +44,7 @@ public class AudioFragment extends Fragment implements AudioAdapter.OnAudioSelec
 
         if (PermissionUtils.checkStoragePermission(view.getContext())) {
             RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
-            List<AudioModel> allSong = storageManager.getAllAudioFromDevice();
+            List<AudioInfo> allSong = storageManager.getAllAudioFromDevice();
             AudioAdapter audioAdapter = new AudioAdapter(allSong, this, view.getContext());
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
@@ -65,12 +65,12 @@ public class AudioFragment extends Fragment implements AudioAdapter.OnAudioSelec
 
 
     @Override
-    public void onAudioSelected(AudioModel audioMode) {
+    public void onAudioSelected(AudioInfo audioMode) {
 
     }
 
     @Override
-    public void onAudioLongSelected(AudioModel audioModel) {
+    public void onAudioLongSelected(AudioInfo audioinfo) {
     }
 
 

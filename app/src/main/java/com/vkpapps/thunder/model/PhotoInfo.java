@@ -4,7 +4,7 @@ package com.vkpapps.thunder.model;
  */
 public class PhotoInfo {
     private String name,path;
-
+    private boolean selected;
     public PhotoInfo(String name, String path) {
         this.name = name;
         this.path = path;
@@ -12,6 +12,14 @@ public class PhotoInfo {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     public void setName(String name) {
