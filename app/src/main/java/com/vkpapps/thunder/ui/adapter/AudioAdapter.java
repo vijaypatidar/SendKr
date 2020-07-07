@@ -35,7 +35,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     private File imageRoot;
     private LayoutInflater inflater;
 
-    public AudioAdapter(List<AudioInfo> audioInfos, OnAudioSelectedListener onAudioSelectedListener,@NonNull Context context) {
+    public AudioAdapter(List<AudioInfo> audioInfos, @NonNull OnAudioSelectedListener onAudioSelectedListener, @NonNull Context context) {
         this.audioInfos = audioInfos;
         this.onAudioSelectedListener = onAudioSelectedListener;
         imageRoot = new StorageManager(context).getImageDir();
@@ -49,7 +49,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
         if (viewType == 1) {
             inflate = inflater.inflate(R.layout.audio_list_item, parent, false);
         } else {
-            inflate =inflater.inflate(R.layout.local_list_item_ad_view, parent, false);
+            inflate = inflater.inflate(R.layout.local_list_item_ad_view, parent, false);
         }
         return new AudioViewHolder(inflate);
     }
@@ -68,15 +68,14 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
         } else {
             holder.audioTitle.setText(audioinfo.getName());
             holder.btnSelect.setChecked(audioinfo.isSelected());
-
-            holder.itemView.setOnClickListener(v -> onAudioSelectedListener.onAudioSelected(audioinfo));
-            holder.itemView.setOnLongClickListener(v -> {
-                onAudioSelectedListener.onAudioLongSelected(audioinfo);
-                return true;
-            });
             holder.btnSelect.setOnClickListener((v) -> {
                 audioinfo.setSelected(!audioinfo.isSelected());
                 holder.btnSelect.setChecked(audioinfo.isSelected());
+                if (audioinfo.isSelected()) {
+                    onAudioSelectedListener.onAudioSelected(audioinfo);
+                } else {
+                    onAudioSelectedListener.onAudioDeselected(audioinfo);
+                }
             });
 
             ImageView audioIcon = holder.audioIcon;
@@ -109,13 +108,8 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
         return (audioInfos == null) ? 0 : audioInfos.size();
     }
 
-    public interface OnAudioSelectedListener {
-        void onAudioSelected(AudioInfo audioMode);
-
-        void onAudioLongSelected(AudioInfo audioinfo);
-    }
-
     static class AudioViewHolder extends RecyclerView.ViewHolder {
+
         TextView audioTitle;
         ImageView audioIcon;
         RadioButton btnSelect;
@@ -125,5 +119,11 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
             audioTitle = itemView.findViewById(R.id.audio_title);
             btnSelect = itemView.findViewById(R.id.btnSelect);
         }
+
+    }
+    public interface OnAudioSelectedListener {
+        void onAudioSelected(AudioInfo audioMode);
+
+        void onAudioDeselected(AudioInfo audioinfo);
     }
 }

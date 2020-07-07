@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,13 +24,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /***
  * @author VIJAY PATIDAR
  */
-public class PhotoFragment extends Fragment implements PreparePhotoList.OnPhotoListPrepareListener {
+public class PhotoFragment extends Fragment implements PreparePhotoList.OnPhotoListPrepareListener, PhotoAdapter.OnPhotoSelectListener {
     private OnNavigationVisibilityListener onNavigationVisibilityListener;
     private List<PhotoInfo> photoInfos = new ArrayList<>();
     private PhotoAdapter photoAdapter;
+    private AppCompatImageButton btnSend;
+    private int selectedCount = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,10 +45,11 @@ public class PhotoFragment extends Fragment implements PreparePhotoList.OnPhotoL
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        btnSend = view.findViewById(R.id.btnSend);
         RecyclerView recyclerView = view.findViewById(R.id.photoList);
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 3));
 
-        photoAdapter = new PhotoAdapter(photoInfos, view);
+        photoAdapter = new PhotoAdapter(photoInfos, this, view);
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setOnFlingListener(new RecyclerView.OnFlingListener() {
             @Override
@@ -79,5 +85,28 @@ public class PhotoFragment extends Fragment implements PreparePhotoList.OnPhotoL
     public void onDetach() {
         super.onDetach();
         onNavigationVisibilityListener = null;
+    }
+
+    private void hideShowSendButton() {
+        if (btnSend.getVisibility() == View.VISIBLE && selectedCount > 0) return;
+        if (selectedCount == 0) {
+            btnSend.setAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom));
+            btnSend.setVisibility(View.GONE);
+        } else {
+            btnSend.setAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom));
+            btnSend.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onPhotoSelected(@NonNull PhotoInfo photoInfo) {
+        selectedCount++;
+        hideShowSendButton();
+    }
+
+    @Override
+    public void onPhotoDeselected(@NonNull PhotoInfo photoInfo) {
+        selectedCount--;
+        hideShowSendButton();
     }
 }

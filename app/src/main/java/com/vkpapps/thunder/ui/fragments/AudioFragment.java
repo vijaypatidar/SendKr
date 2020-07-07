@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -29,8 +31,8 @@ import java.util.List;
 public class AudioFragment extends Fragment implements AudioAdapter.OnAudioSelectedListener {
 
     private OnNavigationVisibilityListener onNavigationVisibilityListener;
-    private StorageManager storageManager;
-
+    private int selectedCount = 0;
+    private AppCompatImageButton btnSend;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -40,10 +42,11 @@ public class AudioFragment extends Fragment implements AudioAdapter.OnAudioSelec
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        storageManager = new StorageManager(requireContext());
+        btnSend = view.findViewById(R.id.btnSend);
+        StorageManager storageManager = new StorageManager(requireContext());
 
         if (PermissionUtils.checkStoragePermission(view.getContext())) {
-            RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
+            RecyclerView recyclerView = view.findViewById(R.id.audioList);
             List<AudioInfo> allSong = storageManager.getAllAudioFromDevice();
             AudioAdapter audioAdapter = new AudioAdapter(allSong, this, view.getContext());
             recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -66,13 +69,15 @@ public class AudioFragment extends Fragment implements AudioAdapter.OnAudioSelec
 
     @Override
     public void onAudioSelected(AudioInfo audioMode) {
-
+        selectedCount++;
+        hideShowSendButton();
     }
 
     @Override
-    public void onAudioLongSelected(AudioInfo audioinfo) {
+    public void onAudioDeselected(AudioInfo audioinfo) {
+        selectedCount--;
+        hideShowSendButton();
     }
-
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -86,5 +91,15 @@ public class AudioFragment extends Fragment implements AudioAdapter.OnAudioSelec
     public void onDetach() {
         super.onDetach();
         onNavigationVisibilityListener = null;
+    }
+    private void hideShowSendButton() {
+        if (btnSend.getVisibility()== View.VISIBLE&&selectedCount>0)return;
+        if (selectedCount==0){
+            btnSend.setAnimation( AnimationUtils.loadAnimation(requireContext(),R.anim.slide_out_to_bottom));
+            btnSend.setVisibility( View.GONE);
+        }else{
+            btnSend.setAnimation(AnimationUtils.loadAnimation(requireContext(),R.anim.slide_in_from_bottom));
+            btnSend.setVisibility(  View.VISIBLE);
+        }
     }
 }

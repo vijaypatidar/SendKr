@@ -22,6 +22,17 @@
             android:src="@color/colorPrimary"
             tools:ignore="UnusedAttribute" />
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btnSelect"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:background="@color/white_alpha"
+            android:scaleType="center"
+            android:src="@drawable/ic_selected"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnFullscreen"
             android:layout_width="wrap_content"
@@ -32,12 +43,5 @@
             android:background="@null"
             android:src="@drawable/ic_fullscreen"
             android:tint="@color/white" />
-
-        <RadioButton
-            android:id="@+id/btnSelect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
-
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

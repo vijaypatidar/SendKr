@@ -5,10 +5,16 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     tools:context=".ui.activity.SplashActivity">
-    <ImageView
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:src="@mipmap/logo"
+        android:text="@string/app_name"
+        android:textSize="32sp"
+        android:textAllCaps="true"
+        android:gravity="center"
+        android:textAlignment="gravity"
+        android:textColor="@color/green"
+        android:textStyle="bold"
         tools:ignore="ContentDescription" />
 </RelativeLayout>

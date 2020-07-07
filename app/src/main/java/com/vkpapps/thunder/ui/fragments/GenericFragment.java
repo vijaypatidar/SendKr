@@ -37,7 +37,7 @@ public class GenericFragment extends Fragment {
         adapter.addFragment(new PhotoFragment(),"Photos");
         adapter.addFragment(new AudioFragment(),"Music");
         adapter.addFragment(new VideoFragment(),"Videos");
-        adapter.addFragment(new FileFragment(),"Files");
+//        adapter.addFragment(new FileFragment(),"Files");
 
         viewPager.setAdapter(adapter);
 
