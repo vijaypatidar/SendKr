@@ -11,8 +11,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.vkpapps.thunder.R;
+import com.vkpapps.thunder.room.liveViewModel.RequestViewModel;
+import com.vkpapps.thunder.ui.adapter.RequestAdapter;
+
 /***
  * @author VIJAY PATIDAR
  */
@@ -33,6 +40,20 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setHasOptionsMenu(true);
+        RecyclerView recyclerView = view.findViewById(R.id.requestList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        //adapter
+        RequestAdapter adapter = new RequestAdapter(requireContext());
+        recyclerView.setAdapter(adapter);
+
+        RequestViewModel viewModel = new ViewModelProvider(requireActivity()).get(RequestViewModel.class);
+        viewModel.getAllRequestInfo().observe(requireActivity(), requestInfos -> {
+            if (requestInfos != null) {
+                adapter.setRequestInfos(requestInfos);
+            }
+        });
     }
 
     @Override

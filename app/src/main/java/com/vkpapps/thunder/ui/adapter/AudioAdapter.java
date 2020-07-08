@@ -30,13 +30,12 @@ import java.util.List;
  * @author VIJAY PATIDAR
  */
 public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHolder> {
-    private List<AudioInfo> audioInfos;
+    private List<AudioInfo> audioInfos = null;
     private OnAudioSelectedListener onAudioSelectedListener;
     private File imageRoot;
     private LayoutInflater inflater;
 
-    public AudioAdapter(List<AudioInfo> audioInfos, @NonNull OnAudioSelectedListener onAudioSelectedListener, @NonNull Context context) {
-        this.audioInfos = audioInfos;
+    public AudioAdapter(@NonNull OnAudioSelectedListener onAudioSelectedListener, @NonNull Context context) {
         this.onAudioSelectedListener = onAudioSelectedListener;
         imageRoot = new StorageManager(context).getImageDir();
         inflater = LayoutInflater.from(context);
@@ -121,9 +120,15 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
         }
 
     }
+
     public interface OnAudioSelectedListener {
         void onAudioSelected(AudioInfo audioMode);
 
         void onAudioDeselected(AudioInfo audioinfo);
+    }
+
+    public void setAudioInfos(List<AudioInfo> audioInfos) {
+        this.audioInfos = audioInfos;
+        notifyDataSetChanged();
     }
 }

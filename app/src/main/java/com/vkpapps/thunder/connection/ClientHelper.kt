@@ -78,7 +78,6 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
         try {
             when (request.action) {
                 FileRequest.DOWNLOAD_REQUEST -> onFileRequestListener.onDownloadRequest(request.data, request.id, request.type)
-                FileRequest.UPLOAD_REQUEST -> onFileRequestListener.onUploadRequest(request.data, request.id, request.type)
                 FileRequest.DOWNLOAD_REQUEST_CONFIRM -> onFileRequestListener.onDownloadRequestAccepted(request.data, request.id, request.type)
                 FileRequest.UPLOAD_REQUEST_CONFIRM -> onFileRequestListener.onUploadRequestAccepted(request.data, request.id, request.type)
                 else -> Logger.d("handleFileControl: invalid req " + request.action)

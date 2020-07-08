@@ -3,9 +3,7 @@ package com.vkpapps.thunder.utils
 import android.app.Activity
 import android.content.Context
 import android.os.Environment
-import android.provider.MediaStore
 import com.vkpapps.thunder.model.AudioInfo
-import com.vkpapps.thunder.utils.PermissionUtils.checkStoragePermission
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -86,39 +84,8 @@ class StorageManager(private val context: Context) {
     }
 
     // inserting null value , this null values will be replaced by adView when displayed on RecyclerView
-    val allAudioFromDevice: List<AudioInfo?>
-        get() {
-            if (audioInfos.size == 0) {
-                if (checkStoragePermission(context)) {
-                    audioInfos = ArrayList()
-                    val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    val projection = arrayOf(MediaStore.Audio.AudioColumns.DATA, MediaStore.Audio.AudioColumns.TITLE)
-                    val c = context.contentResolver.query(uri, projection, null, null, null)
-                    if (c != null) {
-                        while (c.moveToNext()) {
-                            val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
-                            val name = c.getString(1).trim { it <= ' ' }
-                            val audioModel = AudioInfo()
-                            audioModel.name = name
-                            audioModel.path = path
-                            audioInfos.add(audioModel)
-                            Collections.sort(audioInfos, Comparator { o1: AudioInfo?, o2: AudioInfo? -> o1!!.name.compareTo(o2!!.name) })
-                        }
-                        c.close()
-                    }
-                }
-                // inserting null value , this null values will be replaced by adView when displayed on RecyclerView
-                var i = 5
-                while (i < audioInfos.size) {
-                    audioInfos.add(i, null)
-                    i += 45
-                }
-            }
-            return audioInfos
-        }
-
     companion object {
-        private var audioInfos: MutableList<AudioInfo?> = ArrayList()
+        private var audioInfos: MutableList<AudioInfo> = ArrayList()
     }
 
 }

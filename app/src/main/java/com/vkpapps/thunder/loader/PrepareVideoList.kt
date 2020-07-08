@@ -1,17 +1,16 @@
-package com.vkpapps.thunder.aysnc
+package com.vkpapps.thunder.loader
 
-import android.os.AsyncTask
 import android.provider.MediaStore
 import com.vkpapps.thunder.App
-import com.vkpapps.thunder.model.PhotoInfo
 import com.vkpapps.thunder.model.VideoInfo
+import com.vkpapps.thunder.utils.HashUtils
 
 /***
  * @author VIJAY PATIDAR
  */
-class PrepareVideoList(private val onVideoListPrepareListener: OnVideoListPrepareListener) : AsyncTask<Void?, Void?, List<VideoInfo>>() {
+class PrepareVideoList() {
 
-    override fun doInBackground(vararg params: Void?): List<VideoInfo> {
+    fun getList(): List<VideoInfo> {
         val videoInfos = ArrayList<VideoInfo>()
         val uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         val projection = arrayOf(MediaStore.Video.VideoColumns.DATA, MediaStore.Video.VideoColumns.TITLE)
@@ -22,6 +21,7 @@ class PrepareVideoList(private val onVideoListPrepareListener: OnVideoListPrepar
                 val name = c.getString(1).trim { it <= ' ' }
                 if (path != null) {
                     val videoInfo = VideoInfo(name, path)
+                    videoInfo.id = HashUtils.getHashValue(path.toByteArray())
                     videoInfos.add(videoInfo)
                 }
             }
@@ -30,14 +30,4 @@ class PrepareVideoList(private val onVideoListPrepareListener: OnVideoListPrepar
 
         return videoInfos
     }
-
-    override fun onPostExecute(videoInfos: List<VideoInfo>) {
-        super.onPostExecute(videoInfos)
-        onVideoListPrepareListener.onVideoListPrepared(videoInfos)
-    }
-
-    interface OnVideoListPrepareListener {
-        fun onVideoListPrepared(videoInfos: List<VideoInfo>)
-    }
-
 }

@@ -2,7 +2,6 @@ package com.vkpapps.thunder.ui.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,11 +60,12 @@ public class FileFragment extends Fragment {
         recyclerView.setOnFlingListener(new RecyclerView.OnFlingListener() {
             @Override
             public boolean onFling(int velocityX, int velocityY) {
-                if (onNavigationVisibilityListener!=null)
-                onNavigationVisibilityListener.onNavVisibilityChange(velocityY < 0);
+                if (onNavigationVisibilityListener != null)
+                    onNavigationVisibilityListener.onNavVisibilityChange(velocityY < 0);
                 return false;
             }
-        });   recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter.notifyDataSetChangedAndHideIfNull();
     }
 

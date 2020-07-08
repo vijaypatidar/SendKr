@@ -8,78 +8,79 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
-import com.vkpapps.thunder.loader.PrepareAppList
-import com.vkpapps.thunder.model.AppInfo
 import com.vkpapps.thunder.model.FileType
+import com.vkpapps.thunder.model.PhotoInfo
 import com.vkpapps.thunder.model.RawRequestInfo
-import com.vkpapps.thunder.ui.adapter.AppAdapter
-import kotlinx.android.synthetic.main.fragment_app.*
+import com.vkpapps.thunder.room.database.MyRoomDatabase
+import com.vkpapps.thunder.ui.adapter.PhotoAdapter
+import com.vkpapps.thunder.ui.adapter.PhotoAdapter.OnPhotoSelectListener
+import kotlinx.android.synthetic.main.fragment_photo.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 
 /***
  * @author VIJAY PATIDAR
  */
-class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
-
-    private val appInfos = ArrayList<AppInfo>()
-    private var adapter: AppAdapter? = null
+class PhotoFragment : Fragment(), OnPhotoSelectListener {
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
+    private val photoInfos: MutableList<PhotoInfo> = ArrayList()
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
+    private var photoAdapter: PhotoAdapter? = null
     private var selectedCount = 0
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_app, container, false)
+        return inflater.inflate(R.layout.fragment_photo, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = AppAdapter(appInfos, this)
-        appList.adapter = adapter
-        appList.layoutManager = LinearLayoutManager(requireContext())
-        appList.onFlingListener = object : OnFlingListener() {
+        photoList.layoutManager = GridLayoutManager(requireContext(), 3)
+        photoAdapter = PhotoAdapter(photoInfos, this, view)
+        photoList.adapter = photoAdapter
+        photoList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
                 onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
                 return false
             }
         }
-        CoroutineScope(IO).launch {
-            val list = PrepareAppList().getList()
-            appInfos.addAll(list)
-            withContext(Main) {
-                adapter?.notifyDataSetChanged()
-            }
-        }
+        photoAdapter?.notifyDataSetChangedAndHideIfNull()
+
+        MyRoomDatabase.getDatabase(requireContext()).photoDao()
+                .getLivePhotoInfos().observe(requireActivity(), androidx.lifecycle.Observer {
+                    photoInfos.clear()
+                    photoInfos.addAll(it)
+                    photoAdapter?.notifyDataSetChangedAndHideIfNull()
+                })
 
         btnSend.setOnClickListener {
+
             if (selectedCount == 0) return@setOnClickListener
-            CoroutineScope(IO).launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
-                appInfos.forEach {
+                photoInfos.forEach {
                     if (it.isSelected) {
                         it.isSelected = false
                         selected.add(RawRequestInfo(
-                                it.name, it.source, FileType.FILE_TYPE_APP
+                                it.name, it.path, FileType.FILE_TYPE_PHOTO
                         ))
                     }
                 }
                 selectedCount = 0
-                withContext(Main) {
-                    adapter?.notifyDataSetChanged()
+                withContext(Dispatchers.Main) {
+                    photoAdapter?.notifyDataSetChanged()
                     hideShowSendButton()
-                    Toast.makeText(requireContext(), "${selected.size} apps added to send queue", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "${selected.size} images added to send queue", Toast.LENGTH_SHORT).show()
                 }
-                onFileRequestPrepareListener?.sendFiles(selected, FileType.FILE_TYPE_APP)
+                onFileRequestPrepareListener?.sendFiles(selected, FileType.FILE_TYPE_PHOTO)
             }
         }
     }
@@ -98,17 +99,6 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
     override fun onDetach() {
         super.onDetach()
         onNavigationVisibilityListener = null
-        onFileRequestPrepareListener = null
-    }
-
-    override fun onAppSelected(appInfo: AppInfo) {
-        selectedCount++
-        hideShowSendButton()
-    }
-
-    override fun onAppDeselected(appInfo: AppInfo) {
-        selectedCount--
-        hideShowSendButton()
     }
 
     private fun hideShowSendButton() {
@@ -122,5 +112,15 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
             btnSend.visibility = View.VISIBLE
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
         }
+    }
+
+    override fun onPhotoSelected(photoInfo: PhotoInfo) {
+        selectedCount++
+        hideShowSendButton()
+    }
+
+    override fun onPhotoDeselected(photoInfo: PhotoInfo) {
+        selectedCount--
+        hideShowSendButton()
     }
 }
