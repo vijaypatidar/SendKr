@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
@@ -16,7 +17,7 @@ import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.model.PhotoInfo
 import com.vkpapps.thunder.model.RawRequestInfo
-import com.vkpapps.thunder.room.database.MyRoomDatabase
+import com.vkpapps.thunder.room.liveViewModel.PhotoViewModel
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter.OnPhotoSelectListener
 import kotlinx.android.synthetic.main.fragment_photo.*
@@ -52,14 +53,28 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                 return false
             }
         }
-        photoAdapter?.notifyDataSetChangedAndHideIfNull()
 
-        MyRoomDatabase.getDatabase(requireContext()).photoDao()
-                .getLivePhotoInfos().observe(requireActivity(), androidx.lifecycle.Observer {
-                    photoInfos.clear()
-                    photoInfos.addAll(it)
-                    photoAdapter?.notifyDataSetChangedAndHideIfNull()
-                })
+        val photoViewModel = ViewModelProvider(requireActivity()).get(PhotoViewModel::class.java)
+        photoViewModel.photoInfos.observe(requireActivity(), androidx.lifecycle.Observer {
+            if (it.isNotEmpty()) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    it.forEach { item ->
+                        if (item.isSelected) {
+                            selectedCount++
+                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        hideShowSendButton()
+                    }
+                }
+                photoInfos.clear()
+                photoInfos.addAll(it)
+                photoAdapter?.notifyDataSetChanged()
+                emptyPhoto.visibility = View.GONE
+            } else {
+                emptyPhoto.visibility = View.VISIBLE
+            }
+        })
 
         btnSend.setOnClickListener {
 
@@ -103,14 +118,14 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
 
     private fun hideShowSendButton() {
         if (btnSend.visibility == View.VISIBLE && selectedCount > 0) return
-        if (selectedCount == 0) {
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
-            btnSend.visibility = View.GONE
-            onNavigationVisibilityListener?.onNavVisibilityChange(true)
-        } else {
+        if (selectedCount > 0) {
             btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
             btnSend.visibility = View.VISIBLE
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
+        } else {
+            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
+            btnSend.visibility = View.GONE
+            onNavigationVisibilityListener?.onNavVisibilityChange(true)
         }
     }
 

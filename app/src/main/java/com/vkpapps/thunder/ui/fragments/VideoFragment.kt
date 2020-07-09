@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
@@ -17,12 +18,14 @@ import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.VideoInfo
-import com.vkpapps.thunder.room.database.MyRoomDatabase
+import com.vkpapps.thunder.room.liveViewModel.VideoViewModel
 import com.vkpapps.thunder.ui.adapter.VideoAdapter
 import com.vkpapps.thunder.ui.adapter.VideoAdapter.OnVideoSelectListener
 import kotlinx.android.synthetic.main.fragment_video.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -55,14 +58,28 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
             }
         }
         recyclerView.adapter = adapter
-        adapter?.notifyDataSetChangedAndHideIfNull()
 
-        MyRoomDatabase.getDatabase(requireContext()).videoDao()
-                .getLiveVideoInfos().observe(requireActivity(), androidx.lifecycle.Observer {
-                    videoInfos.clear()
-                    videoInfos.addAll(it)
-                    adapter?.notifyDataSetChangedAndHideIfNull()
-                })
+        val videoViewModel = ViewModelProvider(requireActivity()).get(VideoViewModel::class.java)
+        videoViewModel.videoInfos.observe(requireActivity(), androidx.lifecycle.Observer { it ->
+            if (it.isNotEmpty()) {
+                CoroutineScope(IO).launch {
+                    it.forEach { item ->
+                        if (item.isSelected) {
+                            selectedCount++
+                        }
+                    }
+                    withContext(Main) {
+                        hideShowSendButton()
+                    }
+                }
+                videoInfos.clear()
+                videoInfos.addAll(it)
+                adapter?.notifyDataSetChanged()
+                emptyVideo.visibility = View.GONE
+            } else {
+                emptyVideo.visibility = View.VISIBLE
+            }
+        })
 
         btnSend.setOnClickListener {
 
@@ -116,14 +133,14 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
 
     private fun hideShowSendButton() {
         if (btnSend.visibility == View.VISIBLE && selectedCount > 0) return
-        if (selectedCount == 0) {
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
-            btnSend.visibility = View.GONE
-            onNavigationVisibilityListener?.onNavVisibilityChange(true)
-        } else {
+        if (selectedCount > 0) {
             btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
             btnSend.visibility = View.VISIBLE
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
+        } else {
+            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
+            btnSend.visibility = View.GONE
+            onNavigationVisibilityListener?.onNavVisibilityChange(true)
         }
     }
 }

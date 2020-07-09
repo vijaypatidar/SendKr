@@ -50,4 +50,10 @@ public class GenericFragment extends Fragment {
 
 
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+    }
 }

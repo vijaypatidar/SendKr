@@ -7,8 +7,8 @@ import com.vkpapps.thunder.model.AppInfo
 /***
  * @author VIJAY PATIDAR
  */
-class PrepareAppList {
-    fun getList(): List<AppInfo> {
+object PrepareAppList {
+    val appList: List<AppInfo> by lazy {
         val appInfos = ArrayList<AppInfo>()
         val packageManager = App.context.packageManager
         val installedApplications = packageManager.getInstalledPackages(0)
@@ -19,6 +19,6 @@ class PrepareAppList {
             }
         }
         appInfos.sortBy { appInfo -> appInfo.name }
-        return appInfos
+        appInfos
     }
 }

@@ -54,7 +54,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
             }
         }
         CoroutineScope(IO).launch {
-            val list = PrepareAppList().getList()
+            val list = PrepareAppList.appList
             appInfos.addAll(list)
             withContext(Main) {
                 adapter?.notifyDataSetChanged()
@@ -113,14 +113,14 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
 
     private fun hideShowSendButton() {
         if (btnSend.visibility == View.VISIBLE && selectedCount > 0) return
-        if (selectedCount == 0) {
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
-            btnSend.visibility = View.GONE
-            onNavigationVisibilityListener?.onNavVisibilityChange(true)
-        } else {
+        if (selectedCount > 0) {
             btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
             btnSend.visibility = View.VISIBLE
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
+        } else {
+            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
+            btnSend.visibility = View.GONE
+            onNavigationVisibilityListener?.onNavVisibilityChange(true)
         }
     }
 }

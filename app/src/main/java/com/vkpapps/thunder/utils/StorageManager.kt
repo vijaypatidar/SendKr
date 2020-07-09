@@ -22,14 +22,16 @@ class StorageManager(private val context: Context) {
      */
     val imageDir: File
         get() = context.getDir("images", Context.MODE_PRIVATE)
+    val thumbnails: File
+        get() = context.getDir("thumbnails", Context.MODE_PRIVATE)
 
     val songDir: File
         get() = context.getDir("songs", Context.MODE_PRIVATE)
 
-     val downloadDir: File
-        get(){
+    val downloadDir: File
+        get() {
             val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "Thunder")
-            if (!file.exists())file.mkdirs()
+            if (!file.exists()) file.mkdirs()
             return file
         }
 

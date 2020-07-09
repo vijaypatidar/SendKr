@@ -1,9 +1,5 @@
 package com.vkpapps.thunder.ui.adapter;
 
-import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
-import android.os.CancellationSignal;
-import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.PhotoInfo;
+import com.vkpapps.thunder.utils.MyThumbnailUtils;
+import com.vkpapps.thunder.utils.StorageManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -29,12 +26,16 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
 
     private List<PhotoInfo> photoInfos;
     private OnPhotoSelectListener onPhotoSelectListener;
+    private MyThumbnailUtils myThumbnailUtils = MyThumbnailUtils.INSTANCE;
+    private File thumbnails;
+
     private View view;
 
     public PhotoAdapter(List<PhotoInfo> photoInfos, @NonNull OnPhotoSelectListener onPhotoSelectListener, View view) {
         this.photoInfos = photoInfos;
         this.onPhotoSelectListener = onPhotoSelectListener;
         this.view = view;
+        this.thumbnails = new StorageManager(view.getContext()).getThumbnails();
     }
 
     @NonNull
@@ -48,17 +49,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         final PhotoInfo photoInfo = photoInfos.get(position);
-        final File file = new File(photoInfo.getPath());
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            try {
-                Bitmap thumbnail = ThumbnailUtils.createImageThumbnail(file, new Size(512, 512), new CancellationSignal());
-                holder.picture.setImageBitmap(thumbnail);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else
-            Picasso.get().load(file).into(holder.picture);
+        final File file = new File(thumbnails, photoInfo.getId());
 
         holder.btnSelected.setVisibility(photoInfo.isSelected() ? View.VISIBLE : View.GONE);
         holder.itemView.setOnClickListener(v -> {
@@ -70,6 +61,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
                 onPhotoSelectListener.onPhotoDeselected(photoInfo);
             }
         });
+
+        myThumbnailUtils.loadPhotoThumbnail(file, photoInfo.getPath());
+        Picasso.get().load(file).into(holder.picture);
+
         holder.btnFullscreen.setOnClickListener(v -> Toast.makeText(v.getContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
 
     }
@@ -89,15 +84,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
             picture = itemView.findViewById(R.id.picture);
             btnSelected = itemView.findViewById(R.id.btnSelect);
             btnFullscreen = itemView.findViewById(R.id.btnFullscreen);
-        }
-    }
-
-    public void notifyDataSetChangedAndHideIfNull() {
-        if (photoInfos == null || photoInfos.size() == 0) {
-            view.findViewById(R.id.emptyPhoto).setVisibility(View.VISIBLE);
-        } else {
-            view.findViewById(R.id.emptyPhoto).setVisibility(View.GONE);
-            notifyDataSetChanged();
         }
     }
 

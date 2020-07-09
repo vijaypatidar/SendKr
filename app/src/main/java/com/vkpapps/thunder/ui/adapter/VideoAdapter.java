@@ -1,9 +1,5 @@
 package com.vkpapps.thunder.ui.adapter;
 
-import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
-import android.os.CancellationSignal;
-import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +10,13 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Picasso;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.VideoInfo;
+import com.vkpapps.thunder.utils.MyThumbnailUtils;
+import com.vkpapps.thunder.utils.StorageManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -27,12 +25,13 @@ import java.util.List;
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
 
     private List<VideoInfo> videoInfos;
-    private View view;
     private OnVideoSelectListener onVideoSelectListener;
+    private MyThumbnailUtils myThumbnailUtils = MyThumbnailUtils.INSTANCE;
+    private File thumbnails;
 
     public VideoAdapter(List<VideoInfo> videoInfos, View view, @NonNull OnVideoSelectListener onVideoSelectListener) {
         this.videoInfos = videoInfos;
-        this.view = view;
+        this.thumbnails = new StorageManager(view.getContext()).getThumbnails();
         this.onVideoSelectListener = onVideoSelectListener;
     }
 
@@ -47,7 +46,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
     @Override
     public void onBindViewHolder(@NonNull final MyHolder holder, final int position) {
         final VideoInfo videoInfo = videoInfos.get(position);
-        final File file = new File(videoInfo.getPath());
+
+        final File file = new File(thumbnails, videoInfo.getId());
 
         holder.btnSelected.setVisibility(videoInfo.isSelected() ? View.VISIBLE : View.GONE);
         holder.itemView.setOnClickListener(v -> {
@@ -59,16 +59,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
                 onVideoSelectListener.onVideoDeselected(videoInfo);
             }
         });
-        if (file.exists()) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                try {
-                    Bitmap videoThumbnail = ThumbnailUtils.createVideoThumbnail(file, new Size(250, 250), new CancellationSignal());
-                    holder.picture.setImageBitmap(videoThumbnail);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        myThumbnailUtils.loadVideoThumbnail(file, videoInfo.getPath());
+        Picasso.get().load(file).into(holder.picture);
         holder.btnFullscreen.setOnClickListener(v -> Toast.makeText(v.getContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
     }
 
@@ -90,14 +82,6 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
         }
     }
 
-    public void notifyDataSetChangedAndHideIfNull() {
-        if (videoInfos == null || videoInfos.size() == 0) {
-            view.findViewById(R.id.emptyVideo).setVisibility(View.VISIBLE);
-        } else {
-            view.findViewById(R.id.emptyVideo).setVisibility(View.GONE);
-            notifyDataSetChanged();
-        }
-    }
 
     public interface OnVideoSelectListener {
         void onVideoSelected(@NonNull VideoInfo videoInfo);

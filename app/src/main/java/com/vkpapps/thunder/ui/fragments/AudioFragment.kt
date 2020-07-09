@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,7 +20,7 @@ import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.model.RawRequestInfo
-import com.vkpapps.thunder.room.database.MyRoomDatabase
+import com.vkpapps.thunder.room.liveViewModel.AudioViewModel
 import com.vkpapps.thunder.ui.adapter.AudioAdapter
 import com.vkpapps.thunder.ui.adapter.AudioAdapter.OnAudioSelectedListener
 import com.vkpapps.thunder.utils.PermissionUtils.askStoragePermission
@@ -62,9 +62,19 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
             }
 
             //load music
-            val livePhotoInfos = MyRoomDatabase.getDatabase(requireContext()).audioDao().getLiveAudioInfos();
-            livePhotoInfos.observe(requireActivity(), Observer {
+            val audioViewModel = ViewModelProvider(requireActivity()).get(AudioViewModel::class.java)
+            audioViewModel.audioInfos.observe(requireActivity(), androidx.lifecycle.Observer {
                 if (it.isNotEmpty()) {
+                    CoroutineScope(IO).launch {
+                        it.forEach { item ->
+                            if (item.isSelected) {
+                                selectedCount++
+                            }
+                        }
+                        withContext(Dispatchers.Main) {
+                            hideShowSendButton()
+                        }
+                    }
                     allSong = it
                     audioAdapter.setAudioInfos(allSong)
                     emptyMusic.visibility = View.GONE

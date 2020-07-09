@@ -1,10 +1,6 @@
 package com.vkpapps.thunder.ui.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +16,10 @@ import com.squareup.picasso.Picasso;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.AudioInfo;
 import com.vkpapps.thunder.utils.AdsUtils;
+import com.vkpapps.thunder.utils.MyThumbnailUtils;
 import com.vkpapps.thunder.utils.StorageManager;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.List;
 
 /**
@@ -32,12 +28,13 @@ import java.util.List;
 public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHolder> {
     private List<AudioInfo> audioInfos = null;
     private OnAudioSelectedListener onAudioSelectedListener;
-    private File imageRoot;
+    private File thumbnails;
     private LayoutInflater inflater;
+    private MyThumbnailUtils myThumbnailUtils = MyThumbnailUtils.INSTANCE;
 
     public AudioAdapter(@NonNull OnAudioSelectedListener onAudioSelectedListener, @NonNull Context context) {
         this.onAudioSelectedListener = onAudioSelectedListener;
-        imageRoot = new StorageManager(context).getImageDir();
+        thumbnails = new StorageManager(context).getThumbnails();
         inflater = LayoutInflater.from(context);
     }
 
@@ -78,26 +75,10 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
             });
 
             ImageView audioIcon = holder.audioIcon;
-            File file = new File(imageRoot, audioinfo.getName().trim());
-            if (!file.exists()) {
-                try {
-                    android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                    mmr.setDataSource(audioinfo.getPath());
-                    byte[] data = mmr.getEmbeddedPicture();
-                    // convert the byte array to a bitmap
-                    if (data != null) {
-                        //destination for saving file
-                        FileOutputStream fos = new FileOutputStream(file);
-                        // decoding byte array to a bitmap
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            if (file.exists())
-                Picasso.get().load(Uri.fromFile(file)).into(audioIcon);
+            File file = new File(thumbnails, audioinfo.getId());
+            //prepare thumbnails if not in cache
+            myThumbnailUtils.loadAudioThumbnail(file, audioinfo.getPath());
+            Picasso.get().load(file).into(audioIcon);
             audioIcon.setAdjustViewBounds(true);
         }
     }
