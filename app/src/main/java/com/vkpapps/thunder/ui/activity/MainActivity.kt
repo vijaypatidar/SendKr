@@ -47,7 +47,9 @@ import com.vkpapps.thunder.utils.UpdateManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -64,10 +66,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private lateinit var clientHelper: ClientHelper
     private var isHost = false
     private var user = App.user
-    private var requestReceiver: FileRequestReceiver? = null
     private lateinit var navController: NavController
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
     private var database = MyRoomDatabase.getDatabase(this)
+    private val requestViewModel: RequestViewModel by lazy {
+        ViewModelProvider(this).get(RequestViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,34 +157,63 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         navView.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
-    override fun onDownloadRequest(name: String, id: String, type: Int) {
-
+    override fun onDownloadRequest(rid: String) {
+        CoroutineScope(IO).launch {
+            val requestInfo = database.requestDao().getRequestInfo(rid)
+            withContext(Main) {
+                FileService.startActionReceive(this@MainActivity,
+                        requestInfo.name,
+                        rid,
+                        requestInfo.cid,
+                        requestInfo.type,
+                        isHost
+                )
+            }
+        }
     }
 
-    override fun onUploadRequestAccepted(name: String, id: String, type: Int) {
-
+    override fun onUploadRequest(rid: String) {
+        CoroutineScope(IO).launch {
+            val requestInfo = database.requestDao().getRequestInfo(rid)
+            withContext(Main) {
+                FileService.startActionSend(this@MainActivity,
+                        rid,
+                        requestInfo.source,
+                        requestInfo.cid,
+                        isHost
+                )
+            }
+        }
     }
 
-    override fun onUploadRequest(name: String, id: String, type: Int) {
 
-    }
-
-    override fun onDownloadRequestAccepted(name: String, id: String, type: Int) {
-
+    override fun onNewRequestInfo(obj: RequestInfo) {
+        val viewModel = ViewModelProvider(this).get(RequestViewModel::class.java)
+        if (isHost) {
+            viewModel.insert(obj)
+        } else {
+            viewModel.insert(obj)
+        }
     }
 
     override fun onRequestFailed(rid: String) {
-        d("onRequestFailed: $rid")
         updateStatus(rid, StatusType.STATUS_FAILED)
     }
 
     override fun onRequestAccepted(rid: String, cid: String) {
-        d("onRequestAccepted: $rid  $cid")
-
+        if (isHost) {
+            serverHelper.clientHelpers.forEach {
+                if (it.user.userId == cid) {
+                    it.write(
+                            FileRequest(FileRequest.DOWNLOAD_REQUEST_CONFIRM, rid)
+                    )
+                }
+            }
+        }
+        updateStatus(rid, StatusType.STATUS_ONGOING)
     }
 
     override fun onRequestSuccess(rid: String) {
-        d("onRequestSuccess: $rid")
         updateStatus(rid, StatusType.STATUS_COMPLETED)
     }
 
@@ -307,32 +340,36 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun sendFiles(requests: List<RawRequestInfo>, type: Int) {
         val viewModel = ViewModelProvider(this).get(RequestViewModel::class.java)
-        val requestInfos: MutableList<RequestInfo> = ArrayList()
         for (rawRequestInfo in requests) {
             val requestInfo = RequestInfo()
-            requestInfo.rid = getRandomId()
-            requestInfo.cid = user.userId
             requestInfo.name = rawRequestInfo.name
             requestInfo.source = rawRequestInfo.source
             requestInfo.type = type
-            requestInfo.requestType = FileRequest.DOWNLOAD_REQUEST
             if (isHost) {
                 for (clientHelper in serverHelper.clientHelpers) {
+                    val rid = getRandomId()
+                    val clone = requestInfo.clone(rid, clientHelper.user.userId)
+                    clientHelper.write(clone)
+                    //preparing intent for service
+                    viewModel.insert(clone)
+                    FileService.startActionSend(
+                            this,
+                            clone.rid,
+                            clone.source,
+                            clone.cid,
+                            true)
                 }
             } else {
+                requestInfo.rid = getRandomId()
+                requestInfo.cid = user.userId
                 send(requestInfo)
+                viewModel.insert(requestInfo)
             }
-            requestInfos.add(requestInfo)
-            //for client
         }
-        viewModel.insertAll(requestInfos)
     }
 
     private fun updateStatus(rid: String, status: Int) {
-        CoroutineScope(IO).launch {
-            val requestInfo = database.requestDao().getRequestInfo(rid)
-            requestInfo.status = status
-            database.requestDao().insert(requestInfo)
-        }
+        requestViewModel.updateStatus(rid, status)
     }
 }
+

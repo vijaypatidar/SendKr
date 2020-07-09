@@ -16,6 +16,6 @@ object HashUtils {
     }
 
     fun getRandomId(): String {
-        return getHashValue(Random.nextBytes(20))
+        return getHashValue(Random.nextBytes(30))
     }
 }

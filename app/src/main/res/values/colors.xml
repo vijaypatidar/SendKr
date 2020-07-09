@@ -11,4 +11,5 @@
     <color name="green">#00de7a</color>
     <color name="unselected_menu_item">#BDBDBD</color>
     <color name="white_alpha">#80FFFFFF</color>
+    <color name="red">#FF1100</color>
 </resources>

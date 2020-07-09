@@ -14,7 +14,7 @@ class VideoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: VideoRepository = VideoRepository(MyRoomDatabase.getDatabase(application).videoDao())
 
-    public val videoInfos: LiveData<List<VideoInfo>>
+    val videoInfos: LiveData<List<VideoInfo>>
 
     init {
         videoInfos = repository.allVideoInfo

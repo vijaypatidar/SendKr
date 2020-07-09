@@ -10,8 +10,8 @@ class RequestInfo : Serializable {
     @PrimaryKey
     var rid = ""
     lateinit var cid: String
-    var name: String? = null
-    var source: String? = null
+    lateinit var name: String
+    lateinit var source: String
     var type = 0
     var status = 0
     var requestType = 0
@@ -19,7 +19,7 @@ class RequestInfo : Serializable {
     constructor()
 
     @Ignore
-    constructor(rid: String, cid: String, name: String?, source: String?, type: Int, requestType: Int) {
+    constructor(rid: String, cid: String, name: String, source: String, type: Int, requestType: Int) {
         this.rid = rid
         this.cid = cid
         this.name = name
@@ -29,4 +29,7 @@ class RequestInfo : Serializable {
         this.requestType = requestType
     }
 
+    fun clone(rid: String, cid: String): RequestInfo {
+        return RequestInfo(rid, cid, name, source, type, requestType)
+    }
 }

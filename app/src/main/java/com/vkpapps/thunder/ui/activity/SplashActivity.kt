@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.loader.PrepareDb
+import com.vkpapps.thunder.utils.PermissionUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -19,12 +20,17 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        CoroutineScope(IO).launch {
-            PrepareDb().prepareAll()
-            withContext(Main) {
-                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-                finish()
+        if (PermissionUtils.checkStoragePermission(this)) {
+            CoroutineScope(IO).launch {
+                PrepareDb().prepareAll()
+                withContext(Main) {
+                    startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+                    finish()
+                }
             }
+        } else {
+            startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+            finish()
         }
     }
 }

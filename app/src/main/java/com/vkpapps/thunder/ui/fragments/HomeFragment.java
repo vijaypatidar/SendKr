@@ -1,10 +1,10 @@
 package com.vkpapps.thunder.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vkpapps.thunder.R;
+import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener;
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel;
 import com.vkpapps.thunder.ui.adapter.RequestAdapter;
 
@@ -25,6 +26,7 @@ import com.vkpapps.thunder.ui.adapter.RequestAdapter;
  */
 public class HomeFragment extends Fragment {
 
+    private OnNavigationVisibilityListener onNavigationVisibilityListener;
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -43,7 +45,15 @@ public class HomeFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.requestList);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-
+        recyclerView.setOnFlingListener(new RecyclerView.OnFlingListener() {
+            @Override
+            public boolean onFling(int velocityX, int velocityY) {
+                if (onNavigationVisibilityListener != null) {
+                    onNavigationVisibilityListener.onNavVisibilityChange(velocityY < 0);
+                }
+                return false;
+            }
+        });
         //adapter
         RequestAdapter adapter = new RequestAdapter(requireContext());
         recyclerView.setAdapter(adapter);
@@ -63,8 +73,16 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public void onDetach() {
+        super.onDetach();
+        onNavigationVisibilityListener = null;
+    }
 
-        return super.onOptionsItemSelected(item);
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnNavigationVisibilityListener) {
+            onNavigationVisibilityListener = (OnNavigationVisibilityListener) context;
+        }
     }
 }

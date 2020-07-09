@@ -14,10 +14,6 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
 
     private val repository: RequestRepository
 
-    // Using LiveData and caching what getAlphabetizedWords returns has several benefits:
-    // - We can put an observer on the data (instead of polling for changes) and only update the
-    //   the UI when the data actually changes.
-    // - Repository is completely separated from the UI through the ViewModel.
     val allRequestInfo: LiveData<List<RequestInfo>>
 
     init {
@@ -35,5 +31,9 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
 
     fun insertAll(requestInfos: List<RequestInfo>) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertAll(requestInfos)
+    }
+
+    fun updateStatus(rid: String, status: Int) = viewModelScope.launch(Dispatchers.IO) {
+        repository.updateStatus(rid, status)
     }
 }

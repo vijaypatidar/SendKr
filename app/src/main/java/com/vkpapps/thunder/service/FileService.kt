@@ -106,7 +106,7 @@ class FileService : IntentService("FileService") {
     }
 
     private fun onSuccess(rid: String) {
-        val intent = Intent(STATUS_FAILED)
+        val intent = Intent(STATUS_SUCCESS)
         intent.putExtra(PARAM_RID, rid)
         localBroadcastManager.sendBroadcast(intent)
     }

@@ -16,7 +16,7 @@ interface RequestDao {
     @Query("SELECT * from requestinfo where rid = :rid")
     fun getRequestInfo(rid: String): RequestInfo
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(requestInfo: RequestInfo)
 
     @Query("DELETE FROM requestinfo")
@@ -25,6 +25,9 @@ interface RequestDao {
     @Query("SELECT * from requestinfo")
     fun getLiveRequestInfos(): LiveData<List<RequestInfo>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(requestInfos: List<RequestInfo>)
+
+    @Query("UPDATE RequestInfo set status = :status where rid = :rid")
+    suspend fun updateStatus(rid: String, status: Int)
 }

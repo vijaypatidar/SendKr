@@ -48,10 +48,8 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.MyHolder> 
         final User user = clientHelper.getUser();
         holder.userName.setText(user.getName());
         File file = new File(profiles, user.getUserId());
-        if (file.exists()) {
-            Picasso.get().load(file).into(holder.profilePic);
-        }
         holder.btnDisconnect.setOnClickListener(v -> clientHelper.shutDown());
+        Picasso.get().load(file).into(holder.profilePic);
     }
 
     @Override

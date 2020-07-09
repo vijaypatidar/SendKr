@@ -6,6 +6,7 @@ import com.vkpapps.thunder.interfaces.OnClientConnectionStateListener
 import com.vkpapps.thunder.interfaces.OnFileRequestListener
 import com.vkpapps.thunder.interfaces.OnObjectReceiveListener
 import com.vkpapps.thunder.model.FileRequest
+import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.User
 import java.io.IOException
 import java.io.ObjectInputStream
@@ -18,6 +19,7 @@ import java.net.Socket
 class ClientHelper(private val socket: Socket, private val onFileRequestListener: OnFileRequestListener, var user: User, private val onClientConnectionStateListener: OnClientConnectionStateListener?) : Thread() {
     private var outputStream: ObjectOutputStream? = null
     private var onObjectReceiveListener: OnObjectReceiveListener? = null
+
     override fun run() {
         val bundle = Bundle()
         bundle.putString("ID", user.userId)
@@ -44,6 +46,9 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
                             if (obj.userId == user.userId) {
                                 user.name = obj.name
                             }
+                        } else if (obj is RequestInfo) {
+                            // update user information
+                            onFileRequestListener.onNewRequestInfo(obj)
                         } else {
                             Logger.e("invalid object received $obj")
                         }
@@ -62,14 +67,18 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
         // notify client leaved or disconnected
         onClientConnectionStateListener?.onClientDisconnected(this)
     }
- 
+
     fun write(command: Any) {
         Thread(Runnable {
-            try {
-                outputStream?.writeObject(command)
-                outputStream?.flush()
-            } catch (e: IOException) {
-                e.printStackTrace()
+            outputStream?.let {
+                synchronized(it) {
+                    try {
+                        outputStream?.writeObject(command)
+                        outputStream?.flush()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
             }
         }).start()
     }
@@ -77,9 +86,8 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
     private fun handleFileControl(request: FileRequest) {
         try {
             when (request.action) {
-                FileRequest.DOWNLOAD_REQUEST -> onFileRequestListener.onDownloadRequest(request.data, request.id, request.type)
-                FileRequest.DOWNLOAD_REQUEST_CONFIRM -> onFileRequestListener.onDownloadRequestAccepted(request.data, request.id, request.type)
-                FileRequest.UPLOAD_REQUEST_CONFIRM -> onFileRequestListener.onUploadRequestAccepted(request.data, request.id, request.type)
+                FileRequest.DOWNLOAD_REQUEST_CONFIRM -> onFileRequestListener.onDownloadRequest(request.rid)
+                FileRequest.UPLOAD_REQUEST_CONFIRM -> onFileRequestListener.onUploadRequest(request.rid)
                 else -> Logger.d("handleFileControl: invalid req " + request.action)
             }
         } catch (e: NullPointerException) {

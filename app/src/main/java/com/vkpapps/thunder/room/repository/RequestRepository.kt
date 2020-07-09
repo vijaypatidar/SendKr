@@ -17,4 +17,8 @@ class RequestRepository(private val requestDao: RequestDao) {
     fun insertAll(requestInfos: List<RequestInfo>) {
         requestDao.insertAll(requestInfos)
     }
+
+    suspend fun updateStatus(rid: String, status: Int) {
+        requestDao.updateStatus(rid, status);
+    }
 }
