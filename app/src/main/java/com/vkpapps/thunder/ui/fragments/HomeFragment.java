@@ -60,8 +60,11 @@ public class HomeFragment extends Fragment {
 
         RequestViewModel viewModel = new ViewModelProvider(requireActivity()).get(RequestViewModel.class);
         viewModel.getAllRequestInfo().observe(requireActivity(), requestInfos -> {
-            if (requestInfos != null) {
+            if (requestInfos.size() > 0) {
                 adapter.setRequestInfos(requestInfos);
+                view.findViewById(R.id.emptyRequestList).setVisibility(View.GONE);
+            } else {
+                view.findViewById(R.id.emptyRequestList).setVisibility(View.VISIBLE);
             }
         });
     }

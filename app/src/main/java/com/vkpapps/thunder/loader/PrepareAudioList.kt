@@ -4,6 +4,7 @@ import android.provider.MediaStore
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.utils.HashUtils
+import java.io.File
 
 /***
  * @author VIJAY PATIDAR
@@ -17,8 +18,7 @@ class PrepareAudioList() {
         if (c != null) {
             while (c.moveToNext()) {
                 val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
-                val name = c.getString(1).trim { it <= ' ' }
-                val audioModel = AudioInfo(path, name)
+                val audioModel = AudioInfo(path, File(path).name)
                 audioModel.id = HashUtils.getHashValue(path.toByteArray())
                 audioInfos.add(audioModel)
                 audioInfos.sortBy { it.name }

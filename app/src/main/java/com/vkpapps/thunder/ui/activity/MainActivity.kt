@@ -38,9 +38,9 @@ import com.vkpapps.thunder.receivers.FileRequestReceiver.OnFileRequestReceiverLi
 import com.vkpapps.thunder.room.database.MyRoomDatabase
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
 import com.vkpapps.thunder.service.FileService
-import com.vkpapps.thunder.ui.dialog.PrivacyDialog
 import com.vkpapps.thunder.ui.fragments.DashboardFragment
 import com.vkpapps.thunder.ui.fragments.destinations.FragmentDestinationListener
+import com.vkpapps.thunder.utils.DirectoryResolver
 import com.vkpapps.thunder.utils.HashUtils.getRandomId
 import com.vkpapps.thunder.utils.IPManager
 import com.vkpapps.thunder.utils.UpdateManager
@@ -72,6 +72,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private val requestViewModel: RequestViewModel by lazy {
         ViewModelProvider(this).get(RequestViewModel::class.java)
     }
+    private val directoryResolver: DirectoryResolver by lazy {
+        DirectoryResolver(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,9 +94,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         UpdateManager(true).checkForUpdate(true, this)
 
         // check for policy accepted or not
-        PrivacyDialog(this).isPolicyAccepted
+//        PrivacyDialog(this).isPolicyAccepted
         setupReceiver()
-
     }
 
     private fun init() {}
@@ -163,9 +165,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             withContext(Main) {
                 FileService.startActionReceive(this@MainActivity,
                         requestInfo.name,
+                        requestInfo.source,
                         rid,
                         requestInfo.cid,
-                        requestInfo.type,
                         isHost
                 )
             }
@@ -189,14 +191,15 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onNewRequestInfo(obj: RequestInfo) {
         val viewModel = ViewModelProvider(this).get(RequestViewModel::class.java)
+        obj.source = directoryResolver.getSource(obj)
         if (isHost) {
             viewModel.insert(obj)
             FileService.startActionReceive(
                     this@MainActivity,
                     obj.name,
+                    obj.source,
                     obj.rid,
                     obj.cid,
-                    obj.type,
                     true)
             //sender cid
             val scid = obj.cid
@@ -239,7 +242,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         updateStatus(rid, StatusType.STATUS_ONGOING)
     }
 
-    override fun onRequestSuccess(rid: String) {
+    override fun onRequestSuccess(rid: String, timeTaken: Long) {
         updateStatus(rid, StatusType.STATUS_COMPLETED)
     }
 

@@ -15,7 +15,10 @@ class FileRequestReceiver(private val onFileRequestReceiverListener: OnFileReque
         if (action == null || rid == null) return
         try {
             when (action) {
-                FileService.STATUS_SUCCESS -> onFileRequestReceiverListener.onRequestSuccess(rid)
+                FileService.STATUS_SUCCESS -> {
+                    val timeTaken = intent.getLongExtra(FileService.PARAM_TIME_TAKEN, 0)
+                    onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken)
+                }
                 FileService.STATUS_FAILED -> onFileRequestReceiverListener.onRequestFailed(rid)
                 FileService.REQUEST_ACCEPTED -> {
                     val clientId = intent.getStringExtra(FileService.PARAM_CLIENT_ID)
@@ -31,7 +34,7 @@ class FileRequestReceiver(private val onFileRequestReceiverListener: OnFileReque
     interface OnFileRequestReceiverListener {
         fun onRequestFailed(rid: String)
         fun onRequestAccepted(rid: String, cid: String, send: Boolean)
-        fun onRequestSuccess(rid: String)
+        fun onRequestSuccess(rid: String, timeTaken: Long)
     }
 
 }

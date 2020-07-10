@@ -4,6 +4,7 @@ import android.provider.MediaStore
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.model.VideoInfo
 import com.vkpapps.thunder.utils.HashUtils
+import java.io.File
 
 /***
  * @author VIJAY PATIDAR
@@ -18,9 +19,8 @@ class PrepareVideoList() {
         if (c != null) {
             while (c.moveToNext()) {
                 val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
-                val name = c.getString(1).trim { it <= ' ' }
                 if (path != null) {
-                    val videoInfo = VideoInfo(name, path)
+                    val videoInfo = VideoInfo(File(path).name, path)
                     videoInfo.id = HashUtils.getHashValue(path.toByteArray())
                     videoInfos.add(videoInfo)
                 }

@@ -4,6 +4,7 @@ import android.provider.MediaStore
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.model.PhotoInfo
 import com.vkpapps.thunder.utils.HashUtils
+import java.io.File
 
 /***
  * @author VIJAY PATIDAR
@@ -12,14 +13,13 @@ class PreparePhotoList() {
     fun getList(): List<PhotoInfo> {
         val appInfos = ArrayList<PhotoInfo>()
         val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(MediaStore.Images.ImageColumns.DATA, MediaStore.Images.ImageColumns.TITLE)
+        val projection = arrayOf(MediaStore.Images.ImageColumns.DATA)
         val c = App.context.contentResolver.query(uri, projection, null, null, null)
         if (c != null) {
             while (c.moveToNext()) {
                 val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
-                val name = c.getString(1).trim { it <= ' ' }
                 if (path != null) {
-                    val photoInfo = PhotoInfo(name, path)
+                    val photoInfo = PhotoInfo(File(path).name, path)
                     photoInfo.id = HashUtils.getHashValue(path.toByteArray())
                     appInfos.add(photoInfo)
                 }

@@ -5,10 +5,31 @@
     android:layout_height="match_parent"
     app:cardCornerRadius="@dimen/top_corner_radius">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/requestList"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp" />
+        android:background="@drawable/round_on_top">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/requestList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true" />
+
+        <RelativeLayout
+            android:id="@+id/emptyRequestList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:background="@drawable/round_on_top"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/empty_request"
+                android:textSize="16sp" />
+        </RelativeLayout>
+    </RelativeLayout>
 </androidx.cardview.widget.CardView>

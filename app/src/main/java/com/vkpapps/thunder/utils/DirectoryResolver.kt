@@ -2,6 +2,7 @@ package com.vkpapps.thunder.utils
 
 import android.content.Context
 import com.vkpapps.thunder.model.FileType
+import com.vkpapps.thunder.model.RequestInfo
 import java.io.File
 
 /**
@@ -21,5 +22,13 @@ class DirectoryResolver(private val context: Context){
             file.mkdirs()
         }
         return file
+    }
+
+    fun getSource(obj: RequestInfo): String {
+        val file = File(getDirectory(obj.type), obj.name)
+//        if (file.exists()){
+//        //todo check file if exist
+//        }
+        return file.absolutePath
     }
 }

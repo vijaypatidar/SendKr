@@ -9,7 +9,7 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
@@ -49,7 +49,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView: RecyclerView = view.findViewById(R.id.videoList)
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = VideoAdapter(videoInfos, view, this)
         recyclerView.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {

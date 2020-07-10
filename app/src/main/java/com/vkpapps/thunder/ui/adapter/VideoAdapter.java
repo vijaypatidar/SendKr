@@ -3,11 +3,12 @@ package com.vkpapps.thunder.ui.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -38,7 +39,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
     @NonNull
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.photo_list_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.video_list_item, parent, false);
         return new MyHolder(view);
 
     }
@@ -49,10 +50,11 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
 
         final File file = new File(thumbnails, videoInfo.getId());
 
-        holder.btnSelected.setVisibility(videoInfo.isSelected() ? View.VISIBLE : View.GONE);
-        holder.itemView.setOnClickListener(v -> {
+        holder.title.setText(videoInfo.getName());
+        holder.btnSelected.setChecked(videoInfo.isSelected());
+        holder.btnSelected.setOnClickListener(v -> {
             videoInfo.setSelected(!videoInfo.isSelected());
-            holder.btnSelected.setVisibility(videoInfo.isSelected() ? View.VISIBLE : View.GONE);
+            holder.btnSelected.setChecked(videoInfo.isSelected());
             if (videoInfo.isSelected()) {
                 onVideoSelectListener.onVideoSelected(videoInfo);
             } else {
@@ -61,7 +63,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
         });
         myThumbnailUtils.loadVideoThumbnail(file, videoInfo.getPath());
         Picasso.get().load(file).into(holder.picture);
-        holder.btnFullscreen.setOnClickListener(v -> Toast.makeText(v.getContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        holder.picture.setOnClickListener(v -> Toast.makeText(v.getContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
     }
 
     @Override
@@ -71,13 +73,13 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
 
     static class MyHolder extends RecyclerView.ViewHolder {
         private AppCompatImageView picture;
-        private AppCompatImageView btnSelected;
-        private AppCompatImageButton btnFullscreen;
+        private RadioButton btnSelected;
+        private AppCompatTextView title;
 
         MyHolder(@NonNull View itemView) {
             super(itemView);
             picture = itemView.findViewById(R.id.picture);
-            btnFullscreen = itemView.findViewById(R.id.btnFullscreen);
+            title = itemView.findViewById(R.id.title);
             btnSelected = itemView.findViewById(R.id.btnSelect);
         }
     }

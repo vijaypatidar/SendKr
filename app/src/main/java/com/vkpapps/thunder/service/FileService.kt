@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.vkpapps.thunder.analitics.Logger
-import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.utils.DirectoryResolver
 import java.io.*
 import java.net.InetSocketAddress
@@ -46,13 +45,12 @@ class FileService : IntentService("FileService") {
                 val rid = intent.getStringExtra(PARAM_RID)
                 val clientId = intent.getStringExtra(PARAM_CLIENT_ID)
                 val isHost = intent.getBooleanExtra(PARAM_IS_HOST, false)
+                val source = intent.getStringExtra(PARAM_SOURCE)
                 if (ACTION_SEND == action) {
-                    val source = intent.getStringExtra(PARAM_SOURCE)
                     handleActionSend(rid!!, source!!, clientId!!, isHost)
                 } else if (ACTION_RECEIVE == action) {
-                    val type = intent.getIntExtra(PARAM_FILE_TYPE, FileType.FILE_TYPE_MUSIC)
                     val name = intent.getStringExtra(PARAM_NAME)
-                    handleActionReceive(rid!!, name!!, clientId!!, type, isHost)
+                    handleActionReceive(rid!!, name!!, source!!, clientId!!, isHost)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -60,16 +58,15 @@ class FileService : IntentService("FileService") {
         }
     }
 
-    private fun handleActionReceive(rid: String, name: String, clientId: String, type: Int, isHost: Boolean) {
+    private fun handleActionReceive(rid: String, name: String, source: String, clientId: String, isHost: Boolean) {
         try {
-            Logger.d("=================== $name")
             if (isHost) onAccepted(rid, clientId, false)
-            Logger.d("=================== connected $name $isHost")
             val socket = getSocket(isHost)
+            val init = System.currentTimeMillis()
             val `in` = socket.getInputStream()
-            val file = File(directoryResolver.getDirectory(type), name.trim { it <= ' ' })
+            val file = File(source)
             val out: OutputStream = FileOutputStream(file)
-            val bytes = ByteArray(2 * 1024)
+            val bytes = ByteArray(3000)
             var count: Int
             while (`in`.read(bytes).also { count = it } > 0) {
                 out.write(bytes, 0, count)
@@ -78,7 +75,9 @@ class FileService : IntentService("FileService") {
             out.flush()
             out.close()
             socket.close()
-            onSuccess(rid)
+            val timeTaken = System.currentTimeMillis() - init
+            Logger.d("========================================= $timeTaken")
+            onSuccess(rid, timeTaken)
         } catch (e: IOException) {
             onFailed(rid)
             e.printStackTrace()
@@ -90,9 +89,10 @@ class FileService : IntentService("FileService") {
             if (isHost) onAccepted(rid, clientId, true)
             val file = File(source)
             val socket = getSocket(isHost)
+            val init = System.currentTimeMillis()
             val inputStream: InputStream = FileInputStream(file)
             val outputStream = socket.getOutputStream()
-            val bytes = ByteArray(2 * 1024)
+            val bytes = ByteArray(3000)
             var count: Int
             while (inputStream.read(bytes).also { count = it } > 0) {
                 outputStream.write(bytes, 0, count)
@@ -101,16 +101,19 @@ class FileService : IntentService("FileService") {
             outputStream.close()
             inputStream.close()
             socket.close()
-            onSuccess(rid)
+            val timeTaken = (System.currentTimeMillis() - init) / 1000
+            Logger.d("========================================= $timeTaken")
+            onSuccess(rid, timeTaken)
         } catch (e: IOException) {
             onFailed(rid)
             e.printStackTrace()
         }
     }
 
-    private fun onSuccess(rid: String) {
+    private fun onSuccess(rid: String, timeTaken: Long) {
         val intent = Intent(STATUS_SUCCESS)
         intent.putExtra(PARAM_RID, rid)
+        intent.putExtra(PARAM_TIME_TAKEN, timeTaken)
         localBroadcastManager.sendBroadcast(intent)
     }
 
@@ -139,7 +142,7 @@ class FileService : IntentService("FileService") {
         const val PARAM_RID = "com.vkpapps.thunder.extra.RID"
         const val PARAM_SOURCE = "com.vkpapps.thunder.extra.SOURCE"
         const val PARAM_IS_HOST = "com.vkpapps.thunder.extra.IS_HOST"
-        const val PARAM_FILE_TYPE = "com.vkpapps.thunder.action.FILE_TYPE"
+        const val PARAM_TIME_TAKEN = "com.vkpapps.thunder.action.TIME_TAKEN"
 
         @JvmField
         var HOST_ADDRESS: String? = null
@@ -156,13 +159,13 @@ class FileService : IntentService("FileService") {
             context.startService(intent)
         }
 
-        fun startActionReceive(context: Context, name: String, rid: String, clientId: String?, type: Int, isHost: Boolean) {
+        fun startActionReceive(context: Context, name: String, source: String, rid: String, clientId: String?, isHost: Boolean) {
             val intent = Intent(context, FileService::class.java)
             intent.action = ACTION_RECEIVE
             intent.putExtra(PARAM_RID, rid)
             intent.putExtra(PARAM_NAME, name)
             intent.putExtra(PARAM_CLIENT_ID, clientId)
-            intent.putExtra(PARAM_FILE_TYPE, type)
+            intent.putExtra(PARAM_SOURCE, source)
             intent.putExtra(PARAM_IS_HOST, isHost)
             context.startService(intent)
         }

@@ -1,7 +1,6 @@
 package com.vkpapps.thunder.ui.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.media.ThumbnailUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,21 +61,19 @@ public class RequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         notifyDataSetChanged();
     }
 
-    private void updateStatus(AppCompatTextView status, int statusCode) {
+    private void updateStatus(final AppCompatImageView status, int statusCode) {
         switch (statusCode) {
             case StatusType.STATUS_PENDING:
-                status.setText("PENDING");
+                status.setImageResource(R.drawable.ic_pending);
                 break;
             case StatusType.STATUS_ONGOING:
-                status.setText("ONGOING");
+                status.setImageResource(R.drawable.ic_status_ongoing);
                 break;
             case StatusType.STATUS_COMPLETED:
-                status.setText("COMPLETED");
-                status.setTextColor(Color.GREEN);
+                status.setImageResource(R.drawable.ic_status_completed);
                 break;
             case StatusType.STATUS_FAILED:
-                status.setText("FAILED");
-                status.setTextColor(Color.RED);
+                status.setImageResource(R.drawable.ic_status_failed);
                 break;
         }
     }
@@ -96,10 +93,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     static public class DefaultRequestHolder extends RecyclerView.ViewHolder {
-
         private AppCompatTextView name;
         private AppCompatImageView thumbnail;
-        private AppCompatTextView status;
+        private AppCompatImageView status;
 
         public DefaultRequestHolder(@NonNull View itemView) {
             super(itemView);
@@ -107,6 +103,5 @@ public class RequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             thumbnail = itemView.findViewById(R.id.thumbnail);
             status = itemView.findViewById(R.id.status);
         }
-
     }
 }

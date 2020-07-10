@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 
 /***
  * @author VIJAY PATIDAR
@@ -29,8 +30,12 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
         } else {
-            startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-            finish()
+            Timer().schedule(object : TimerTask() {
+                override fun run() {
+                    startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+                    finish()
+                }
+            }, 1500)
         }
     }
 }
