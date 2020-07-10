@@ -4,6 +4,7 @@ import android.app.IntentService
 import android.content.Context
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.utils.DirectoryResolver
 import java.io.*
@@ -61,7 +62,9 @@ class FileService : IntentService("FileService") {
 
     private fun handleActionReceive(rid: String, name: String, clientId: String, type: Int, isHost: Boolean) {
         try {
-            if (isHost) onAccepted(rid, clientId)
+            Logger.d("=================== $name")
+            if (isHost) onAccepted(rid, clientId, false)
+            Logger.d("=================== connected $name $isHost")
             val socket = getSocket(isHost)
             val `in` = socket.getInputStream()
             val file = File(directoryResolver.getDirectory(type), name.trim { it <= ' ' })
@@ -84,7 +87,7 @@ class FileService : IntentService("FileService") {
 
     private fun handleActionSend(rid: String, source: String, clientId: String, isHost: Boolean) {
         try {
-            if (isHost) onAccepted(rid, clientId)
+            if (isHost) onAccepted(rid, clientId, true)
             val file = File(source)
             val socket = getSocket(isHost)
             val inputStream: InputStream = FileInputStream(file)
@@ -117,10 +120,11 @@ class FileService : IntentService("FileService") {
         localBroadcastManager.sendBroadcast(intent)
     }
 
-    private fun onAccepted(rid: String, clientID: String) {
+    private fun onAccepted(rid: String, clientID: String, send: Boolean) {
         val intent = Intent(REQUEST_ACCEPTED)
         intent.putExtra(PARAM_RID, rid)
         intent.putExtra(PARAM_CLIENT_ID, clientID)
+        intent.putExtra(ACTION_SEND, send)
         localBroadcastManager.sendBroadcast(intent)
     }
 
@@ -159,6 +163,7 @@ class FileService : IntentService("FileService") {
             intent.putExtra(PARAM_NAME, name)
             intent.putExtra(PARAM_CLIENT_ID, clientId)
             intent.putExtra(PARAM_FILE_TYPE, type)
+            intent.putExtra(PARAM_IS_HOST, isHost)
             context.startService(intent)
         }
     }

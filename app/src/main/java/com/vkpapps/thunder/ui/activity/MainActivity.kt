@@ -191,6 +191,32 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         val viewModel = ViewModelProvider(this).get(RequestViewModel::class.java)
         if (isHost) {
             viewModel.insert(obj)
+            FileService.startActionReceive(
+                    this@MainActivity,
+                    obj.name,
+                    obj.rid,
+                    obj.cid,
+                    obj.type,
+                    true)
+            //sender cid
+            val scid = obj.cid
+            for (clientHelper in serverHelper.clientHelpers) {
+                if (clientHelper.user.userId != scid) {
+                    val rid = getRandomId()
+                    val clone = obj.clone(rid, clientHelper.user.userId)
+                    clientHelper.write(clone)
+                    //preparing intent for service
+                    viewModel.insert(clone)
+                    // run on ui thread
+                    FileService.startActionSend(
+                            this@MainActivity,
+                            clone.rid,
+                            clone.source,
+                            clone.cid,
+                            true)
+
+                }
+            }
         } else {
             viewModel.insert(obj)
         }
@@ -200,12 +226,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         updateStatus(rid, StatusType.STATUS_FAILED)
     }
 
-    override fun onRequestAccepted(rid: String, cid: String) {
+    override fun onRequestAccepted(rid: String, cid: String, send: Boolean) {
         if (isHost) {
             serverHelper.clientHelpers.forEach {
                 if (it.user.userId == cid) {
                     it.write(
-                            FileRequest(FileRequest.DOWNLOAD_REQUEST_CONFIRM, rid)
+                            FileRequest(if (send) FileRequest.DOWNLOAD_REQUEST_CONFIRM else FileRequest.UPLOAD_REQUEST_CONFIRM, rid)
                     )
                 }
             }
@@ -218,15 +244,15 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onClientConnected(clientHelper: ClientHelper) {
-
+        runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
     }
 
     override fun onClientDisconnected(clientHelper: ClientHelper) {
+        runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
+
         //prompt client when disconnect to a party to create or rejoin the party
         if (!isHost) {
             runOnUiThread { choice }
-        } else if (onUsersUpdateListener != null) {
-            runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
         }
     }
 
@@ -336,7 +362,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             builder.create().show()
         } else super.onBackPressed()
     }
-
 
     override fun sendFiles(requests: List<RawRequestInfo>, type: Int) {
         val viewModel = ViewModelProvider(this).get(RequestViewModel::class.java)

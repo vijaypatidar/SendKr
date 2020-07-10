@@ -48,6 +48,7 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
                             }
                         } else if (obj is RequestInfo) {
                             // update user information
+                            obj.cid = user.userId
                             onFileRequestListener.onNewRequestInfo(obj)
                         } else {
                             Logger.e("invalid object received $obj")

@@ -14,7 +14,7 @@ object PrepareAppList {
         val installedApplications = packageManager.getInstalledPackages(0)
         installedApplications.forEach {
             if (it != null && (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0) {
-                appInfos.add(AppInfo(it.applicationInfo.loadLabel(packageManager).toString(), it.applicationInfo.sourceDir, it.applicationInfo
+                appInfos.add(AppInfo(it.applicationInfo.loadLabel(packageManager).toString() + ".apk", it.applicationInfo.sourceDir, it.applicationInfo
                         .loadIcon(packageManager)))
             }
         }

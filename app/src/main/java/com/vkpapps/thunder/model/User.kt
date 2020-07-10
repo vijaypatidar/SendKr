@@ -8,4 +8,5 @@ import java.io.Serializable
 class User : Serializable {
     lateinit var name: String
     lateinit var userId: String
+    var appVersion: Int = 0
 }

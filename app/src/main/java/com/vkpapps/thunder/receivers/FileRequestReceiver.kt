@@ -19,7 +19,8 @@ class FileRequestReceiver(private val onFileRequestReceiverListener: OnFileReque
                 FileService.STATUS_FAILED -> onFileRequestReceiverListener.onRequestFailed(rid)
                 FileService.REQUEST_ACCEPTED -> {
                     val clientId = intent.getStringExtra(FileService.PARAM_CLIENT_ID)
-                    onFileRequestReceiverListener.onRequestAccepted(rid, clientId!!)
+                    val send = intent.getBooleanExtra(FileService.ACTION_SEND, true)
+                    onFileRequestReceiverListener.onRequestAccepted(rid, clientId!!, send)
                 }
             }
         } catch (e: Exception) {
@@ -29,7 +30,7 @@ class FileRequestReceiver(private val onFileRequestReceiverListener: OnFileReque
 
     interface OnFileRequestReceiverListener {
         fun onRequestFailed(rid: String)
-        fun onRequestAccepted(rid: String, cid: String)
+        fun onRequestAccepted(rid: String, cid: String, send: Boolean)
         fun onRequestSuccess(rid: String)
     }
 
