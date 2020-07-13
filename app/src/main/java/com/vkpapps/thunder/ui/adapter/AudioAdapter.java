@@ -19,13 +19,14 @@ import com.vkpapps.thunder.utils.MyThumbnailUtils;
 import com.vkpapps.thunder.utils.StorageManager;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author VIJAY PATIDAR
  */
 public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHolder> {
-    private List<AudioInfo> audioInfos = null;
+    private final List<AudioInfo> audioInfos = new ArrayList<>();
     private OnAudioSelectedListener onAudioSelectedListener;
     private File thumbnails;
     private LayoutInflater inflater;
@@ -105,7 +106,10 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     }
 
     public void setAudioInfos(List<AudioInfo> audioInfos) {
-        this.audioInfos = audioInfos;
-        notifyDataSetChanged();
+        synchronized (this.audioInfos) {
+            this.audioInfos.clear();
+            this.audioInfos.addAll(audioInfos);
+            notifyDataSetChanged();
+        }
     }
 }

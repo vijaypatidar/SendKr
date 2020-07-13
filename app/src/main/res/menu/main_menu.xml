@@ -6,9 +6,4 @@
         android:icon="@drawable/ic_transferring"
         android:title="@string/transferring"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/menu_share"
-        android:icon="@drawable/ic_share"
-        android:title="@string/title_share"
-        app:showAsAction="ifRoom" />
 </menu>

@@ -5,6 +5,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.vkpapps.thunder.utils.HashUtils
 import java.io.Serializable
+import java.util.*
 
 @Entity
 class HistoryInfo : Serializable {
@@ -12,8 +13,7 @@ class HistoryInfo : Serializable {
     var id = ""
     lateinit var name: String
     lateinit var source: String
-
-    //    lateinit var date:Date
+    var date: Long = 0
     var type = 0
 
     constructor()
@@ -24,6 +24,6 @@ class HistoryInfo : Serializable {
         this.id = HashUtils.getHashValue(source.toByteArray())
         this.source = source
         this.type = type
-//        this.date = Date()
+        this.date = Date().time
     }
 }

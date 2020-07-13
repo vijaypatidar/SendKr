@@ -24,7 +24,7 @@ import java.util.List;
  * @author VIJAY PATIDAR
  */
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
-    private List<HistoryInfo> historyInfos = new ArrayList<>();
+    private final List<HistoryInfo> historyInfos = new ArrayList<>();
     private File thumbnails;
     private LayoutInflater inflater;
     private MyThumbnailUtils myThumbnailUtils = MyThumbnailUtils.INSTANCE;
@@ -55,8 +55,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     }
 
     public void setHistoryInfos(List<HistoryInfo> historyInfos) {
-        this.historyInfos = historyInfos;
-        notifyDataSetChanged();
+        synchronized (this.historyInfos) {
+            this.historyInfos.clear();
+            this.historyInfos.addAll(historyInfos);
+            notifyDataSetChanged();
+        }
     }
 
     static class HistoryViewHolder extends RecyclerView.ViewHolder {

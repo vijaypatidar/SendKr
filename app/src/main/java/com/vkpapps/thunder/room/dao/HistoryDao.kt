@@ -19,6 +19,6 @@ interface HistoryDao {
     @Query("DELETE FROM historyinfo where id = :id")
     suspend fun delete(id: String)
 
-    @Query("SELECT * from historyinfo")
+    @Query("SELECT * from historyinfo order by date DESC")
     fun getLiveHistoryInfos(): LiveData<List<HistoryInfo>>
 }

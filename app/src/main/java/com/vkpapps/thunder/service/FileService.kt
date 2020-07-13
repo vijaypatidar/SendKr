@@ -46,7 +46,7 @@ class FileService : IntentService("FileService") {
                     handleActionSend(rid!!, source!!, clientId!!, isHost)
                 } else if (ACTION_RECEIVE == action) {
                     val name = intent.getStringExtra(PARAM_NAME)
-                    handleActionReceive(rid!!, name!!, source!!, clientId!!, isHost)
+                    handleActionReceive(rid!!, source!!, clientId!!, isHost)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -54,7 +54,7 @@ class FileService : IntentService("FileService") {
         }
     }
 
-    private fun handleActionReceive(rid: String, name: String, source: String, clientId: String, isHost: Boolean) {
+    private fun handleActionReceive(rid: String, source: String, clientId: String, isHost: Boolean) {
         try {
             if (isHost) onAccepted(rid, clientId, false)
             val socket = getSocket(isHost)

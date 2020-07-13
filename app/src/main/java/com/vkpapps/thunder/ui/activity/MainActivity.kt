@@ -88,8 +88,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
         NavigationUI.setupWithNavController(navView, navController)
         navController.addOnDestinationChangedListener(FragmentDestinationListener(this))
-        init()
-        choice
+        choice()
         UpdateManager(true).checkForUpdate(true, this)
 
         // check for policy accepted or not
@@ -97,25 +96,23 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         setupReceiver()
     }
 
-    private fun init() {}
-    private val choice: Unit
-        get() {
-            val ab = AlertDialog.Builder(this)
-            val view = LayoutInflater.from(this).inflate(R.layout.choice_alert_dialog, null)
-            ab.setView(view)
-            ab.setCancelable(false)
-            val alertDialog = ab.create()
-            alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            alertDialog.show()
-            view.findViewById<View>(R.id.btnCreateParty).setOnClickListener {
-                setup(true)
-                alertDialog.cancel()
-            }
-            view.findViewById<View>(R.id.btnJoinParty).setOnClickListener {
-                setup(false)
-                alertDialog.cancel()
-            }
+    private fun choice() {
+        val ab = AlertDialog.Builder(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.choice_alert_dialog, null)
+        ab.setView(view)
+        ab.setCancelable(false)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+        view.findViewById<View>(R.id.btnCreateParty).setOnClickListener {
+            setup(true)
+            alertDialog.cancel()
         }
+        view.findViewById<View>(R.id.btnJoinParty).setOnClickListener {
+            setup(false)
+            alertDialog.cancel()
+        }
+    }
 
     private fun setup(host: Boolean) {
         isHost = host
@@ -140,7 +137,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         ab.setMessage("There is no host on this wifi")
                         ab.setCancelable(false)
                         ab.setPositiveButton("retry") { _: DialogInterface?, _: Int -> setup(false) }
-                        ab.setNegativeButton("Create group") { _: DialogInterface?, _: Int -> choice }
+                        ab.setNegativeButton("Create group") { _: DialogInterface?, _: Int -> choice() }
                         ab.create().show()
                     }
                     e.printStackTrace()
@@ -416,7 +413,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
         //prompt client when disconnect to a party to create or rejoin the party
         if (!isHost) {
-            runOnUiThread { choice }
+            runOnUiThread { choice() }
         }
     }
 

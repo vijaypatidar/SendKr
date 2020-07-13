@@ -46,20 +46,23 @@ object MyThumbnailUtils {
         }
     }
 
-    fun loadPhotoThumbnail(file: File, path: String, imageView: AppCompatImageView) {
+    fun loadPhotoThumbnail(path: String, imageView: AppCompatImageView) {
         Picasso.get().load(File(path)).centerCrop().resize(256, 256).into(imageView)
     }
 
     fun loadThumbnail(icon: File, source: String, type: Int, logo: AppCompatImageView) {
         when (type) {
             FileType.FILE_TYPE_PHOTO -> {
-                loadPhotoThumbnail(icon, source, logo)
+                loadPhotoThumbnail(source, logo)
             }
             FileType.FILE_TYPE_VIDEO -> {
                 loadVideoThumbnail(icon, source, logo)
             }
             FileType.FILE_TYPE_MUSIC -> {
                 loadAudioThumbnail(icon, source, logo)
+            }
+            FileType.FILE_TYPE_APP -> {
+                logo.setImageResource(R.drawable.ic_apps)
             }
             else -> logo.setImageResource(R.drawable.ic_file)
         }

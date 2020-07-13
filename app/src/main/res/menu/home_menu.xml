@@ -5,8 +5,12 @@
         android:id="@+id/navigation_setting"
         android:icon="@drawable/ic_setting"
         android:title="@string/Setting"
-        app:showAsAction="ifRoom"
-        />
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_share"
+        android:icon="@drawable/ic_share"
+        android:title="@string/title_share"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_about"
         android:icon="@drawable/ic_about"

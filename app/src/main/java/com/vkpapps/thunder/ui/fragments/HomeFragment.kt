@@ -3,7 +3,6 @@ package com.vkpapps.thunder.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
@@ -14,6 +13,7 @@ import com.vkpapps.thunder.R
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.ui.adapter.HistoryAdapter
+import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_home.*
 
 /***
@@ -45,10 +45,35 @@ class HomeFragment : Fragment() {
             controller.navigate(getDestination(3))
         }
         internal.setOnClickListener {
-            Toast.makeText(requireContext(), "Not Implemented Yet ", Toast.LENGTH_SHORT).show()
+            val internal = StorageManager(requireContext()).internal
+            Navigation.findNavController(view).navigate(object : NavDirections {
+                override fun getActionId(): Int {
+                    return R.id.fileFragment
+                }
+
+                override fun getArguments(): Bundle {
+                    val bundle = Bundle()
+                    bundle.putString(FileFragment.FILE_ROOT, internal.absolutePath)
+                    return bundle
+                }
+            })
         }
         external.setOnClickListener {
-            Toast.makeText(requireContext(), "Not Implemented Yet ", Toast.LENGTH_SHORT).show()
+
+            val external = StorageManager(requireContext()).external
+            if (external != null)
+                Navigation.findNavController(view).navigate(object : NavDirections {
+                    override fun getActionId(): Int {
+                        return R.id.fileFragment
+                    }
+
+                    override fun getArguments(): Bundle {
+                        val bundle = Bundle()
+                        bundle.putString(FileFragment.FILE_ROOT, external.absolutePath)
+                        return bundle
+                    }
+                })
+
         }
         setupHistory()
     }

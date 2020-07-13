@@ -20,7 +20,7 @@ import java.util.List;
 
 public class RequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<RequestInfo> requestInfos = new ArrayList<>();
+    private final List<RequestInfo> requestInfos = new ArrayList<>();
     private LayoutInflater inflater;
 
     public RequestAdapter(@NonNull Context context) {
@@ -55,8 +55,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public void setRequestInfos(List<RequestInfo> requestInfos) {
-        this.requestInfos = requestInfos;
-        notifyDataSetChanged();
+        synchronized (this.requestInfos) {
+            this.requestInfos.clear();
+            this.requestInfos.addAll(requestInfos);
+            notifyDataSetChanged();
+        }
     }
 
     private void updateStatus(final AppCompatImageView status, int statusCode) {

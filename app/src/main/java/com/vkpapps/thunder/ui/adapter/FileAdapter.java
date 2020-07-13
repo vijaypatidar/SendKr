@@ -40,7 +40,7 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             final File file1 = new File(file);
             myViewHolder.fileName.setText(file1.getName());
 
-            if (true){
+            if (file1.isDirectory()) {
                 myViewHolder.icon.setImageResource(R.drawable.ic_folder);
                 myViewHolder.itemView.setOnClickListener(v -> {
                     Navigation.findNavController(view).navigate(new NavDirections() {

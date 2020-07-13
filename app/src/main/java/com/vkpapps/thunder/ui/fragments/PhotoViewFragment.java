@@ -34,12 +34,13 @@ public class PhotoViewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         imageView = view.findViewById(R.id.imageView);
-
+        imageView.setAdjustViewBounds(true);
         Bundle arguments = getArguments();
         if (arguments != null) {
             String path = arguments.getString("PATH");
             if (path != null)
                 Picasso.get().load(new File(path)).into(imageView);
+
         }
     }
 

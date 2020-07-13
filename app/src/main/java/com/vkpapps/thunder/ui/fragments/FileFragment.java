@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener;
 import com.vkpapps.thunder.ui.adapter.FileAdapter;
-import com.vkpapps.thunder.utils.StorageManager;
 
 import java.io.File;
 /***
@@ -32,14 +32,13 @@ public class FileFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null && getArguments().containsKey(FILE_ROOT)) {
             rootDir = getArguments().getString(FILE_ROOT);
         } else {
-            rootDir = new StorageManager(requireContext()).getDownloadDir().getAbsolutePath();
+            rootDir = ContextCompat.getExternalFilesDirs(requireContext(), null)[0].getAbsolutePath();
         }
     }
 
@@ -53,7 +52,6 @@ public class FileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         FileAdapter adapter = new FileAdapter(new File(rootDir), view);
         RecyclerView recyclerView = view.findViewById(R.id.fileList);
         recyclerView.setAdapter(adapter);

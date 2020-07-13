@@ -63,7 +63,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
             }
         });
 
-        myThumbnailUtils.loadPhotoThumbnail(file, photoInfo.getPath(), holder.picture);
+        myThumbnailUtils.loadPhotoThumbnail(photoInfo.getPath(), holder.picture);
         holder.btnFullscreen.setOnClickListener(v -> {
             controller.navigate(new NavDirections() {
                 @Override
