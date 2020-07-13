@@ -11,7 +11,6 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.VideoInfo;
 import com.vkpapps.thunder.utils.MyThumbnailUtils;
@@ -61,8 +60,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
                 onVideoSelectListener.onVideoDeselected(videoInfo);
             }
         });
-        myThumbnailUtils.loadVideoThumbnail(file, videoInfo.getPath());
-        Picasso.get().load(file).into(holder.picture);
+        myThumbnailUtils.loadVideoThumbnail(file, videoInfo.getPath(), holder.picture);
         holder.picture.setOnClickListener(v -> Toast.makeText(v.getContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
     }
 

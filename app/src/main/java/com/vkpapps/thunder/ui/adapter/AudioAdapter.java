@@ -4,15 +4,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.AdView;
-import com.squareup.picasso.Picasso;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.AudioInfo;
 import com.vkpapps.thunder.utils.AdsUtils;
@@ -74,12 +73,9 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
                 }
             });
 
-            ImageView audioIcon = holder.audioIcon;
             File file = new File(thumbnails, audioinfo.getId());
-            //prepare thumbnails if not in cache
-            myThumbnailUtils.loadAudioThumbnail(file, audioinfo.getPath());
-            Picasso.get().load(file).into(audioIcon);
-            audioIcon.setAdjustViewBounds(true);
+            myThumbnailUtils.loadAudioThumbnail(file, audioinfo.getPath(), holder.audioIcon);
+            holder.audioIcon.setAdjustViewBounds(true);
         }
     }
 
@@ -91,7 +87,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     static class AudioViewHolder extends RecyclerView.ViewHolder {
 
         TextView audioTitle;
-        ImageView audioIcon;
+        AppCompatImageView audioIcon;
         RadioButton btnSelect;
         AudioViewHolder(@NonNull View itemView) {
             super(itemView);

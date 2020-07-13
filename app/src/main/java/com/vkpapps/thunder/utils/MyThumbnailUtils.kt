@@ -3,53 +3,67 @@ package com.vkpapps.thunder.utils
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-import android.media.ThumbnailUtils
-import android.os.Build
-import android.os.CancellationSignal
-import android.util.Size
+import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
+import com.squareup.picasso.Picasso
+import com.vkpapps.thunder.R
+import com.vkpapps.thunder.model.FileType
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 
 object MyThumbnailUtils {
-    fun loadAudioThumbnail(file: File, source: String) {
+    fun loadAudioThumbnail(file: File, source: String, imageView: AppCompatImageView) {
         if (!file.exists()) {
             try {
                 val mmr = MediaMetadataRetriever()
                 mmr.setDataSource(source)
                 val data = mmr.embeddedPicture
-                if (data != null) {
-                    val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, FileOutputStream(file))
-                }
+                val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, FileOutputStream(file))
+                Picasso.get().load(file).into(imageView)
             } catch (e: Exception) {
                 e.printStackTrace()
+                imageView.setImageResource(R.drawable.ic_default_audio_icon)
             }
+        } else {
+            Picasso.get().load(file).into(imageView)
         }
     }
 
-    fun loadVideoThumbnail(file: File, path: String) {
+    fun loadVideoThumbnail(file: File, path: String, imageView: ImageView) {
         if (!file.exists()) {
             try {
                 val mmr = MediaMetadataRetriever()
                 mmr.setDataSource(path)
                 mmr.frameAtTime?.compress(Bitmap.CompressFormat.JPEG, 90, FileOutputStream(file))
+                Picasso.get().load(file).into(imageView)
             } catch (e: Exception) {
                 e.printStackTrace()
+                imageView.setImageResource(R.drawable.ic_movie)
             }
+        } else {
+            Picasso.get().load(file).into(imageView)
         }
     }
 
-    fun loadPhotoThumbnail(file: File, path: String) {
-        if (!file.exists()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                try {
-                    val thumbnail = ThumbnailUtils.createImageThumbnail(File(path), Size(250, 250), CancellationSignal())
-                    thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, FileOutputStream(file))
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
+    fun loadPhotoThumbnail(file: File, path: String, imageView: AppCompatImageView) {
+        Picasso.get().load(File(path)).centerCrop().resize(256, 256).into(imageView)
+    }
+
+    fun loadThumbnail(icon: File, source: String, type: Int, logo: AppCompatImageView) {
+        when (type) {
+            FileType.FILE_TYPE_PHOTO -> {
+                loadPhotoThumbnail(icon, source, logo)
             }
+            FileType.FILE_TYPE_VIDEO -> {
+                loadVideoThumbnail(icon, source, logo)
+            }
+            FileType.FILE_TYPE_MUSIC -> {
+                loadAudioThumbnail(icon, source, logo)
+            }
+            else -> logo.setImageResource(R.drawable.ic_file)
         }
     }
+
+
 }

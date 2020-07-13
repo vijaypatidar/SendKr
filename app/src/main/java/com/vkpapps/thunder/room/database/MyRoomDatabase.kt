@@ -4,22 +4,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.vkpapps.thunder.model.AudioInfo
-import com.vkpapps.thunder.model.PhotoInfo
-import com.vkpapps.thunder.model.RequestInfo
-import com.vkpapps.thunder.model.VideoInfo
-import com.vkpapps.thunder.room.dao.AudioDao
-import com.vkpapps.thunder.room.dao.PhotoDao
-import com.vkpapps.thunder.room.dao.RequestDao
-import com.vkpapps.thunder.room.dao.VideoDao
+import com.vkpapps.thunder.model.*
+import com.vkpapps.thunder.room.dao.*
 
-@Database(entities = [RequestInfo::class, PhotoInfo::class, AudioInfo::class, VideoInfo::class], version = 1, exportSchema = false)
+@Database(entities = [RequestInfo::class, PhotoInfo::class, AudioInfo::class, VideoInfo::class, HistoryInfo::class], version = 1, exportSchema = false)
 public abstract class MyRoomDatabase : RoomDatabase() {
 
     abstract fun requestDao(): RequestDao
     abstract fun photoDao(): PhotoDao
     abstract fun audioDao(): AudioDao
     abstract fun videoDao(): VideoDao
+    abstract fun historyDao(): HistoryDao
+
 
     companion object {
         // Singleton prevents multiple instances of database opening at the

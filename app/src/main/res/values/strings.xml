@@ -30,9 +30,13 @@
     <string name="Setting">Settings</string>
     <string name="send">send</string>
     <string name="empty_music">no song found</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="empty_request">nothing to share or shared</string>
     <string name="transferring">Transferring</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="history">History</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
+    <string name="photo">Photo</string>
+    <string name="external">External</string>
+    <string name="internal">Internal</string>
 </resources>

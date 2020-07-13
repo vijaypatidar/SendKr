@@ -13,7 +13,6 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.PhotoInfo;
 import com.vkpapps.thunder.utils.MyThumbnailUtils;
@@ -64,9 +63,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
             }
         });
 
-        myThumbnailUtils.loadPhotoThumbnail(file, photoInfo.getPath());
-        Picasso.get().load(file).into(holder.picture);
-
+        myThumbnailUtils.loadPhotoThumbnail(file, photoInfo.getPath(), holder.picture);
         holder.btnFullscreen.setOnClickListener(v -> {
             controller.navigate(new NavDirections() {
                 @Override

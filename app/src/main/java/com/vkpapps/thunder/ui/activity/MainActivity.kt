@@ -34,6 +34,7 @@ import com.vkpapps.thunder.model.*
 import com.vkpapps.thunder.receivers.FileRequestReceiver
 import com.vkpapps.thunder.receivers.FileRequestReceiver.OnFileRequestReceiverListener
 import com.vkpapps.thunder.room.database.MyRoomDatabase
+import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
 import com.vkpapps.thunder.service.FileService
 import com.vkpapps.thunder.ui.fragments.DashboardFragment
@@ -249,6 +250,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onRequestSuccess(rid: String, timeTaken: Long) {
         updateStatus(rid, StatusType.STATUS_COMPLETED)
+        val historyViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
+        CoroutineScope(IO).launch {
+            val requestInfo = database.requestDao().getRequestInfo(rid)
+            historyViewModel.insert(
+                    HistoryInfo(requestInfo.name, requestInfo.source, requestInfo.type)
+            )
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

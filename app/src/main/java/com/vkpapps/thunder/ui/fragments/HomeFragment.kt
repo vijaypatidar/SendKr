@@ -5,10 +5,15 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
+import com.vkpapps.thunder.ui.adapter.HistoryAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
 
 /***
@@ -45,6 +50,7 @@ class HomeFragment : Fragment() {
         external.setOnClickListener {
             Toast.makeText(requireContext(), "Not Implemented Yet ", Toast.LENGTH_SHORT).show()
         }
+        setupHistory()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -78,4 +84,22 @@ class HomeFragment : Fragment() {
 
         }
     }
+
+    private fun setupHistory() {
+        history.layoutManager = LinearLayoutManager(requireContext())
+        val adapter = HistoryAdapter(requireContext())
+        history.adapter = adapter
+        history.onFlingListener = object : RecyclerView.OnFlingListener() {
+            override fun onFling(velocityX: Int, velocityY: Int): Boolean {
+                onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                return false
+            }
+        }
+
+        val historyViewModel = ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java)
+        historyViewModel.historyInfos.observe(requireActivity(), androidx.lifecycle.Observer {
+            adapter.setHistoryInfos(it)
+        })
+    }
+
 }
