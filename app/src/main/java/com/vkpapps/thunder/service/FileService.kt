@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.vkpapps.thunder.analitics.Logger
-import com.vkpapps.thunder.utils.DirectoryResolver
 import java.io.*
 import java.net.InetSocketAddress
 import java.net.ServerSocket
@@ -16,9 +15,6 @@ import java.net.Socket
  */
 class FileService : IntentService("FileService") {
 
-    private val directoryResolver: DirectoryResolver by lazy {
-        DirectoryResolver(this)
-    }
     private val localBroadcastManager: LocalBroadcastManager by lazy {
         LocalBroadcastManager.getInstance(this)
     }

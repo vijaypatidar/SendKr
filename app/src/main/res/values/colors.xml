@@ -12,4 +12,5 @@
     <color name="unselected_menu_item">#BDBDBD</color>
     <color name="white_alpha">#80FFFFFF</color>
     <color name="red">#FF1100</color>
+    <color name="black_overlay">#66000000</color>
 </resources>

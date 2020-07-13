@@ -15,7 +15,7 @@ object PrepareAppList {
         installedApplications.forEach {
             if (it != null && (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0) {
                 appInfos.add(AppInfo(it.applicationInfo.loadLabel(packageManager).toString() + ".apk", it.applicationInfo.sourceDir, it.applicationInfo
-                        .loadIcon(packageManager)))
+                        .loadIcon(packageManager), it.packageName))
             }
         }
         appInfos.sortBy { appInfo -> appInfo.name }

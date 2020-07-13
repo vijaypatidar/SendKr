@@ -1,13 +1,16 @@
 package com.vkpapps.thunder.ui.adapter;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -28,14 +31,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
     private OnPhotoSelectListener onPhotoSelectListener;
     private MyThumbnailUtils myThumbnailUtils = MyThumbnailUtils.INSTANCE;
     private File thumbnails;
-
-    private View view;
+    private NavController controller;
 
     public PhotoAdapter(List<PhotoInfo> photoInfos, @NonNull OnPhotoSelectListener onPhotoSelectListener, View view) {
         this.photoInfos = photoInfos;
         this.onPhotoSelectListener = onPhotoSelectListener;
-        this.view = view;
         this.thumbnails = new StorageManager(view.getContext()).getThumbnails();
+        this.controller = Navigation.findNavController(view);
     }
 
     @NonNull
@@ -65,7 +67,22 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
         myThumbnailUtils.loadPhotoThumbnail(file, photoInfo.getPath());
         Picasso.get().load(file).into(holder.picture);
 
-        holder.btnFullscreen.setOnClickListener(v -> Toast.makeText(v.getContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        holder.btnFullscreen.setOnClickListener(v -> {
+            controller.navigate(new NavDirections() {
+                @Override
+                public int getActionId() {
+                    return R.id.photoViewFragment;
+                }
+
+                @NonNull
+                @Override
+                public Bundle getArguments() {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("PATH", photoInfo.getPath());
+                    return bundle;
+                }
+            });
+        });
 
     }
 

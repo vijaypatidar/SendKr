@@ -20,6 +20,17 @@ import com.vkpapps.thunder.utils.PermissionUtils;
  * @author VIJAY PATIDAR
  */
 public class GenericFragment extends Fragment {
+    public static final String PARAM_DESTINATION = "DESTINATION";
+    private int destination = -1;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            destination = arguments.getInt(PARAM_DESTINATION);
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,15 +51,17 @@ public class GenericFragment extends Fragment {
             adapter.addFragment(new PhotoFragment(), "Photos");
             adapter.addFragment(new AudioFragment(), "Music");
             adapter.addFragment(new VideoFragment(), "Videos");
-//        adapter.addFragment(new FileFragment(),"Files");
+            adapter.addFragment(new FileFragment(), "Files");
 
             viewPager.setAdapter(adapter);
+
+            if (destination > 0) {
+                viewPager.setCurrentItem(destination);
+            }
         } else {
             Navigation.findNavController(view).popBackStack();
             PermissionUtils.askStoragePermission(getActivity(), 101);
         }
-
-
     }
 
     @Override

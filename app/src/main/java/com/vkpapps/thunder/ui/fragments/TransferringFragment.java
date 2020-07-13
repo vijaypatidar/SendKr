@@ -3,8 +3,6 @@ package com.vkpapps.thunder.ui.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,10 +22,11 @@ import com.vkpapps.thunder.ui.adapter.RequestAdapter;
 /***
  * @author VIJAY PATIDAR
  */
-public class HomeFragment extends Fragment {
+public class TransferringFragment extends Fragment {
 
     private OnNavigationVisibilityListener onNavigationVisibilityListener;
-    public HomeFragment() {
+
+    public TransferringFragment() {
         // Required empty public constructor
     }
 
@@ -35,13 +34,12 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        return inflater.inflate(R.layout.fragment_transfering, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setHasOptionsMenu(true);
         RecyclerView recyclerView = view.findViewById(R.id.requestList);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -70,12 +68,6 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.home_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
         onNavigationVisibilityListener = null;
@@ -86,6 +78,7 @@ public class HomeFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof OnNavigationVisibilityListener) {
             onNavigationVisibilityListener = (OnNavigationVisibilityListener) context;
+            onNavigationVisibilityListener.onNavVisibilityChange(false);
         }
     }
 }

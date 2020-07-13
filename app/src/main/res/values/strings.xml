@@ -32,4 +32,7 @@
     <string name="empty_music">no song found</string>
     <string name="loading">Loading...</string>
     <string name="empty_request">nothing to share or shared</string>
+    <string name="transferring">Transferring</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

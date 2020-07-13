@@ -42,6 +42,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
         appHolder.appTitle.setText(appInfo.getName());
         appHolder.appIcon.setImageDrawable(appInfo.getIcon());
         appHolder.btnSelected.setChecked(appInfo.isSelected());
+        appHolder.packageName.setText(appInfo.getPackageName());
         appHolder.btnSelected.setOnClickListener((v) -> {
             appInfo.setSelected(!appInfo.isSelected());
             if (appInfo.isSelected()) {
@@ -59,7 +60,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
     }
 
     static class AppHolder extends RecyclerView.ViewHolder {
-        TextView appTitle;
+        TextView appTitle, packageName;
         AppCompatImageView appIcon;
         RadioButton btnSelected;
 
@@ -68,6 +69,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
             appTitle = itemView.findViewById(R.id.appName);
             appIcon = itemView.findViewById(R.id.appIcon);
             btnSelected = itemView.findViewById(R.id.btnSelect);
+            packageName = itemView.findViewById(R.id.packageName);
         }
     }
 

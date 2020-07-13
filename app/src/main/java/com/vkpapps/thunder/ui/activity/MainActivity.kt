@@ -23,16 +23,14 @@ import androidx.navigation.Navigation
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.vkpapps.thunder.App
+import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger.d
 import com.vkpapps.thunder.connection.ClientHelper
 import com.vkpapps.thunder.connection.ServerHelper
 import com.vkpapps.thunder.interfaces.*
 import com.vkpapps.thunder.loader.PrepareDb
-import com.vkpapps.thunder.model.FileRequest
-import com.vkpapps.thunder.model.RawRequestInfo
-import com.vkpapps.thunder.model.RequestInfo
-import com.vkpapps.thunder.model.StatusType
+import com.vkpapps.thunder.model.*
 import com.vkpapps.thunder.receivers.FileRequestReceiver
 import com.vkpapps.thunder.receivers.FileRequestReceiver.OnFileRequestReceiverListener
 import com.vkpapps.thunder.room.database.MyRoomDatabase
@@ -172,6 +170,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 )
             }
         }
+        updateStatus(rid, StatusType.STATUS_ONGOING)
     }
 
     override fun onUploadRequest(rid: String) {
@@ -186,42 +185,48 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 )
             }
         }
+        updateStatus(rid, StatusType.STATUS_ONGOING)
     }
 
 
     override fun onNewRequestInfo(obj: RequestInfo) {
-        val viewModel = ViewModelProvider(this).get(RequestViewModel::class.java)
-        obj.source = directoryResolver.getSource(obj)
-        if (isHost) {
-            viewModel.insert(obj)
-            FileService.startActionReceive(
-                    this@MainActivity,
-                    obj.name,
-                    obj.source,
-                    obj.rid,
-                    obj.cid,
-                    true)
-            //sender cid
-            val scid = obj.cid
-            for (clientHelper in serverHelper.clientHelpers) {
-                if (clientHelper.user.userId != scid) {
-                    val rid = getRandomId()
-                    val clone = obj.clone(rid, clientHelper.user.userId)
-                    clientHelper.write(clone)
-                    //preparing intent for service
-                    viewModel.insert(clone)
-                    // run on ui thread
-                    FileService.startActionSend(
+        CoroutineScope(IO).launch {
+            obj.source = directoryResolver.getSource(obj)
+            if (isHost) {
+                database.requestDao().insert(obj)
+                withContext(Main) {
+                    FileService.startActionReceive(
                             this@MainActivity,
-                            clone.rid,
-                            clone.source,
-                            clone.cid,
+                            obj.name,
+                            obj.source,
+                            obj.rid,
+                            obj.cid,
                             true)
-
                 }
+                //sender cid
+                val scid = obj.cid
+                for (clientHelper in serverHelper.clientHelpers) {
+                    if (clientHelper.user.userId != scid) {
+                        val rid = getRandomId()
+                        val clone = obj.clone(rid, clientHelper.user.userId)
+                        clientHelper.write(clone)
+                        //preparing intent for service
+                        database.requestDao().insert(clone)
+
+                        withContext(Main) {
+                            FileService.startActionSend(
+                                    this@MainActivity,
+                                    clone.rid,
+                                    clone.source,
+                                    clone.cid,
+                                    true)
+                        }
+
+                    }
+                }
+            } else {
+                database.requestDao().insert(obj)
             }
-        } else {
-            viewModel.insert(obj)
         }
     }
 
@@ -246,19 +251,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         updateStatus(rid, StatusType.STATUS_COMPLETED)
     }
 
-    override fun onClientConnected(clientHelper: ClientHelper) {
-        runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
-    }
-
-    override fun onClientDisconnected(clientHelper: ClientHelper) {
-        runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
-
-        //prompt client when disconnect to a party to create or rejoin the party
-        if (!isHost) {
-            runOnUiThread { choice }
-        }
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when {
             item.itemId == android.R.id.home -> {
@@ -266,6 +258,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             }
             R.id.menu_share == item.itemId -> {
                 Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show()
+            }
+            R.id.menu_transferring == item.itemId -> {
+                navController.navigate(R.id.transferringFragment)
             }
             item.itemId == R.id.menu_about -> {
                 navController.navigate(object : NavDirections {
@@ -367,32 +362,53 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun sendFiles(requests: List<RawRequestInfo>, type: Int) {
-        val viewModel = ViewModelProvider(this).get(RequestViewModel::class.java)
-        for (rawRequestInfo in requests) {
-            val requestInfo = RequestInfo()
-            requestInfo.name = rawRequestInfo.name
-            requestInfo.source = rawRequestInfo.source
-            requestInfo.type = type
-            if (isHost) {
-                for (clientHelper in serverHelper.clientHelpers) {
-                    val rid = getRandomId()
-                    val clone = requestInfo.clone(rid, clientHelper.user.userId)
-                    clientHelper.write(clone)
-                    //preparing intent for service
-                    viewModel.insert(clone)
-                    FileService.startActionSend(
-                            this,
-                            clone.rid,
-                            clone.source,
-                            clone.cid,
-                            true)
+        CoroutineScope(IO).launch {
+            for (rawRequestInfo in requests) {
+                val requestInfo = RequestInfo()
+                requestInfo.name = rawRequestInfo.name
+                requestInfo.source = rawRequestInfo.source
+                requestInfo.type = type
+                if (isHost) {
+                    for (clientHelper in serverHelper.clientHelpers) {
+                        val rid = getRandomId()
+                        val clone = requestInfo.clone(rid, clientHelper.user.userId)
+                        //preparing intent for service
+                        database.requestDao().insert(clone)
+                        clientHelper.write(clone)
+                        withContext(Main) {
+                            FileService.startActionSend(
+                                    this@MainActivity,
+                                    clone.rid,
+                                    clone.source,
+                                    clone.cid,
+                                    true)
+                        }
+                    }
+                } else {
+                    requestInfo.rid = getRandomId()
+                    requestInfo.cid = user.userId
+                    database.requestDao().insert(requestInfo)
+                    send(requestInfo)
                 }
-            } else {
-                requestInfo.rid = getRandomId()
-                requestInfo.cid = user.userId
-                send(requestInfo)
-                viewModel.insert(requestInfo)
             }
+        }
+    }
+
+    override fun onClientConnected(clientHelper: ClientHelper) {
+        runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
+        if (clientHelper.user.appVersion < BuildConfig.VERSION_CODE) {
+            val source = packageManager.getInstallerPackageName(packageName)
+            if (source != null)
+                sendFiles(Collections.singletonList(RawRequestInfo(getString(R.string.app_name), source, FileType.FILE_TYPE_APP)), FileType.FILE_TYPE_APP)
+        }
+    }
+
+    override fun onClientDisconnected(clientHelper: ClientHelper) {
+        runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
+
+        //prompt client when disconnect to a party to create or rejoin the party
+        if (!isHost) {
+            runOnUiThread { choice }
         }
     }
 

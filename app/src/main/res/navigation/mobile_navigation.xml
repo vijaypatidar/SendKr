@@ -77,4 +77,14 @@
         android:id="@+id/fileFragment"
         android:name="com.vkpapps.thunder.ui.fragments.FileFragment"
         android:label="FileFragment" />
+    <fragment
+        android:id="@+id/transferringFragment"
+        android:name="com.vkpapps.thunder.ui.fragments.TransferringFragment"
+        android:label="@string/transferring" />
+    <fragment
+        android:id="@+id/photoViewFragment"
+        android:name="com.vkpapps.thunder.ui.fragments.PhotoViewFragment"
+        android:label="Image"
+        tools:layout="@layout/fragment_photo_view" />
+
 </navigation>

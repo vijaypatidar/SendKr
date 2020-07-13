@@ -1,7 +1,6 @@
 package com.vkpapps.thunder.ui.adapter;
 
 import android.content.Context;
-import android.media.ThumbnailUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +22,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private List<RequestInfo> requestInfos = new ArrayList<>();
     private LayoutInflater inflater;
-    private ThumbnailUtils thumbnailUtils;
+
     public RequestAdapter(@NonNull Context context) {
         this.inflater = LayoutInflater.from(context);
-        thumbnailUtils = new ThumbnailUtils();
     }
 
     @Override
@@ -81,13 +79,19 @@ public class RequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private void setIconType(AppCompatImageView thumbnail, int type) {
         switch (type) {
             case FileType.FILE_TYPE_APP:
-                thumbnail.setImageResource(R.drawable.ic_apps);
+                thumbnail.setImageResource(R.drawable.ic_android);
                 break;
             case FileType.FILE_TYPE_MUSIC:
-                thumbnail.setImageResource(R.drawable.ic_default_audio_icon);
+                thumbnail.setImageResource(R.drawable.ic_music);
                 break;
             case FileType.FILE_TYPE_VIDEO:
-                thumbnail.setImageResource(R.drawable.ic_video);
+                thumbnail.setImageResource(R.drawable.ic_movie);
+                break;
+            case FileType.FILE_TYPE_PHOTO:
+                thumbnail.setImageResource(R.drawable.ic_photo);
+                break;
+            default:
+                thumbnail.setImageResource(R.drawable.ic_file);
                 break;
         }
     }
