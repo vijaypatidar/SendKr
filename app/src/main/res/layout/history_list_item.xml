@@ -40,6 +40,5 @@
         android:id="@+id/btnSelect"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:layout_gravity="center_vertical"
-        android:visibility="gone" />
+        android:layout_gravity="center_vertical" />
 </LinearLayout>

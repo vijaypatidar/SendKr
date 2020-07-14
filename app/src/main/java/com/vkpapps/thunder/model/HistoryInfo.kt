@@ -16,6 +16,9 @@ class HistoryInfo : Serializable {
     var date: Long = 0
     var type = 0
 
+    @Ignore
+    var isSelected: Boolean = false
+
     constructor()
 
     @Ignore

@@ -46,6 +46,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         final HistoryInfo historyInfo = historyInfos.get(position);
         holder.name.setText(historyInfo.getName());
         File icon = new File(thumbnails, historyInfo.getId());
+        holder.btnSelect.setChecked(historyInfo.isSelected());
+        holder.btnSelect.setOnClickListener(v -> {
+            historyInfo.setSelected(!historyInfo.isSelected());
+            holder.btnSelect.setVisibility(historyInfo.isSelected() ? View.VISIBLE : View.GONE);
+            //todo
+        });
         myThumbnailUtils.loadThumbnail(icon, historyInfo.getSource(), historyInfo.getType(), holder.logo);
     }
 
