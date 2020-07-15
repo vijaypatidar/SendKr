@@ -1,9 +1,9 @@
 package com.vkpapps.thunder.service
 
 import android.app.IntentService
-import android.content.Context
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.vkpapps.thunder.App
 import com.vkpapps.thunder.analitics.Logger
 import java.io.*
 import java.net.InetSocketAddress
@@ -145,25 +145,25 @@ class FileService : IntentService("FileService") {
         private const val MAX_WAIT_TIME = 1800
         private const val PORT = 7511
 
-        fun startActionSend(context: Context, rid: String, source: String, clientId: String?, isHost: Boolean) {
-            val intent = Intent(context, FileService::class.java)
+        fun startActionSend(rid: String, source: String, clientId: String?, isHost: Boolean) {
+            val intent = Intent(App.context, FileService::class.java)
             intent.action = ACTION_SEND
             intent.putExtra(PARAM_CLIENT_ID, clientId)
             intent.putExtra(PARAM_IS_HOST, isHost)
             intent.putExtra(PARAM_RID, rid)
             intent.putExtra(PARAM_SOURCE, source)
-            context.startService(intent)
+            App.context.startService(intent)
         }
 
-        fun startActionReceive(context: Context, name: String, source: String, rid: String, clientId: String?, isHost: Boolean) {
-            val intent = Intent(context, FileService::class.java)
+        fun startActionReceive(name: String, source: String, rid: String, clientId: String?, isHost: Boolean) {
+            val intent = Intent(App.context, FileService::class.java)
             intent.action = ACTION_RECEIVE
             intent.putExtra(PARAM_RID, rid)
             intent.putExtra(PARAM_NAME, name)
             intent.putExtra(PARAM_CLIENT_ID, clientId)
             intent.putExtra(PARAM_SOURCE, source)
             intent.putExtra(PARAM_IS_HOST, isHost)
-            context.startService(intent)
+            App.context.startService(intent)
         }
     }
 }

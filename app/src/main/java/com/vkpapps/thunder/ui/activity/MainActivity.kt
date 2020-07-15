@@ -159,8 +159,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
             withContext(Main) {
-                FileService.startActionReceive(this@MainActivity,
-                        requestInfo.name,
+                FileService.startActionReceive(requestInfo.name,
                         requestInfo.source,
                         rid,
                         requestInfo.cid,
@@ -175,8 +174,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
             withContext(Main) {
-                FileService.startActionSend(this@MainActivity,
-                        rid,
+                FileService.startActionSend(rid,
                         requestInfo.source,
                         requestInfo.cid,
                         isHost
@@ -194,7 +192,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 database.requestDao().insert(obj)
                 withContext(Main) {
                     FileService.startActionReceive(
-                            this@MainActivity,
                             obj.name,
                             obj.source,
                             obj.rid,
@@ -213,7 +210,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
                         withContext(Main) {
                             FileService.startActionSend(
-                                    this@MainActivity,
                                     clone.rid,
                                     clone.source,
                                     clone.cid,
@@ -261,9 +257,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             item.itemId == android.R.id.home -> {
                 onBackPressed()
             }
-            R.id.menu_share == item.itemId -> {
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show()
-            }
+
             R.id.menu_transferring == item.itemId -> {
                 navController.navigate(R.id.transferringFragment)
             }
@@ -366,13 +360,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         } else super.onBackPressed()
     }
 
-    override fun sendFiles(requests: List<RawRequestInfo>, type: Int) {
+    override fun sendFiles(requests: List<RawRequestInfo>) {
         CoroutineScope(IO).launch {
             for (rawRequestInfo in requests) {
                 val requestInfo = RequestInfo()
                 requestInfo.name = rawRequestInfo.name
                 requestInfo.source = rawRequestInfo.source
-                requestInfo.type = type
+                requestInfo.type = rawRequestInfo.type
                 if (isHost) {
                     for (clientHelper in serverHelper.clientHelpers) {
                         val rid = getRandomId()
@@ -382,7 +376,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         clientHelper.write(clone)
                         withContext(Main) {
                             FileService.startActionSend(
-                                    this@MainActivity,
                                     clone.rid,
                                     clone.source,
                                     clone.cid,
@@ -400,11 +393,14 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onClientConnected(clientHelper: ClientHelper) {
-        runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
+        runOnUiThread {
+            onUsersUpdateListener?.onUserUpdated()
+            Toast.makeText(this@MainActivity, "${clientHelper.user.name} connected", Toast.LENGTH_SHORT).show()
+        }
         if (clientHelper.user.appVersion < BuildConfig.VERSION_CODE) {
             val source = packageManager.getInstallerPackageName(packageName)
             if (source != null)
-                sendFiles(Collections.singletonList(RawRequestInfo(getString(R.string.app_name), source, FileType.FILE_TYPE_APP)), FileType.FILE_TYPE_APP)
+                sendFiles(Collections.singletonList(RawRequestInfo(getString(R.string.app_name), source, FileType.FILE_TYPE_APP)))
         }
     }
 

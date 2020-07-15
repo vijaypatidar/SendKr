@@ -23,7 +23,6 @@ import com.vkpapps.thunder.ui.adapter.VideoAdapter
 import com.vkpapps.thunder.ui.adapter.VideoAdapter.OnVideoSelectListener
 import kotlinx.android.synthetic.main.fragment_video.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -84,7 +83,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
         btnSend.setOnClickListener {
 
             if (selectedCount == 0) return@setOnClickListener
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
                 videoInfos.forEach {
                     if (it.isSelected) {
@@ -95,12 +94,12 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
                     }
                 }
                 selectedCount = 0
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     adapter?.notifyDataSetChanged()
                     hideShowSendButton()
                     Toast.makeText(requireContext(), "${selected.size} videos added to send queue", Toast.LENGTH_SHORT).show()
                 }
-                onFileRequestPrepareListener?.sendFiles(selected, FileType.FILE_TYPE_VIDEO)
+                onFileRequestPrepareListener?.sendFiles(selected)
             }
         }
     }

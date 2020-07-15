@@ -6,4 +6,5 @@ object FileType {
     const val FILE_TYPE_PHOTO = 2
     const val FILE_TYPE_APP = 3
     const val FILE_TYPE_PROFILE_PIC = 4
+    const val FILE_TYPE_ANY = 5
 }

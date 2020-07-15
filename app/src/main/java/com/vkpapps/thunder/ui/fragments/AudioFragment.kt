@@ -102,7 +102,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                         hideShowSendButton()
                         Toast.makeText(requireContext(), "${selected.size} musics added to send queue", Toast.LENGTH_SHORT).show()
                     }
-                    onFileRequestPrepareListener?.sendFiles(selected, FileType.FILE_TYPE_MUSIC)
+                    onFileRequestPrepareListener?.sendFiles(selected)
                 }
             }
         } else {

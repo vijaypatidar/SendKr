@@ -95,7 +95,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                     hideShowSendButton()
                     Toast.makeText(requireContext(), "${selected.size} images added to send queue", Toast.LENGTH_SHORT).show()
                 }
-                onFileRequestPrepareListener?.sendFiles(selected, FileType.FILE_TYPE_PHOTO)
+                onFileRequestPrepareListener?.sendFiles(selected)
             }
         }
     }

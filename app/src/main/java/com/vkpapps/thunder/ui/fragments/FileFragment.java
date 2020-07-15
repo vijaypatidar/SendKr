@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +26,7 @@ import java.io.File;
 public class FileFragment extends Fragment {
 
     public static final String FILE_ROOT = "FILE_ROOT";
+    public static final String FRAGMENT_TITLE = "FRAGMENT_TITLE";
     private OnNavigationVisibilityListener onNavigationVisibilityListener;
 
     private String rootDir;
@@ -38,8 +41,17 @@ public class FileFragment extends Fragment {
         if (getArguments() != null && getArguments().containsKey(FILE_ROOT)) {
             rootDir = getArguments().getString(FILE_ROOT);
         } else {
-            rootDir = ContextCompat.getExternalFilesDirs(requireContext(), null)[0].getAbsolutePath();
+            rootDir = "/storage/emulated/0/";
         }
+
+        if (getArguments() != null && getArguments().containsKey(FRAGMENT_TITLE)) {
+            String title = getArguments().getString(FRAGMENT_TITLE);
+            ActionBar supportActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
+            if (supportActionBar != null) {
+                supportActionBar.setTitle(title);
+            }
+        }
+
     }
 
     @Override
@@ -52,7 +64,7 @@ public class FileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        FileAdapter adapter = new FileAdapter(new File(rootDir), view);
+        FileAdapter adapter = new FileAdapter(DocumentFile.fromFile(new File(rootDir)), view);
         RecyclerView recyclerView = view.findViewById(R.id.fileList);
         recyclerView.setAdapter(adapter);
         recyclerView.setOnFlingListener(new RecyclerView.OnFlingListener() {

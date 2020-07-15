@@ -45,13 +45,26 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
         appHolder.packageName.setText(appInfo.getPackageName());
         appHolder.btnSelected.setOnClickListener((v) -> {
             appInfo.setSelected(!appInfo.isSelected());
-            if (appInfo.isSelected()) {
-                onAppSelectListener.onAppSelected(appInfo);
-            } else {
-                onAppSelectListener.onAppDeselected(appInfo);
+            if (appInfo.getObbSource() != null && appInfo.isSelected() != appInfo.isObbSelected()) {
+                appInfo.setObbSelected(appInfo.isSelected());
+                appHolder.btnObbSelected.setChecked(appInfo.isObbSelected());
+                selectionChange(appInfo, appInfo.isObbSelected());
             }
+            selectionChange(appInfo, appInfo.isSelected());
             appHolder.btnSelected.setChecked(appInfo.isSelected());
         });
+        if (appInfo.getObbSource() != null) {
+            appHolder.obb.setVisibility(View.VISIBLE);
+            appHolder.obbName.setText(appInfo.getObbName());
+            appHolder.btnObbSelected.setChecked(appInfo.isObbSelected());
+            appHolder.btnObbSelected.setOnClickListener((v) -> {
+                appInfo.setObbSelected(!appInfo.isObbSelected());
+                appHolder.btnObbSelected.setChecked(appInfo.isObbSelected());
+                selectionChange(appInfo, appInfo.isObbSelected());
+            });
+        } else {
+            appHolder.obb.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -59,17 +72,11 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
         return appInfos == null ? 0 : appInfos.size();
     }
 
-    static class AppHolder extends RecyclerView.ViewHolder {
-        TextView appTitle, packageName;
-        AppCompatImageView appIcon;
-        RadioButton btnSelected;
-
-        public AppHolder(@NonNull View itemView) {
-            super(itemView);
-            appTitle = itemView.findViewById(R.id.appName);
-            appIcon = itemView.findViewById(R.id.appIcon);
-            btnSelected = itemView.findViewById(R.id.btnSelect);
-            packageName = itemView.findViewById(R.id.packageName);
+    private void selectionChange(AppInfo appInfo, boolean isSelected) {
+        if (isSelected) {
+            onAppSelectListener.onAppSelected(appInfo);
+        } else {
+            onAppSelectListener.onAppDeselected(appInfo);
         }
     }
 
@@ -77,5 +84,23 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
         void onAppSelected(@NonNull AppInfo appInfo);
 
         void onAppDeselected(@NonNull AppInfo appInfo);
+    }
+
+    static class AppHolder extends RecyclerView.ViewHolder {
+        TextView appTitle, packageName, obbName;
+        AppCompatImageView appIcon;
+        RadioButton btnSelected, btnObbSelected;
+        View obb;
+
+        public AppHolder(@NonNull View itemView) {
+            super(itemView);
+            appTitle = itemView.findViewById(R.id.appName);
+            appIcon = itemView.findViewById(R.id.appIcon);
+            btnSelected = itemView.findViewById(R.id.btnSelect);
+            btnObbSelected = itemView.findViewById(R.id.btnSelectObb);
+            packageName = itemView.findViewById(R.id.packageName);
+            obbName = itemView.findViewById(R.id.obbName);
+            obb = itemView.findViewById(R.id.obbContainer);
+        }
     }
 }

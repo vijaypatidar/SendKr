@@ -7,5 +7,5 @@ import java.util.List;
  * @author VIJAY PATIDAR
  */
 public interface OnFileRequestPrepareListener {
-    void sendFiles(List<RawRequestInfo> requests, int type);
+    void sendFiles(List<RawRequestInfo> requests);
 }

@@ -1,5 +1,6 @@
 package com.vkpapps.thunder.ui.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,8 +50,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         holder.btnSelect.setChecked(historyInfo.isSelected());
         holder.btnSelect.setOnClickListener(v -> {
             historyInfo.setSelected(!historyInfo.isSelected());
-            holder.btnSelect.setVisibility(historyInfo.isSelected() ? View.VISIBLE : View.GONE);
+            holder.btnSelect.setChecked(historyInfo.isSelected());
             //todo
+        });
+        holder.itemView.setOnLongClickListener(v -> {
+            AlertDialog.Builder ab = new AlertDialog.Builder(v.getContext());
+            ab.setTitle("Delete history");
+            ab.setMessage("Remove " + historyInfo.name + " from history.");
+            ab.create().show();
+            return true;
         });
         myThumbnailUtils.loadThumbnail(icon, historyInfo.getSource(), historyInfo.getType(), holder.logo);
     }

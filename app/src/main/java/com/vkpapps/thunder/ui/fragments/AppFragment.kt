@@ -72,6 +72,13 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                                 it.name, it.source, FileType.FILE_TYPE_APP
                         ))
                     }
+                    if (it.obbSource != null && it.isObbSelected) {
+                        it.isObbSelected = false
+                        selected.add(RawRequestInfo(
+                                it.obbName!!, it.obbSource!!, FileType.FILE_TYPE_ANY
+                        ))
+                    }
+
                 }
                 selectedCount = 0
                 withContext(Main) {
@@ -79,7 +86,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                     hideShowSendButton()
                     Toast.makeText(requireContext(), "${selected.size} apps added to send queue", Toast.LENGTH_SHORT).show()
                 }
-                onFileRequestPrepareListener?.sendFiles(selected, FileType.FILE_TYPE_APP)
+                onFileRequestPrepareListener?.sendFiles(selected)
             }
         }
     }

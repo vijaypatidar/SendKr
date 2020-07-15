@@ -3,28 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
-    android:background="@color/colorPrimary"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context=".ui.activity.MainActivity">
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navView"
         android:layout_width="240dp"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         android:background="@drawable/round"
         android:backgroundTint="?android:attr/windowBackground"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintRight_toRightOf="parent"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        app:elevation="4dp"
         app:itemIconTint="@color/nav_item_color"
         app:labelVisibilityMode="unlabeled"
-        app:menu="@menu/bottom_nav_menu"
-        app:elevation="4dp"
-        android:layout_margin="20dp"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp"/>
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 
     <fragment
         android:id="@+id/nav_host_fragment"

@@ -1,8 +1,6 @@
 package com.vkpapps.thunder.utils
 
 import android.content.Context
-import android.os.Environment
-import com.vkpapps.thunder.analitics.Logger
 import java.io.File
 
 /**
@@ -19,15 +17,21 @@ class StorageManager(private val context: Context) {
         get() = context.getDir("thumbnails", Context.MODE_PRIVATE)
 
     val internal: File
-        get() = context.filesDir.absoluteFile
+        get() = File("/storage/emulated/0/")
 
     val external: File?
-        get() = context.getExternalFilesDir(null)?.absoluteFile
+        get() {
+            val externalStoragePath = KeyValue(context).externalStoragePath
+            return if (externalStoragePath == null) {
+                null
+            } else {
+                File(externalStoragePath)
+            }
+        }
 
     val downloadDir: File
         get() {
-            val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "Thunder")
-            Logger.d("==========================>${file.absolutePath}")
+            val file = File("/storage/emulated/0/Thunder")
             if (!file.exists()) file.mkdirs()
             return file
         }

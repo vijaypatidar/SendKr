@@ -2,6 +2,7 @@ package com.vkpapps.thunder.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+
 /***
  * @author VIJAY PATIDAR
  */
@@ -26,5 +27,12 @@ class KeyValue(context: Context) {
         set(policy) {
             val editor = sharedPreferences.edit()
             editor.putBoolean("policy", policy).apply()
+        }
+
+    var externalStoragePath: String?
+        get() = sharedPreferences.getString("externalStoragePath", null)
+        set(policy) {
+            val editor = sharedPreferences.edit()
+            editor.putString("externalStoragePath", policy).apply()
         }
 }
