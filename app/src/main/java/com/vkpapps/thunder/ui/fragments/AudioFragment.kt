@@ -26,6 +26,7 @@ import com.vkpapps.thunder.ui.adapter.AudioAdapter.OnAudioSelectedListener
 import com.vkpapps.thunder.utils.PermissionUtils.askStoragePermission
 import com.vkpapps.thunder.utils.PermissionUtils.checkStoragePermission
 import kotlinx.android.synthetic.main.fragment_music.*
+import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
@@ -56,7 +57,11 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
             recyclerView.adapter = audioAdapter
             recyclerView.onFlingListener = object : OnFlingListener() {
                 override fun onFling(velocityX: Int, velocityY: Int): Boolean {
-                    onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                    if (selectedCount == 0) {
+                        onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                    } else {
+                        onNavigationVisibilityListener?.onNavVisibilityChange(false)
+                    }
                     return false
                 }
             }
@@ -84,7 +89,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
             })
 
 
-            btnSend.setOnClickListener {
+            btnSendFiles.setOnClickListener {
                 if (selectedCount == 0) return@setOnClickListener
                 CoroutineScope(IO).launch {
                     val selected = ArrayList<RawRequestInfo>()
@@ -105,6 +110,34 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                     onFileRequestPrepareListener?.sendFiles(selected)
                 }
             }
+            btnNon.setOnClickListener {
+                if (selectedCount == 0) return@setOnClickListener
+                CoroutineScope(IO).launch {
+                    allSong?.forEach {
+                        it.isSelected = false
+                    }
+                    selectedCount = 0
+                    withContext(Dispatchers.Main) {
+                        audioAdapter.notifyDataSetChanged()
+                        hideShowSendButton()
+                    }
+                }
+            }
+
+            btnAll.setOnClickListener {
+                CoroutineScope(IO).launch {
+                    selectedCount = 0
+                    allSong?.forEach {
+                        it.isSelected = true
+                        selectedCount++
+                    }
+                    withContext(Dispatchers.Main) {
+                        audioAdapter.notifyDataSetChanged()
+                        hideShowSendButton()
+                    }
+                }
+            }
+
         } else {
             Navigation.findNavController(view).popBackStack()
             askStoragePermission(activity, 101)
@@ -137,15 +170,23 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
         onFileRequestPrepareListener = null
     }
 
+    override fun onResume() {
+        super.onResume()
+        hideShowSendButton()
+    }
+
     private fun hideShowSendButton() {
-        if (btnSend.visibility == View.VISIBLE && selectedCount > 0) return
+        if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) {
+            onNavigationVisibilityListener?.onNavVisibilityChange(false)
+            return
+        }
         if (selectedCount == 0) {
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
-            btnSend.visibility = View.GONE
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
+            selectionSection.visibility = View.GONE
             onNavigationVisibilityListener?.onNavVisibilityChange(true)
         } else {
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
-            btnSend.visibility = View.VISIBLE
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
+            selectionSection.visibility = View.VISIBLE
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
         }
     }

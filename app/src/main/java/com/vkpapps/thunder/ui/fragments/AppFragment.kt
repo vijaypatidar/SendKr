@@ -19,7 +19,9 @@ import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.ui.adapter.AppAdapter
 import kotlinx.android.synthetic.main.fragment_app.*
+import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -49,7 +51,8 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
         appList.layoutManager = LinearLayoutManager(requireContext())
         appList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
-                onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                if (selectedCount == 0)
+                    onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
                 return false
             }
         }
@@ -61,7 +64,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
             }
         }
 
-        btnSend.setOnClickListener {
+        btnSendFiles.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
@@ -87,6 +90,37 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                     Toast.makeText(requireContext(), "${selected.size} apps added to send queue", Toast.LENGTH_SHORT).show()
                 }
                 onFileRequestPrepareListener?.sendFiles(selected)
+            }
+        }
+
+        btnNon.setOnClickListener {
+            if (selectedCount == 0) return@setOnClickListener
+            CoroutineScope(Dispatchers.IO).launch {
+                appInfos.forEach {
+                    it.isSelected = false
+                }
+                selectedCount = 0
+                withContext(Dispatchers.Main) {
+                    adapter?.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
+        }
+
+        btnAll.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                selectedCount = 0
+                appInfos.forEach {
+                    it.isSelected = true
+                    selectedCount++
+                    if (it.obbSource != null) {
+                        it.isObbSelected = true
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    adapter?.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
             }
         }
     }
@@ -119,14 +153,14 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
     }
 
     private fun hideShowSendButton() {
-        if (btnSend.visibility == View.VISIBLE && selectedCount > 0) return
+        if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) return
         if (selectedCount > 0) {
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
-            btnSend.visibility = View.VISIBLE
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
+            selectionSection.visibility = View.VISIBLE
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
         } else {
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
-            btnSend.visibility = View.GONE
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
+            selectionSection.visibility = View.GONE
             onNavigationVisibilityListener?.onNavVisibilityChange(true)
         }
     }

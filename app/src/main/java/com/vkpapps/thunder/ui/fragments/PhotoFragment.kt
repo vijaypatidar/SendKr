@@ -21,6 +21,7 @@ import com.vkpapps.thunder.room.liveViewModel.PhotoViewModel
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter.OnPhotoSelectListener
 import kotlinx.android.synthetic.main.fragment_photo.*
+import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,7 +50,8 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
         photoList.adapter = photoAdapter
         photoList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
-                onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                if (selectedCount == 0)
+                    onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
                 return false
             }
         }
@@ -75,8 +77,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                 emptyPhoto.visibility = View.VISIBLE
             }
         })
-
-        btnSend.setOnClickListener {
+        btnSendFiles.setOnClickListener {
 
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(Dispatchers.IO).launch {
@@ -98,6 +99,34 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                 onFileRequestPrepareListener?.sendFiles(selected)
             }
         }
+
+        btnNon.setOnClickListener {
+            if (selectedCount == 0) return@setOnClickListener
+            CoroutineScope(Dispatchers.IO).launch {
+                photoInfos.forEach {
+                    it.isSelected = false
+                }
+                selectedCount = 0
+                withContext(Dispatchers.Main) {
+                    photoAdapter?.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
+        }
+
+        btnAll.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                selectedCount = 0
+                photoInfos.forEach {
+                    it.isSelected = true
+                    selectedCount++
+                }
+                withContext(Dispatchers.Main) {
+                    photoAdapter?.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
+        }
     }
 
 
@@ -116,16 +145,24 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
         onNavigationVisibilityListener = null
     }
 
+    override fun onResume() {
+        super.onResume()
+        hideShowSendButton()
+    }
+
     private fun hideShowSendButton() {
-        if (btnSend.visibility == View.VISIBLE && selectedCount > 0) return
-        if (selectedCount > 0) {
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
-            btnSend.visibility = View.VISIBLE
+        if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) {
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
-        } else {
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
-            btnSend.visibility = View.GONE
+            return
+        }
+        if (selectedCount == 0) {
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
+            selectionSection.visibility = View.GONE
             onNavigationVisibilityListener?.onNavVisibilityChange(true)
+        } else {
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
+            selectionSection.visibility = View.VISIBLE
+            onNavigationVisibilityListener?.onNavVisibilityChange(false)
         }
     }
 
