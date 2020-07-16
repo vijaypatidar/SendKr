@@ -6,7 +6,7 @@ import com.vkpapps.thunder.room.repository.AudioRepository
 import com.vkpapps.thunder.room.repository.PhotoRepository
 import com.vkpapps.thunder.room.repository.VideoRepository
 
-class PrepareDb() {
+class PrepareDb {
     suspend fun prepareAll() {
         val database = MyRoomDatabase.getDatabase(App.context)
         val audioDao = database.audioDao()
@@ -20,5 +20,6 @@ class PrepareDb() {
         val photoDao = database.photoDao()
         photoDao.deleteAll()
         PhotoRepository(photoDao).insertAll(PreparePhotoList().getList())
+        PrepareAppList.appList
     }
 }

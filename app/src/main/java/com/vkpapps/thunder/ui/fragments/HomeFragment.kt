@@ -16,6 +16,7 @@ import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.ui.adapter.HistoryAdapter
+import com.vkpapps.thunder.utils.AdsUtils
 import com.vkpapps.thunder.utils.KeyValue
 import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -87,6 +88,8 @@ class HomeFragment : Fragment() {
 
         }
         setupHistory()
+
+        AdsUtils.getAdRequest(adView)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

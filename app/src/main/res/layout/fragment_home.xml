@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
@@ -330,6 +331,14 @@
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                ads:adSize="BANNER"
+                ads:adUnitId="ca-app-pub-4043007075380826/1587600684" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -356,5 +365,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/tabLayout"
+        ads:adUnitId="ca-app-pub-4043007075380826/1587600684"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

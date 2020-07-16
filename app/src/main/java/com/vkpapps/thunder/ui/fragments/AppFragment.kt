@@ -36,7 +36,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
     private var adapter: AppAdapter? = null
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
-    private var selectedCount = 0
+    var selectedCount = 0
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -98,6 +98,9 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
             CoroutineScope(Dispatchers.IO).launch {
                 appInfos.forEach {
                     it.isSelected = false
+                    if (it.obbSource != null) {
+                        it.isObbSelected = false
+                    }
                 }
                 selectedCount = 0
                 withContext(Dispatchers.Main) {
@@ -115,6 +118,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                     selectedCount++
                     if (it.obbSource != null) {
                         it.isObbSelected = true
+                        selectedCount++
                     }
                 }
                 withContext(Dispatchers.Main) {

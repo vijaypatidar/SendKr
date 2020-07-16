@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,7 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.FileInfo;
 import com.vkpapps.thunder.ui.fragments.FileFragment;
+import com.vkpapps.thunder.utils.MyThumbnailUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,14 +26,15 @@ import java.util.List;
  * @author VIJAY PATIDAR
  */
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> {
-    private List<FileInfo> fileInfos = new ArrayList<>();
+    private final List<FileInfo> fileInfos = new ArrayList<>();
+    private OnFileSelectListener onFileSelectListener;
     private View view;
+    private MyThumbnailUtils thumbnailUtils;
 
-    public FileAdapter(DocumentFile file, View view) {
-        for (DocumentFile f : file.listFiles()) {
-            fileInfos.add(new FileInfo(f));
-        }
+    public FileAdapter(OnFileSelectListener onFileSelectListener, View view) {
+        this.onFileSelectListener = onFileSelectListener;
         this.view = view;
+        this.thumbnailUtils = MyThumbnailUtils.INSTANCE;
     }
 
     @Override
@@ -81,21 +83,33 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
             holder.btnSelected.setChecked(fileInfo.isSelected());
             holder.btnSelected.setOnClickListener(v -> {
                 fileInfo.setSelected(!fileInfo.isSelected());
+                if (!fileInfo.isDirectory()) {
+                    if (fileInfo.isSelected()) {
+                        onFileSelectListener.onFileSelected(fileInfo);
+                    } else {
+                        onFileSelectListener.onFileDeselected(fileInfo);
+                    }
+                }
+                holder.btnSelected.setChecked(fileInfo.isSelected());
             });
+            thumbnailUtils.loadThumbnail(new File(fileInfo.getSource()),
+                    fileInfo.getSource(),
+                    fileInfo.getType(),
+                    holder.icon
+            );
         }
 
     }
 
     @Override
     public int getItemCount() {
-        return fileInfos == null ? 0 : fileInfos.size();
+        return fileInfos.size();
     }
 
-    public void notifyDataSetChangedAndHideIfNull() {
-        if (fileInfos == null || fileInfos.size() == 0) {
-            view.findViewById(R.id.emptyDirectory).setVisibility(View.VISIBLE);
-        } else {
-            view.findViewById(R.id.emptyDirectory).setVisibility(View.GONE);
+    public void setFileInfos(List<FileInfo> fileInfos) {
+        synchronized (this.fileInfos) {
+            this.fileInfos.clear();
+            this.fileInfos.addAll(fileInfos);
             notifyDataSetChanged();
         }
     }
@@ -111,5 +125,11 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
             name = itemView.findViewById(R.id.fileName);
             btnSelected = itemView.findViewById(R.id.btnSelect);
         }
+    }
+
+    public interface OnFileSelectListener {
+        void onFileSelected(@NonNull FileInfo fileInfo);
+
+        void onFileDeselected(@NonNull FileInfo fileInfo);
     }
 }

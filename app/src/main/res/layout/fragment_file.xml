@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:cardCornerRadius="@dimen/top_corner_radius">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -29,5 +30,10 @@
                 android:text="@string/empty_directory"
                 android:textSize="16sp" />
         </RelativeLayout>
+
+        <include
+            layout="@layout/selection_options"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

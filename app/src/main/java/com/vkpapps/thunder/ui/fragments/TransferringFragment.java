@@ -14,10 +14,12 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdView;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener;
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel;
 import com.vkpapps.thunder.ui.adapter.RequestAdapter;
+import com.vkpapps.thunder.utils.AdsUtils;
 
 /***
  * @author VIJAY PATIDAR
@@ -65,6 +67,9 @@ public class TransferringFragment extends Fragment {
                 view.findViewById(R.id.emptyRequestList).setVisibility(View.VISIBLE);
             }
         });
+
+        AdView adView = view.findViewById(R.id.adView);
+        AdsUtils.INSTANCE.getAdRequest(adView);
     }
 
     @Override

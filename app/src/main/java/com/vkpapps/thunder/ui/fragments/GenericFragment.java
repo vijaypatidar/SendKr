@@ -47,10 +47,12 @@ public class GenericFragment extends Fragment {
             tabLayout.setupWithViewPager(viewPager);
 
             MyPagerAdapter adapter = new MyPagerAdapter(getChildFragmentManager());
-
-            adapter.addFragment(new PhotoFragment(), "Photos");
-            adapter.addFragment(new AudioFragment(), "Music");
-            adapter.addFragment(new VideoFragment(), "Videos");
+            PhotoFragment photoFragment = new PhotoFragment();
+            adapter.addFragment(photoFragment, "Photos");
+            AudioFragment audioFragment = new AudioFragment();
+            adapter.addFragment(audioFragment, "Music");
+            VideoFragment videoFragment = new VideoFragment();
+            adapter.addFragment(videoFragment, "Videos");
             viewPager.setAdapter(adapter);
 
             if (destination > 0) {

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="@dimen/top_corner_radius">
 
     <RelativeLayout
@@ -10,11 +11,26 @@
         android:layout_height="match_parent"
         android:background="@drawable/round_on_top">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/requestList"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/requestList"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                ads:adSize="BANNER"
+                ads:adUnitId="ca-app-pub-4043007075380826/6021023499" />
+        </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/emptyRequestList"
