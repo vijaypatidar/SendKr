@@ -42,6 +42,7 @@ import com.vkpapps.thunder.ui.fragments.destinations.FragmentDestinationListener
 import com.vkpapps.thunder.utils.DirectoryResolver
 import com.vkpapps.thunder.utils.HashUtils.getRandomId
 import com.vkpapps.thunder.utils.IPManager
+import com.vkpapps.thunder.utils.PermissionUtils
 import com.vkpapps.thunder.utils.UpdateManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -94,6 +95,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         // check for policy accepted or not
 //        PrivacyDialog(this).isPolicyAccepted
         setupReceiver()
+        if (!PermissionUtils.checkStoragePermission(this)) {
+            PermissionUtils.askStoragePermission(this, 9098)
+        }
     }
 
     private fun choice() {
@@ -324,13 +328,23 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // request made by local Song fragment
-        if (requestCode == 101 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            CoroutineScope(IO).launch {
-                PrepareDb().prepareAll()
+        if (requestCode == 101) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                CoroutineScope(IO).launch {
+                    PrepareDb().prepareAll()
+                }
+                navController.navigate(R.id.navigation_files)
+            } else {
+                Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
             }
-            navController.navigate(R.id.navigation_files)
-        } else {
-            Toast.makeText(this, "Storage permission required!", Toast.LENGTH_SHORT).show()
+        } else if (requestCode == 9098) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                CoroutineScope(IO).launch {
+                    PrepareDb().prepareAll()
+                }
+            } else {
+                Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

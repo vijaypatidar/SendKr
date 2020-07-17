@@ -142,7 +142,7 @@ class FileService : IntentService("FileService") {
 
         @JvmField
         var HOST_ADDRESS: String? = null
-        private const val MAX_WAIT_TIME = 1300
+        private const val MAX_WAIT_TIME = 800
         private const val PORT = 7511
 
         fun startActionSend(rid: String, source: String, clientId: String?, isHost: Boolean) {

@@ -4,33 +4,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="2dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginBottom="2dp"
     android:foreground="?android:attr/selectableItemBackground"
     android:orientation="horizontal"
     tools:ignore="UnusedAttribute">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
         android:padding="3dp"
         app:srcCompat="@drawable/ic_file" />
 
-    <TextView
-        android:id="@+id/fileName"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
+        android:layout_marginStart="5dp"
         android:layout_weight="1"
-        android:lines="1"
-        android:padding="5dp"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        tools:text="song name" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fileName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:lines="1"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            tools:text="song name" />
+
+        <TextView
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:lines="1"
+            android:text="song name"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+    </LinearLayout>
 
     <RadioButton
         android:id="@+id/btnSelect"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:layout_gravity="center_vertical" />
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="5dp" />
 </LinearLayout>

@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -46,10 +45,10 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
     @Override
     public void onBindViewHolder(@NonNull final MyHolder holder, final int position) {
         final VideoInfo videoInfo = videoInfos.get(position);
-
         final File file = new File(thumbnails, videoInfo.getId());
 
         holder.title.setText(videoInfo.getName());
+        holder.size.setText(videoInfo.getSize());
         holder.btnSelected.setChecked(videoInfo.isSelected());
         holder.btnSelected.setOnClickListener(v -> {
             videoInfo.setSelected(!videoInfo.isSelected());
@@ -61,7 +60,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
             }
         });
         myThumbnailUtils.loadVideoThumbnail(file, videoInfo.getPath(), holder.picture);
-        holder.picture.setOnClickListener(v -> Toast.makeText(v.getContext(), "Not implemented yet", Toast.LENGTH_SHORT).show());
+        holder.picture.setOnClickListener(v -> {
+
+        });
     }
 
     @Override
@@ -72,12 +73,13 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.MyHolder> {
     static class MyHolder extends RecyclerView.ViewHolder {
         private AppCompatImageView picture;
         private RadioButton btnSelected;
-        private AppCompatTextView title;
+        private AppCompatTextView title, size;
 
         MyHolder(@NonNull View itemView) {
             super(itemView);
             picture = itemView.findViewById(R.id.picture);
             title = itemView.findViewById(R.id.title);
+            size = itemView.findViewById(R.id.size);
             btnSelected = itemView.findViewById(R.id.btnSelect);
         }
     }

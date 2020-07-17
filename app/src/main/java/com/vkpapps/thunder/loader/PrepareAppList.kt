@@ -25,18 +25,19 @@ object PrepareAppList {
 
                 //check for obb
                 try {
-                    val file = File(App.context.obbDir.parentFile!!, appInfo.packageName)
-                    val obb = DocumentFile.fromFile(file)
-                    val listFiles = obb.listFiles()
-                    if (listFiles.isNotEmpty()) {
-                        appInfo.obbName = listFiles[0].name
-                        appInfo.obbSource = listFiles[0].uri.path
+                    // check in all storage devices
+                    App.context.obbDirs.forEach { obbDir ->
+                        val file = File(obbDir.parentFile!!, appInfo.packageName)
+                        val obb = DocumentFile.fromFile(file)
+                        val listFiles = obb.listFiles()
+                        if (listFiles.isNotEmpty()) {
+                            appInfo.obbName = listFiles[0].name
+                            appInfo.obbSource = listFiles[0].uri.path
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
-
                 appInfos.add(appInfo)
             }
         }

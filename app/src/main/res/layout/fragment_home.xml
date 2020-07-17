@@ -79,6 +79,7 @@
                                 android:textSize="18sp" />
 
                             <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/internalProgressText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
@@ -91,7 +92,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:max="16"
-                                android:progress="12" />
+                                android:progress="0" />
                         </LinearLayout>
 
                     </LinearLayout>
@@ -219,7 +220,6 @@
                     android:layout_marginBottom="5dp"
                     android:layout_weight="1"
                     android:clickable="true"
-
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:padding="5dp"

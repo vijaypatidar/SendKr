@@ -33,10 +33,9 @@
                 android:scaleType="centerCrop"
                 tools:src="@color/colorAccent" />
 
-            <TextView
-                android:id="@+id/title"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:layout_centerInParent="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center_vertical"
@@ -46,7 +45,33 @@
                 android:layout_toEndOf="@+id/picture"
                 android:clickable="false"
                 android:ellipsize="end"
-                android:textSize="16sp" />
+                android:orientation="vertical"
+                android:textSize="16sp"
+                tools:text="vjfjhjahf">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="2dp"
+                    android:layout_weight="1"
+                    android:clickable="false"
+                    android:ellipsize="end"
+                    android:textSize="16sp"
+                    tools:text="vjfjhjahf" />
+
+                <TextView
+                    android:id="@+id/size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="2dp"
+                    android:textSize="12sp"
+                    tools:text="1Gb" />
+            </LinearLayout>
 
             <RadioButton
                 android:id="@+id/btnSelect"
@@ -54,8 +79,7 @@
                 android:layout_height="35dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="5dp" />
+                android:layout_gravity="center_vertical" />
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </RelativeLayout>

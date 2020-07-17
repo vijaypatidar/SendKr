@@ -1,6 +1,9 @@
 package com.vkpapps.thunder.ui.adapter
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +20,7 @@ import com.vkpapps.thunder.utils.MyThumbnailUtils
 import com.vkpapps.thunder.utils.StorageManager
 import java.io.File
 import java.util.*
+
 
 /**
  * @author VIJAY PATIDAR
@@ -48,7 +52,7 @@ class AudioAdapter(private val onAudioSelectedListener: OnAudioSelectedListener,
         } else {
             holder.audioTitle.text = audioinfo.name
             holder.btnSelect.isChecked = audioinfo.isSelected
-            holder.btnSelect.setOnClickListener { v: View? ->
+            holder.btnSelect.setOnClickListener {
                 audioinfo.isSelected = !audioinfo.isSelected
                 holder.btnSelect.isChecked = audioinfo.isSelected
                 if (audioinfo.isSelected) {
@@ -56,6 +60,17 @@ class AudioAdapter(private val onAudioSelectedListener: OnAudioSelectedListener,
                 } else {
                     onAudioSelectedListener.onAudioDeselected(audioinfo)
                 }
+            }
+            holder.audioIcon.setOnClickListener {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.addCategory(Intent.CATEGORY_APP_MUSIC)
+                    intent.setDataAndType(Uri.parse(audioinfo.path), "audio/mp3")
+                    it.context.startActivity(Intent.createChooser(intent, "Play with"))
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                }
+
             }
             val file = File(thumbnails, audioinfo.id)
             myThumbnailUtils.loadAudioThumbnail(file, audioinfo.path, holder.audioIcon)

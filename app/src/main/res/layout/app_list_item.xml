@@ -15,8 +15,7 @@
         android:layout_marginBottom="5dp"
         android:clickable="true"
         android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:padding="5dp">
+        android:foreground="?android:attr/selectableItemBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -70,8 +69,7 @@
                     android:id="@+id/btnSelect"
                     android:layout_width="35dp"
                     android:layout_height="35dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="5dp" />
+                    android:layout_gravity="center_vertical" />
 
             </LinearLayout>
 
@@ -79,13 +77,12 @@
                 android:id="@+id/obbContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:orientation="vertical">
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginStart="65dp"
+                    android:layout_marginStart="70dp"
                     android:layout_marginEnd="5dp"
                     android:background="?android:attr/listDivider" />
 
@@ -135,8 +132,7 @@
                         android:id="@+id/btnSelectObb"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="5dp" />
+                        android:layout_gravity="center_vertical" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

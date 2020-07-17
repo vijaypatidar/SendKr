@@ -17,7 +17,6 @@ import com.vkpapps.thunder.R
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.FileInfo
-import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.ui.adapter.FileAdapter
 import kotlinx.android.synthetic.main.fragment_file.*
@@ -36,6 +35,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var selectCount = 0
+    private var title: String? = "default"
 
     private var rootDir: String = "/storage/emulated/0/"
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,11 +47,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             }
         }
         if (requireArguments().containsKey(FRAGMENT_TITLE)) {
-            val title = requireArguments().getString(FRAGMENT_TITLE)
-            val supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar
-            if (supportActionBar != null) {
-                supportActionBar.title = title
-            }
+            title = requireArguments().getString(FRAGMENT_TITLE)
         }
     }
 
@@ -63,6 +59,13 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // change title
+        val supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar
+        if (supportActionBar != null) {
+            supportActionBar.title = title
+        }
+
+        // show list and detail
         val adapter = FileAdapter(this, view)
         val recyclerView: RecyclerView = view.findViewById(R.id.fileList)
         recyclerView.adapter = adapter
@@ -91,12 +94,13 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             file.sortBy { it.name }
             fileInfos?.addAll(folder)
             fileInfos?.addAll(file)
-
-            adapter.setFileInfos(fileInfos)
-            if (fileInfos?.size == 0) {
-                emptyDirectory.visibility = View.VISIBLE
-            } else {
-                emptyDirectory.visibility = View.GONE
+            withContext(Main) {
+                adapter.setFileInfos(fileInfos)
+                if (fileInfos?.size == 0) {
+                    emptyDirectory.visibility = View.VISIBLE
+                } else {
+                    emptyDirectory.visibility = View.GONE
+                }
             }
         }
 
@@ -109,7 +113,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                         if (it.isSelected) {
                             it.isSelected = false
                             selected.add(RawRequestInfo(
-                                    it.name!!, it.source!!, FileType.FILE_TYPE_ANY
+                                    it.name!!, it.source!!, it.type
                             ))
                         }
                     } catch (e: Exception) {

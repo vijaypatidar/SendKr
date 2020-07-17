@@ -17,6 +17,7 @@ import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.FileInfo;
 import com.vkpapps.thunder.ui.fragments.FileFragment;
 import com.vkpapps.thunder.utils.MyThumbnailUtils;
+import com.vkpapps.thunder.utils.StorageManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,11 +31,13 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
     private OnFileSelectListener onFileSelectListener;
     private View view;
     private MyThumbnailUtils thumbnailUtils;
+    private File thumnails;
 
     public FileAdapter(OnFileSelectListener onFileSelectListener, View view) {
         this.onFileSelectListener = onFileSelectListener;
         this.view = view;
         this.thumbnailUtils = MyThumbnailUtils.INSTANCE;
+        this.thumnails = new StorageManager(view.getContext()).getThumbnails();
     }
 
     @Override
@@ -63,6 +66,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
         holder.name.setText(fileInfo.getFile().getName());
 
         if (fileInfo.getFile().isDirectory()) {
+            holder.info.setText(fileInfo.getFileCount() > 0 ? fileInfo.getFileCount() + " files" : "empty folder");
             holder.itemView.setOnClickListener(v -> {
                 Navigation.findNavController(view).navigate(new NavDirections() {
                     @Override
@@ -75,12 +79,14 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
                     public Bundle getArguments() {
                         Bundle bundle = new Bundle();
                         bundle.putString(FileFragment.FILE_ROOT, fileInfo.getFile().getUri().getPath());
+                        bundle.putString(FileFragment.FRAGMENT_TITLE, fileInfo.getName());
                         return bundle;
                     }
                 });
             });
         } else {
             holder.btnSelected.setChecked(fileInfo.isSelected());
+            holder.info.setText(fileInfo.getSize());
             holder.btnSelected.setOnClickListener(v -> {
                 fileInfo.setSelected(!fileInfo.isSelected());
                 if (!fileInfo.isDirectory()) {
@@ -92,7 +98,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
                 }
                 holder.btnSelected.setChecked(fileInfo.isSelected());
             });
-            thumbnailUtils.loadThumbnail(new File(fileInfo.getSource()),
+            thumbnailUtils.loadThumbnail(new File(thumnails, fileInfo.getId()),
                     fileInfo.getSource(),
                     fileInfo.getType(),
                     holder.icon
@@ -115,7 +121,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
     }
 
     static class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView name;
+        TextView name, info;
         AppCompatImageView icon;
         RadioButton btnSelected;
 
@@ -123,6 +129,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
             super(itemView);
             icon = itemView.findViewById(R.id.icon);
             name = itemView.findViewById(R.id.fileName);
+            info = itemView.findViewById(R.id.info);
             btnSelected = itemView.findViewById(R.id.btnSelect);
         }
     }
