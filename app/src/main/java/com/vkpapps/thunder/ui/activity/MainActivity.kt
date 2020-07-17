@@ -162,6 +162,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onDownloadRequest(rid: String) {
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
+            d("rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             withContext(Main) {
                 FileService.startActionReceive(requestInfo.name,
                         requestInfo.source,
@@ -177,6 +178,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onUploadRequest(rid: String) {
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
+            d("rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             withContext(Main) {
                 FileService.startActionSend(rid,
                         requestInfo.source,

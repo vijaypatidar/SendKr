@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -69,6 +71,12 @@ public class RequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 break;
             case StatusType.STATUS_ONGOING:
                 status.setImageResource(R.drawable.ic_status_ongoing);
+                RotateAnimation animation = new RotateAnimation(0, -360,
+                        Animation.RELATIVE_TO_SELF, .5f,
+                        Animation.RELATIVE_TO_SELF, .5f);
+                animation.setDuration(1000);
+                animation.setRepeatCount(Animation.INFINITE);
+                status.setAnimation(animation);
                 break;
             case StatusType.STATUS_COMPLETED:
                 status.setImageResource(R.drawable.ic_status_completed);

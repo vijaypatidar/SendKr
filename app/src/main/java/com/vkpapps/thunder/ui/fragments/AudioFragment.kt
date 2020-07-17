@@ -181,11 +181,11 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
             return
         }
         if (selectedCount == 0) {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_exit)
             selectionSection.visibility = View.GONE
             onNavigationVisibilityListener?.onNavVisibilityChange(true)
         } else {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_enter)
             selectionSection.visibility = View.VISIBLE
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
         }
