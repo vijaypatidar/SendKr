@@ -42,7 +42,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
         appHolder.appTitle.setText(appInfo.getName());
         appHolder.appIcon.setImageDrawable(appInfo.getIcon());
         appHolder.btnSelected.setChecked(appInfo.isSelected());
-        appHolder.packageName.setText(appInfo.getPackageName());
+        appHolder.packageName.setText(appInfo.getSize());
         appHolder.btnSelected.setOnClickListener((v) -> {
             appInfo.setSelected(!appInfo.isSelected());
             if (appInfo.getObbSource() != null && appInfo.isSelected() != appInfo.isObbSelected()) {
@@ -56,6 +56,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
         if (appInfo.getObbSource() != null) {
             appHolder.obb.setVisibility(View.VISIBLE);
             appHolder.obbName.setText(appInfo.getObbName());
+            appHolder.obbSize.setText(appInfo.getObbSize());
             appHolder.btnObbSelected.setChecked(appInfo.isObbSelected());
             appHolder.btnObbSelected.setOnClickListener((v) -> {
                 appInfo.setObbSelected(!appInfo.isObbSelected());
@@ -87,7 +88,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
     }
 
     static class AppHolder extends RecyclerView.ViewHolder {
-        TextView appTitle, packageName, obbName;
+        TextView appTitle, packageName, obbName, obbSize;
         AppCompatImageView appIcon;
         RadioButton btnSelected, btnObbSelected;
         View obb;
@@ -100,6 +101,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
             btnObbSelected = itemView.findViewById(R.id.btnSelectObb);
             packageName = itemView.findViewById(R.id.packageName);
             obbName = itemView.findViewById(R.id.obbName);
+            obbSize = itemView.findViewById(R.id.obbSize);
             obb = itemView.findViewById(R.id.obbContainer);
         }
     }

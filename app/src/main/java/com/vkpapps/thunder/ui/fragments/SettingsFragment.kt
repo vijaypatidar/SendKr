@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_settings.*
 
@@ -21,8 +23,11 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
+
+        btnClearHistory.setOnClickListener {
+            ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java).deleteAll()
+        }
     }
 
 }

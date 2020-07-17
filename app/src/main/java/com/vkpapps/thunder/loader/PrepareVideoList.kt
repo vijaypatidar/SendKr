@@ -9,19 +9,21 @@ import java.io.File
 /***
  * @author VIJAY PATIDAR
  */
-class PrepareVideoList() {
+class PrepareVideoList {
 
     fun getList(): List<VideoInfo> {
         val videoInfos = ArrayList<VideoInfo>()
         val uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(MediaStore.Video.VideoColumns.DATA, MediaStore.Video.VideoColumns.TITLE)
+        val projection = arrayOf(MediaStore.Video.VideoColumns.DATA)
         val c = App.context.contentResolver.query(uri, projection, null, null, null)
         if (c != null) {
             while (c.moveToNext()) {
                 val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
                 if (path != null) {
-                    val videoInfo = VideoInfo(File(path).name, path)
+                    val file = File(path)
+                    val videoInfo = VideoInfo(file.name, path)
                     videoInfo.id = HashUtils.getHashValue(path.toByteArray())
+                    videoInfo.modified = file.lastModified()
                     videoInfos.add(videoInfo)
                 }
             }

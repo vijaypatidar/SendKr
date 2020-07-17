@@ -9,7 +9,7 @@ import java.io.File
 /***
  * @author VIJAY PATIDAR
  */
-class PreparePhotoList() {
+class PreparePhotoList {
     fun getList(): List<PhotoInfo> {
         val appInfos = ArrayList<PhotoInfo>()
         val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -19,7 +19,9 @@ class PreparePhotoList() {
             while (c.moveToNext()) {
                 val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
                 if (path != null) {
-                    val photoInfo = PhotoInfo(File(path).name, path)
+                    val file = File(path)
+                    val photoInfo = PhotoInfo(file.name, path)
+                    photoInfo.modified = file.lastModified()
                     photoInfo.id = HashUtils.getHashValue(path.toByteArray())
                     appInfos.add(photoInfo)
                 }

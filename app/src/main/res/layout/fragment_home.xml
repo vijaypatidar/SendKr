@@ -360,6 +360,7 @@
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/history"
         android:layout_width="match_parent"
@@ -367,4 +368,9 @@
         android:layout_below="@+id/tabLayout"
         ads:adUnitId="ca-app-pub-4043007075380826/1587600684"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <include
+        layout="@layout/selection_options"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

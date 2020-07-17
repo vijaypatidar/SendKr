@@ -27,12 +27,14 @@ import java.util.List;
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
     private final List<HistoryInfo> historyInfos = new ArrayList<>();
     private File thumbnails;
+    private OnHistorySelectListener onHistorySelectListener;
     private LayoutInflater inflater;
     private MyThumbnailUtils myThumbnailUtils = MyThumbnailUtils.INSTANCE;
 
-    public HistoryAdapter(@NonNull Context context) {
+    public HistoryAdapter(@NonNull Context context, @NonNull OnHistorySelectListener onHistorySelectListener) {
         thumbnails = new StorageManager(context).getThumbnails();
         inflater = LayoutInflater.from(context);
+        this.onHistorySelectListener = onHistorySelectListener;
     }
 
     @NonNull
@@ -51,7 +53,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         holder.btnSelect.setOnClickListener(v -> {
             historyInfo.setSelected(!historyInfo.isSelected());
             holder.btnSelect.setChecked(historyInfo.isSelected());
-            //todo
+            if (historyInfo.isSelected()) {
+                onHistorySelectListener.onHistorySelected(historyInfo);
+            } else {
+                onHistorySelectListener.onHistoryDeselected(historyInfo);
+            }
         });
         holder.itemView.setOnLongClickListener(v -> {
             AlertDialog.Builder ab = new AlertDialog.Builder(v.getContext());
@@ -90,4 +96,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         }
 
     }
+
+    public interface OnHistorySelectListener {
+        void onHistorySelected(@NonNull HistoryInfo historyInfo);
+
+        void onHistoryDeselected(@NonNull HistoryInfo historyInfo);
+    }
+
 }

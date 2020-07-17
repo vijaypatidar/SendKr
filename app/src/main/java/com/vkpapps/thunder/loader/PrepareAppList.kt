@@ -4,6 +4,7 @@ import android.content.pm.ApplicationInfo
 import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.model.AppInfo
+import com.vkpapps.thunder.utils.MathUtils
 import java.io.File
 
 /***
@@ -23,6 +24,7 @@ object PrepareAppList {
                         it.applicationInfo.loadIcon(packageManager),
                         it.packageName)
 
+                appInfo.size = MathUtils.longToStringSize(File(appInfo.source).length().toDouble())
                 //check for obb
                 try {
                     // check in all storage devices
@@ -33,6 +35,7 @@ object PrepareAppList {
                         if (listFiles.isNotEmpty()) {
                             appInfo.obbName = listFiles[0].name
                             appInfo.obbSource = listFiles[0].uri.path
+                            appInfo.obbSize = MathUtils.longToStringSize(File(appInfo.obbSource!!).length().toDouble())
                         }
                     }
                 } catch (e: Exception) {

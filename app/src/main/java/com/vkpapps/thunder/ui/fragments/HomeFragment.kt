@@ -3,6 +3,7 @@ package com.vkpapps.thunder.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -11,18 +12,32 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
+import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.thunder.model.HistoryInfo
+import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.ui.adapter.HistoryAdapter
 import com.vkpapps.thunder.utils.AdsUtils
 import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.selection_options.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.*
 
 /***
  * @author VIJAY PATIDAR
  */
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
+    private var selectedCount = 0
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
+    private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -111,6 +126,9 @@ class HomeFragment : Fragment() {
         if (context is OnNavigationVisibilityListener) {
             onNavigationVisibilityListener = context
         }
+        if (context is OnFileRequestPrepareListener) {
+            onFileRequestPrepareListener = context
+        }
     }
 
     private fun getDestination(des: Int): NavDirections {
@@ -128,20 +146,107 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun hideShowSendButton() {
+        if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) {
+            onNavigationVisibilityListener?.onNavVisibilityChange(false)
+            return
+        }
+        if (selectedCount == 0) {
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out_to_bottom)
+            selectionSection.visibility = View.GONE
+            onNavigationVisibilityListener?.onNavVisibilityChange(true)
+        } else {
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_from_bottom)
+            selectionSection.visibility = View.VISIBLE
+            onNavigationVisibilityListener?.onNavVisibilityChange(false)
+        }
+    }
+
     private fun setupHistory() {
         history.layoutManager = LinearLayoutManager(requireContext())
-        val adapter = HistoryAdapter(requireContext())
+        val adapter = HistoryAdapter(requireContext(), this)
         history.adapter = adapter
         history.onFlingListener = object : RecyclerView.OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
-                onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                if (selectedCount == 0)
+                    onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
                 return false
             }
         }
-
         val historyViewModel = ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java)
+        val historyInfos = ArrayList<HistoryInfo>()
         historyViewModel.historyInfos.observe(requireActivity(), androidx.lifecycle.Observer {
-            adapter.setHistoryInfos(it)
+            CoroutineScope(IO).launch {
+                historyInfos.clear()
+                historyInfos.addAll(it)
+                withContext(Main) {
+                    adapter.setHistoryInfos(it)
+                }
+            }
         })
+
+        Logger.d("viay====================================1")
+        btnSendFiles.setOnClickListener {
+
+            Logger.d("viay====================================2")
+            if (selectedCount == 0) return@setOnClickListener
+            CoroutineScope(Dispatchers.IO).launch {
+                val selected = ArrayList<RawRequestInfo>()
+                historyInfos.forEach {
+                    if (it.isSelected) {
+                        it.isSelected = false
+                        selected.add(RawRequestInfo(
+                                it.name, it.source, it.type
+                        ))
+                    }
+                }
+                selectedCount = 0
+                withContext(Dispatchers.Main) {
+                    adapter.notifyDataSetChanged()
+                    hideShowSendButton()
+                    Toast.makeText(requireContext(), "${selected.size} files added to send queue", Toast.LENGTH_SHORT).show()
+                }
+                onFileRequestPrepareListener?.sendFiles(selected)
+            }
+        }
+
+        btnNon.setOnClickListener {
+            Logger.d("viay====================================3")
+            if (selectedCount == 0) return@setOnClickListener
+            CoroutineScope(Dispatchers.IO).launch {
+                historyInfos.forEach {
+                    it.isSelected = false
+                }
+                selectedCount = 0
+                withContext(Dispatchers.Main) {
+                    adapter.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
+        }
+
+        btnAll.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                selectedCount = 0
+                historyInfos.forEach {
+                    it.isSelected = true
+                    selectedCount++
+                }
+                withContext(Dispatchers.Main) {
+                    adapter.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
+        }
+    }
+
+    override fun onHistorySelected(historyInfo: HistoryInfo) {
+        selectedCount++
+        hideShowSendButton()
+    }
+
+    override fun onHistoryDeselected(historyInfo: HistoryInfo) {
+        selectedCount--
+        hideShowSendButton()
     }
 }

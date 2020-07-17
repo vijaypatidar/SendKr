@@ -13,4 +13,5 @@ class PhotoInfo(var name: String, var path: String) {
     @NonNull
     lateinit var id: String
     var isSelected = false
+    var modified: Long = 0
 }

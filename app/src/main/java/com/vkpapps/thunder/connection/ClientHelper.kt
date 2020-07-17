@@ -41,15 +41,15 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
                         obj = inputStream.readObject()
                         if (obj is FileRequest) {
                             handleFileControl(obj)
+                        } else if (obj is RequestInfo) {
+                            // update user information
+                            obj.cid = user.userId
+                            onFileRequestListener.onNewRequestInfo(obj)
                         } else if (obj is User) {
                             // update user information
                             if (obj.userId == user.userId) {
                                 user.name = obj.name
                             }
-                        } else if (obj is RequestInfo) {
-                            // update user information
-                            obj.cid = user.userId
-                            onFileRequestListener.onNewRequestInfo(obj)
                         } else {
                             Logger.e("invalid object received $obj")
                         }

@@ -10,4 +10,6 @@ class AppInfo(var name: String, var source: String, var icon: Drawable, var pack
     var isObbSelected = false
     var obbName: String? = null
     var obbSource: String? = null
+    lateinit var size: String
+    var obbSize: String = ""
 }

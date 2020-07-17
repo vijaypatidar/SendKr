@@ -121,12 +121,12 @@
                     android:id="@+id/clearHistory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Only entry is deleted files will not deleted "
+                    android:text="Only entry is deleted,files will not deleted "
                     android:textSize="12sp" />
             </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/btnclearHistory"
+                android:id="@+id/btnClearHistory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"

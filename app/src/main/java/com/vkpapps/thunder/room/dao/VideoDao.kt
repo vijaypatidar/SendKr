@@ -5,14 +5,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.vkpapps.thunder.model.PhotoInfo
 import com.vkpapps.thunder.model.VideoInfo
 
 @Dao
 interface VideoDao {
 
     @Query("SELECT * from videoinfo")
-    fun getVideoInfos(): List<PhotoInfo>
+    fun getVideoInfos(): List<VideoInfo>
 
     @Query("SELECT * from videoinfo where id = :id")
     fun getVideoInfo(id: String): VideoInfo
@@ -23,7 +22,7 @@ interface VideoDao {
     @Query("DELETE FROM videoinfo")
     suspend fun deleteAll()
 
-    @Query("SELECT * from videoinfo")
+    @Query("SELECT * from videoinfo order by modified DESC")
     fun getLiveVideoInfos(): LiveData<List<VideoInfo>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -16,4 +16,5 @@ class VideoInfo(var name: String, var path: String) {
     lateinit var id: String
     var isSelected = false
     var size: String = MathUtils.longToStringSize(File(path).length().toDouble())
+    var modified: Long = 0
 }

@@ -20,5 +20,6 @@ class PrepareDb {
         val photoDao = database.photoDao()
         photoDao.deleteAll()
         PhotoRepository(photoDao).insertAll(PreparePhotoList().getList())
+        PrepareAppList.appList
     }
 }
