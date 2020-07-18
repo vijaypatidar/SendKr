@@ -72,7 +72,7 @@ class FileService : IntentService("FileService") {
             out.close()
             socket.close()
             val timeTaken = System.currentTimeMillis() - init
-            Logger.d("========================================= $timeTaken")
+            Logger.d("=========================================timeTaken =  $timeTaken")
             onSuccess(rid, timeTaken)
         } catch (e: IOException) {
             onFailed(rid)
@@ -98,7 +98,7 @@ class FileService : IntentService("FileService") {
             inputStream.close()
             socket.close()
             val timeTaken = (System.currentTimeMillis() - init) / 1000
-            Logger.d("========================================= $timeTaken")
+            Logger.d("=========================================timeTaken =  $timeTaken")
             onSuccess(rid, timeTaken)
         } catch (e: IOException) {
             onFailed(rid)

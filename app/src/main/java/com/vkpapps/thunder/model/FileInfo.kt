@@ -24,7 +24,15 @@ class FileInfo(var file: DocumentFile) {
 
     val size: String = MathUtils.getFileSize(file)
 
-    val fileCount: Int by lazy { file.listFiles().size }
+    val fileCount: Int by lazy {
+        var res = 0
+        try {
+            res = file.listFiles().size
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        res
+    }
 
 
     val type: Int = MimeTypeResolver.getFileType(file.type)

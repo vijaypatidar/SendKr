@@ -46,6 +46,7 @@
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardCornerRadius="@dimen/home_card_radius"
                     android:foreground="?android:attr/selectableItemBackground"
                     app:cardElevation="5dp">
 
@@ -109,6 +110,7 @@
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardCornerRadius="@dimen/home_card_radius"
                     android:foreground="?android:attr/selectableItemBackground"
                     app:cardElevation="5dp">
 
@@ -185,6 +187,7 @@
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardCornerRadius="@dimen/home_card_radius"
                     android:foreground="?android:attr/selectableItemBackground"
                     app:cardElevation="3dp">
 
@@ -218,6 +221,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="10dp"
                     android:layout_marginBottom="5dp"
+                    app:cardCornerRadius="@dimen/home_card_radius"
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
@@ -264,7 +268,7 @@
                     android:layout_marginBottom="5dp"
                     android:layout_weight="1"
                     android:clickable="true"
-
+                    app:cardCornerRadius="@dimen/home_card_radius"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:padding="5dp"
@@ -304,6 +308,7 @@
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardCornerRadius="@dimen/home_card_radius"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:padding="5dp"
                     app:cardElevation="3dp">
@@ -366,7 +371,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/tabLayout"
-        ads:adUnitId="ca-app-pub-4043007075380826/1587600684"
+        tools:listitem="@layout/history_list_item"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <include

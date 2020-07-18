@@ -40,4 +40,5 @@
     <string name="external">External</string>
     <string name="internal">Internal</string>
     <string name="download_location">Download location</string>
+    <string name="history_cleared_message">History deleted</string>
 </resources>

@@ -95,7 +95,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
 
         btnNon.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 appInfos.forEach {
                     it.isSelected = false
                     if (it.obbSource != null) {
@@ -111,7 +111,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
         }
 
         btnAll.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 selectedCount = 0
                 appInfos.forEach {
                     it.isSelected = true
@@ -159,11 +159,11 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
     private fun hideShowSendButton() {
         if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) return
         if (selectedCount > 0) {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_exit)
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_enter)
             selectionSection.visibility = View.VISIBLE
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
         } else {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_enter)
+            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_exit)
             selectionSection.visibility = View.GONE
             onNavigationVisibilityListener?.onNavVisibilityChange(true)
         }

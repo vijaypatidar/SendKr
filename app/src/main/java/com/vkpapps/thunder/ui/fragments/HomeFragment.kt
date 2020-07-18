@@ -12,7 +12,6 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.HistoryInfo
@@ -185,10 +184,8 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             }
         })
 
-        Logger.d("viay====================================1")
         btnSendFiles.setOnClickListener {
 
-            Logger.d("viay====================================2")
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(Dispatchers.IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
@@ -211,7 +208,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         }
 
         btnNon.setOnClickListener {
-            Logger.d("viay====================================3")
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(Dispatchers.IO).launch {
                 historyInfos.forEach {
