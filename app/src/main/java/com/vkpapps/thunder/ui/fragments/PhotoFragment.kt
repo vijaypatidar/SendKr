@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
-import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.model.PhotoInfo
 import com.vkpapps.thunder.model.RawRequestInfo
+import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.room.liveViewModel.PhotoViewModel
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter.OnPhotoSelectListener

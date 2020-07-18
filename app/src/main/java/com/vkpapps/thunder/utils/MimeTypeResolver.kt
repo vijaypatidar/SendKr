@@ -1,6 +1,6 @@
 package com.vkpapps.thunder.utils
 
-import com.vkpapps.thunder.model.FileType
+import com.vkpapps.thunder.model.constaints.FileType
 
 object MimeTypeResolver {
     fun getFileType(mimeType: String?): Int {

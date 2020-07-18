@@ -7,7 +7,7 @@ import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import com.squareup.picasso.Picasso
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.model.FileType
+import com.vkpapps.thunder.model.constaints.FileType
 import java.io.File
 import java.io.FileOutputStream
 

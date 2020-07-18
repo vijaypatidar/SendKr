@@ -15,9 +15,9 @@ import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
-import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.VideoInfo
+import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.room.liveViewModel.VideoViewModel
 import com.vkpapps.thunder.ui.adapter.VideoAdapter
 import com.vkpapps.thunder.ui.adapter.VideoAdapter.OnVideoSelectListener

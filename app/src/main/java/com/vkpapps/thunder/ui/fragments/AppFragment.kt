@@ -15,8 +15,8 @@ import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.loader.PrepareAppList
 import com.vkpapps.thunder.model.AppInfo
-import com.vkpapps.thunder.model.FileType
 import com.vkpapps.thunder.model.RawRequestInfo
+import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.ui.adapter.AppAdapter
 import kotlinx.android.synthetic.main.fragment_app.*
 import kotlinx.android.synthetic.main.selection_options.*

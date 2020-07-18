@@ -59,18 +59,22 @@ class FileService : IntentService("FileService") {
             if (isHost) onAccepted(rid, clientId, false)
             val socket = getSocket(isHost)
             val init = System.currentTimeMillis()
-            val `in` = socket.getInputStream()
             val file = File(source)
-            val out: OutputStream = FileOutputStream(file)
-            val bytes = ByteArray(3000)
-            var count: Int
-            while (`in`.read(bytes).also { count = it } > 0) {
-                out.write(bytes, 0, count)
+            if (file.isDirectory) {
+                ZipUtils().openInputOutStream(socket.getInputStream(), file)
+            } else {
+                val `in` = socket.getInputStream()
+                val out: OutputStream = FileOutputStream(file)
+                val bytes = ByteArray(3000)
+                var count: Int
+                while (`in`.read(bytes).also { count = it } > 0) {
+                    out.write(bytes, 0, count)
+                }
+                `in`.close()
+                out.flush()
+                out.close()
+                socket.close()
             }
-            `in`.close()
-            out.flush()
-            out.close()
-            socket.close()
             val timeTaken = System.currentTimeMillis() - init
             Logger.d("=========================================timeTaken =  $timeTaken")
             onSuccess(rid, timeTaken)
@@ -83,20 +87,24 @@ class FileService : IntentService("FileService") {
     private fun handleActionSend(rid: String, source: String, clientId: String, isHost: Boolean) {
         try {
             if (isHost) onAccepted(rid, clientId, true)
-            val file = File(source)
             val socket = getSocket(isHost)
+            val file = File(source)
             val init = System.currentTimeMillis()
-            val inputStream: InputStream = FileInputStream(file)
-            val outputStream = socket.getOutputStream()
-            val bytes = ByteArray(3000)
-            var count: Int
-            while (inputStream.read(bytes).also { count = it } > 0) {
-                outputStream.write(bytes, 0, count)
+            if (file.isDirectory) {
+                ZipUtils().openZipOutStream(socket.getOutputStream(), file)
+            } else {
+                val inputStream: InputStream = FileInputStream(file)
+                val outputStream = socket.getOutputStream()
+                val bytes = ByteArray(3000)
+                var count: Int
+                while (inputStream.read(bytes).also { count = it } > 0) {
+                    outputStream.write(bytes, 0, count)
+                }
+                outputStream.flush()
+                outputStream.close()
+                inputStream.close()
+                socket.close()
             }
-            outputStream.flush()
-            outputStream.close()
-            inputStream.close()
-            socket.close()
             val timeTaken = (System.currentTimeMillis() - init) / 1000
             Logger.d("=========================================timeTaken =  $timeTaken")
             onSuccess(rid, timeTaken)
@@ -142,7 +150,7 @@ class FileService : IntentService("FileService") {
 
         @JvmField
         var HOST_ADDRESS: String? = null
-        private const val MAX_WAIT_TIME = 800
+        private const val MAX_WAIT_TIME = 1500
         private const val PORT = 7511
 
         fun startActionSend(rid: String, source: String, clientId: String?, isHost: Boolean) {

@@ -1,4 +1,4 @@
-package com.vkpapps.thunder.model
+package com.vkpapps.thunder.model.constaints
 
 object FileType {
     const val FILE_TYPE_MUSIC = 0
@@ -7,4 +7,5 @@ object FileType {
     const val FILE_TYPE_APP = 3
     const val FILE_TYPE_PROFILE_PIC = 4
     const val FILE_TYPE_ANY = 5
+    const val FILE_TYPE_FOLDER = 6
 }

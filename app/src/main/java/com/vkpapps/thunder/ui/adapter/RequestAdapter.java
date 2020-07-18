@@ -13,9 +13,9 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vkpapps.thunder.R;
-import com.vkpapps.thunder.model.FileType;
 import com.vkpapps.thunder.model.RequestInfo;
-import com.vkpapps.thunder.model.StatusType;
+import com.vkpapps.thunder.model.constaints.FileType;
+import com.vkpapps.thunder.model.constaints.StatusType;
 
 import java.util.ArrayList;
 import java.util.List;

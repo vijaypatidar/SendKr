@@ -30,7 +30,12 @@ import com.vkpapps.thunder.connection.ClientHelper
 import com.vkpapps.thunder.connection.ServerHelper
 import com.vkpapps.thunder.interfaces.*
 import com.vkpapps.thunder.loader.PrepareDb
-import com.vkpapps.thunder.model.*
+import com.vkpapps.thunder.model.FileRequest
+import com.vkpapps.thunder.model.HistoryInfo
+import com.vkpapps.thunder.model.RawRequestInfo
+import com.vkpapps.thunder.model.RequestInfo
+import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constaints.StatusType
 import com.vkpapps.thunder.receivers.FileRequestReceiver
 import com.vkpapps.thunder.receivers.FileRequestReceiver.OnFileRequestReceiverListener
 import com.vkpapps.thunder.room.database.MyRoomDatabase
@@ -50,6 +55,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -98,6 +104,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         if (!PermissionUtils.checkStoragePermission(this)) {
             PermissionUtils.askStoragePermission(this, 9098)
         }
+
     }
 
     private fun choice() {
@@ -162,6 +169,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onDownloadRequest(rid: String) {
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
+            if (requestInfo.type == FileType.FILE_TYPE_FOLDER) File(requestInfo.source).mkdirs()
             d("rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             withContext(Main) {
                 FileService.startActionReceive(requestInfo.name,

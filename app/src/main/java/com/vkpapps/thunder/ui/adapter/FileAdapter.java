@@ -85,19 +85,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
                 });
             });
         } else {
-            holder.btnSelected.setChecked(fileInfo.isSelected());
             holder.info.setText(fileInfo.getSize());
-            holder.btnSelected.setOnClickListener(v -> {
-                fileInfo.setSelected(!fileInfo.isSelected());
-                if (!fileInfo.isDirectory()) {
-                    if (fileInfo.isSelected()) {
-                        onFileSelectListener.onFileSelected(fileInfo);
-                    } else {
-                        onFileSelectListener.onFileDeselected(fileInfo);
-                    }
-                }
-                holder.btnSelected.setChecked(fileInfo.isSelected());
-            });
             thumbnailUtils.loadThumbnail(new File(thumnails, fileInfo.getId()),
                     fileInfo.getSource(),
                     fileInfo.getType(),
@@ -105,6 +93,16 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
             );
         }
 
+        holder.btnSelected.setChecked(fileInfo.isSelected());
+        holder.btnSelected.setOnClickListener(v -> {
+            fileInfo.setSelected(!fileInfo.isSelected());
+            if (fileInfo.isSelected()) {
+                onFileSelectListener.onFileSelected(fileInfo);
+            } else {
+                onFileSelectListener.onFileDeselected(fileInfo);
+            }
+            holder.btnSelected.setChecked(fileInfo.isSelected());
+        });
     }
 
     @Override

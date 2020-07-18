@@ -1,0 +1,59 @@
+package com.vkpapps.thunder.service
+
+import androidx.documentfile.provider.DocumentFile
+import java.io.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
+
+class ZipUtils {
+    private val buffer = ByteArray(2048)
+    private var bi = 0
+
+    @Throws(IOException::class)
+    fun openZipOutStream(outputStream: OutputStream, path: File) {
+        bi = path.absolutePath.length + 1
+        val zos = ZipOutputStream(outputStream)
+        addEntry(zos, path)
+        zos.close()
+    }
+
+    @Throws(IOException::class)
+    private fun addEntry(zos: ZipOutputStream, path: File) {
+        if (path.isDirectory) {
+            for (file in DocumentFile.fromFile(path).listFiles()) {
+                addEntry(zos, File(path, file.name!!))
+            }
+        } else {
+            val zipEntry = ZipEntry(path.absolutePath.substring(bi))
+            zos.putNextEntry(zipEntry)
+            val `in`: InputStream = FileInputStream(path)
+            var len: Int
+            while (`in`.read(buffer).also { len = it } > 0) {
+                zos.write(buffer, 0, len)
+            }
+            `in`.close()
+        }
+    }
+
+    @Throws(IOException::class)
+    fun openInputOutStream(inputStream: InputStream, path: File) {
+        bi = path.absolutePath.length + 1
+        val zis = ZipInputStream(inputStream)
+        var entry: ZipEntry? = zis.nextEntry
+        while (entry != null) {
+            val fileName: String = entry.name
+            val file = File(path, fileName)
+            file.parentFile?.mkdirs()
+            val fos = FileOutputStream(file)
+            var len: Int
+            while (zis.read(buffer).also { len = it } > 0) {
+                fos.write(buffer, 0, len)
+            }
+            fos.close()
+            zis.closeEntry()
+            entry = zis.nextEntry
+        }
+        zis.close()
+    }
+}

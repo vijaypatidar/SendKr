@@ -1,6 +1,7 @@
 package com.vkpapps.thunder.model
 
 import androidx.documentfile.provider.DocumentFile
+import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.utils.HashUtils
 import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.MimeTypeResolver
@@ -13,11 +14,6 @@ class FileInfo(var file: DocumentFile) {
         file.name
     }
     var isSelected: Boolean = false
-        set(value) {
-            if (!isDirectory) {
-                field = value
-            }
-        }
     val isDirectory: Boolean = file.isDirectory
 
     val source: String? = file.uri.path
@@ -34,6 +30,5 @@ class FileInfo(var file: DocumentFile) {
         res
     }
 
-
-    val type: Int = MimeTypeResolver.getFileType(file.type)
+    val type: Int by lazy { if (file.isDirectory) FileType.FILE_TYPE_FOLDER else MimeTypeResolver.getFileType(file.type) }
 }

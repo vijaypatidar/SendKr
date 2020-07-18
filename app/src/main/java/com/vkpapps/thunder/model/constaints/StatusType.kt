@@ -1,4 +1,4 @@
-package com.vkpapps.thunder.model
+package com.vkpapps.thunder.model.constaints
 
 object StatusType {
     const val STATUS_PENDING = 0

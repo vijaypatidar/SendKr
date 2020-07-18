@@ -135,10 +135,8 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             CoroutineScope(IO).launch {
                 selectCount = 0
                 fileInfos?.forEach {
-                    if (!it.isDirectory) {
-                        it.isSelected = true
-                        selectCount++
-                    }
+                    it.isSelected = true
+                    selectCount++
                 }
                 withContext(Main) {
                     adapter.notifyDataSetChanged()
