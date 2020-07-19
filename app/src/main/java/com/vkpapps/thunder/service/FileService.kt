@@ -62,7 +62,9 @@ class FileService : IntentService("FileService") {
             val file = File(source)
             if (file.isDirectory) {
                 ZipUtils().openInputOutStream(socket.getInputStream(), file)
+                Logger.d("${source} is directory")
             } else {
+                Logger.d("${source} is folder")
                 val `in` = socket.getInputStream()
                 val out: OutputStream = FileOutputStream(file)
                 val bytes = ByteArray(3000)

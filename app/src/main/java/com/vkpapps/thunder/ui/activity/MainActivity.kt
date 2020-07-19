@@ -25,6 +25,7 @@ import androidx.navigation.ui.NavigationUI
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.analitics.Logger.d
 import com.vkpapps.thunder.connection.ClientHelper
 import com.vkpapps.thunder.connection.ServerHelper
@@ -55,7 +56,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -169,7 +169,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onDownloadRequest(rid: String) {
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
-            if (requestInfo.type == FileType.FILE_TYPE_FOLDER) File(requestInfo.source).mkdirs()
             d("rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             withContext(Main) {
                 FileService.startActionReceive(requestInfo.name,
@@ -202,6 +201,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onNewRequestInfo(obj: RequestInfo) {
         CoroutineScope(IO).launch {
             obj.source = directoryResolver.getSource(obj)
+            Logger.d("new file request type = ${obj.type} ${obj.name}")
             if (isHost) {
                 database.requestDao().insert(obj)
                 withContext(Main) {

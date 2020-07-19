@@ -64,6 +64,9 @@ object MyThumbnailUtils {
             FileType.FILE_TYPE_APP -> {
                 logo.setImageResource(R.drawable.ic_apps)
             }
+            FileType.FILE_TYPE_FOLDER -> {
+                logo.setImageResource(R.drawable.ic_folder)
+            }
             else -> logo.setImageResource(R.drawable.ic_file)
         }
     }

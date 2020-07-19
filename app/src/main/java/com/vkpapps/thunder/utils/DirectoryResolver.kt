@@ -1,6 +1,7 @@
 package com.vkpapps.thunder.utils
 
 import android.content.Context
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.constaints.FileType
 import java.io.File
@@ -8,8 +9,8 @@ import java.io.File
 /**
  * @author VIJAY PATIDAR
  */
-class DirectoryResolver(private val context: Context){
-    private val root : File = StorageManager(context).downloadDir
+class DirectoryResolver(private val context: Context) {
+    private val root: File = StorageManager(context).downloadDir
     private fun getDirectory(type: Int): File {
         val file = when (type) {
             FileType.FILE_TYPE_MUSIC -> File(root, "musics")
@@ -28,9 +29,14 @@ class DirectoryResolver(private val context: Context){
 
     fun getSource(obj: RequestInfo): String {
         val file = File(getDirectory(obj.type), obj.name)
-//        if (file.exists()){
-//        //todo check file if exist
-//        }
+        // in case of folder request make dir for it
+        if (file.exists()) {
+            //todo check file if exist
+        }
+        if (obj.type == FileType.FILE_TYPE_FOLDER) {
+            file.mkdirs()
+            Logger.d("New dir created ${obj.source}")
+        }
         return file.absolutePath
     }
 }

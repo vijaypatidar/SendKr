@@ -38,7 +38,6 @@ class ZipUtils {
 
     @Throws(IOException::class)
     fun openInputOutStream(inputStream: InputStream, path: File) {
-        bi = path.absolutePath.length + 1
         val zis = ZipInputStream(inputStream)
         var entry: ZipEntry? = zis.nextEntry
         while (entry != null) {

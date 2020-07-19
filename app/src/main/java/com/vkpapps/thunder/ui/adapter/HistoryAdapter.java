@@ -2,6 +2,7 @@ package com.vkpapps.thunder.ui.adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +11,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.HistoryInfo;
+import com.vkpapps.thunder.model.constaints.FileType;
+import com.vkpapps.thunder.ui.fragments.FileFragment;
 import com.vkpapps.thunder.utils.MyThumbnailUtils;
 import com.vkpapps.thunder.utils.StorageManager;
 
@@ -48,7 +53,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     public void onBindViewHolder(@NonNull final HistoryViewHolder holder, final int position) {
         final HistoryInfo historyInfo = historyInfos.get(position);
         holder.name.setText(historyInfo.getName());
-        File icon = new File(thumbnails, historyInfo.getId());
+
         holder.btnSelect.setChecked(historyInfo.isSelected());
         holder.btnSelect.setOnClickListener(v -> {
             historyInfo.setSelected(!historyInfo.isSelected());
@@ -66,6 +71,30 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
             ab.create().show();
             return true;
         });
+
+        if (historyInfo.getType() == FileType.FILE_TYPE_FOLDER) {
+            holder.itemView.setOnClickListener(v -> {
+                Navigation.findNavController(v).navigate(new NavDirections() {
+                    @Override
+                    public int getActionId() {
+                        return R.id.fileFragment;
+                    }
+
+                    @NonNull
+                    @Override
+                    public Bundle getArguments() {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(FileFragment.FRAGMENT_TITLE, historyInfo.name);
+                        bundle.putString(FileFragment.FILE_ROOT, historyInfo.source);
+                        return bundle;
+                    }
+                });
+            });
+        } else {
+
+        }
+
+        File icon = new File(thumbnails, historyInfo.getId());
         myThumbnailUtils.loadThumbnail(icon, historyInfo.getSource(), historyInfo.getType(), holder.logo);
     }
 

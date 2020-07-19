@@ -101,6 +101,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case FileType.FILE_TYPE_PHOTO:
                 thumbnail.setImageResource(R.drawable.ic_photo);
                 break;
+            case FileType.FILE_TYPE_FOLDER:
+                thumbnail.setImageResource(R.drawable.ic_folder);
+                break;
             default:
                 thumbnail.setImageResource(R.drawable.ic_file);
                 break;
