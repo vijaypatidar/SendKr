@@ -36,4 +36,8 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
     fun updateStatus(rid: String, status: Int) = viewModelScope.launch(Dispatchers.IO) {
         repository.updateStatus(rid, status)
     }
+
+    fun updateProgress(rid: String, transferred: Long) = viewModelScope.launch(Dispatchers.IO) {
+        repository.updateProgress(rid, transferred)
+    }
 }

@@ -63,9 +63,10 @@ class AudioAdapter(private val onAudioSelectedListener: OnAudioSelectedListener,
             }
             holder.audioIcon.setOnClickListener {
                 try {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.addCategory(Intent.CATEGORY_APP_MUSIC)
-                    intent.setDataAndType(Uri.parse(audioinfo.path), "audio/mp3")
+                    val intent = Intent()
+                    intent.action = Intent.ACTION_VIEW
+                    intent.setDataAndType(Uri.fromFile(File(audioinfo.path)), "audio/mp3")
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     it.context.startActivity(Intent.createChooser(intent, "Play with"))
                 } catch (e: ActivityNotFoundException) {
                     e.printStackTrace()

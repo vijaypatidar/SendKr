@@ -56,6 +56,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -233,6 +234,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     }
                 }
             } else {
+                Logger.d("client new req size of file = ${obj.size}")
                 database.requestDao().insert(obj)
             }
         }
@@ -264,6 +266,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     HistoryInfo(requestInfo.name, requestInfo.source, requestInfo.type)
             )
         }
+    }
+
+    override fun onProgressChange(rid: String, transferred: Long) {
+        requestViewModel.updateProgress(rid, transferred)
+        Logger.d("Main activity rid = $rid  progress = $transferred")
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -308,6 +315,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         intentFilter.addAction(FileService.STATUS_FAILED)
         intentFilter.addAction(FileService.STATUS_SUCCESS)
         intentFilter.addAction(FileService.REQUEST_ACCEPTED)
+        intentFilter.addAction(FileService.ACTION_PROGRESS_CHANGE)
         instance.registerReceiver(requestReceiver, intentFilter)
     }
 
@@ -391,6 +399,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 requestInfo.name = rawRequestInfo.name
                 requestInfo.source = rawRequestInfo.source
                 requestInfo.type = rawRequestInfo.type
+                requestInfo.size = File(rawRequestInfo.source).length()
                 if (isHost) {
                     for (clientHelper in serverHelper.clientHelpers) {
                         val rid = getRandomId()

@@ -5,6 +5,10 @@ import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.analitics.Logger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.*
 import java.net.InetSocketAddress
 import java.net.ServerSocket
@@ -55,6 +59,7 @@ class FileService : IntentService("FileService") {
     }
 
     private fun handleActionReceive(rid: String, source: String, clientId: String, isHost: Boolean) {
+
         try {
             if (isHost) onAccepted(rid, clientId, false)
             val socket = getSocket(isHost)
@@ -62,15 +67,23 @@ class FileService : IntentService("FileService") {
             val file = File(source)
             if (file.isDirectory) {
                 ZipUtils().openInputOutStream(socket.getInputStream(), file)
-                Logger.d("${source} is directory")
             } else {
-                Logger.d("${source} is folder")
                 val `in` = socket.getInputStream()
                 val out: OutputStream = FileOutputStream(file)
                 val bytes = ByteArray(3000)
                 var count: Int
+                var transferredByte: Long = 0
+                CoroutineScope(Default).launch {
+                    while (!socket.isClosed) {
+                        onProgressChange(rid, transferredByte)
+                        Logger.d("inside while for receiving $transferredByte")
+                        delay(1000)
+                    }
+                    onProgressChange(rid, transferredByte)
+                }
                 while (`in`.read(bytes).also { count = it } > 0) {
                     out.write(bytes, 0, count)
+                    transferredByte += count
                 }
                 `in`.close()
                 out.flush()
@@ -78,7 +91,7 @@ class FileService : IntentService("FileService") {
                 socket.close()
             }
             val timeTaken = System.currentTimeMillis() - init
-            Logger.d("=========================================timeTaken =  $timeTaken")
+            Logger.d("timeTaken =  $timeTaken")
             onSuccess(rid, timeTaken)
         } catch (e: IOException) {
             onFailed(rid)
@@ -99,8 +112,18 @@ class FileService : IntentService("FileService") {
                 val outputStream = socket.getOutputStream()
                 val bytes = ByteArray(3000)
                 var count: Int
+                var transferredByte: Long = 0
+                CoroutineScope(Default).launch {
+                    while (!socket.isClosed) {
+                        onProgressChange(rid, transferredByte)
+                        Logger.d("inside while for sending $transferredByte")
+                        delay(1000)
+                    }
+                    onProgressChange(rid, transferredByte)
+                }
                 while (inputStream.read(bytes).also { count = it } > 0) {
                     outputStream.write(bytes, 0, count)
+                    transferredByte += count
                 }
                 outputStream.flush()
                 outputStream.close()
@@ -108,7 +131,7 @@ class FileService : IntentService("FileService") {
                 socket.close()
             }
             val timeTaken = (System.currentTimeMillis() - init) / 1000
-            Logger.d("=========================================timeTaken =  $timeTaken")
+            Logger.d("timeTaken =  $timeTaken")
             onSuccess(rid, timeTaken)
         } catch (e: IOException) {
             onFailed(rid)
@@ -120,6 +143,13 @@ class FileService : IntentService("FileService") {
         val intent = Intent(STATUS_SUCCESS)
         intent.putExtra(PARAM_RID, rid)
         intent.putExtra(PARAM_TIME_TAKEN, timeTaken)
+        localBroadcastManager.sendBroadcast(intent)
+    }
+
+    private fun onProgressChange(rid: String, transferred: Long) {
+        val intent = Intent(ACTION_PROGRESS_CHANGE)
+        intent.putExtra(PARAM_RID, rid)
+        intent.putExtra(PARAM_TRANSFERRED_PROGRESS, transferred)
         localBroadcastManager.sendBroadcast(intent)
     }
 
@@ -140,12 +170,14 @@ class FileService : IntentService("FileService") {
     companion object {
         const val ACTION_SEND = "com.vkpapps.thunder.action.SEND"
         const val ACTION_RECEIVE = "com.vkpapps.thunder.action.RECEIVE"
+        const val ACTION_PROGRESS_CHANGE = "com.vkpapps.thunder.action.ACTION_PROGRESS_CHANGE"
         const val STATUS_SUCCESS = "com.vkpapps.thunder.action.SUCCESS"
         const val STATUS_FAILED = "com.vkpapps.thunder.action.FAILED"
         const val REQUEST_ACCEPTED = "com.vkpapps.thunder.action.ACCEPTED"
         const val PARAM_NAME = "com.vkpapps.thunder.extra.NAME"
         const val PARAM_CLIENT_ID = "com.vkpapps.thunder.extra.CLIENT_ID"
         const val PARAM_RID = "com.vkpapps.thunder.extra.RID"
+        const val PARAM_TRANSFERRED_PROGRESS = "com.vkpapps.thunder.extra.PARAM_TRANSFERRED_PROGRESS"
         const val PARAM_SOURCE = "com.vkpapps.thunder.extra.SOURCE"
         const val PARAM_IS_HOST = "com.vkpapps.thunder.extra.IS_HOST"
         const val PARAM_TIME_TAKEN = "com.vkpapps.thunder.action.TIME_TAKEN"
@@ -176,4 +208,5 @@ class FileService : IntentService("FileService") {
             App.context.startService(intent)
         }
     }
+
 }

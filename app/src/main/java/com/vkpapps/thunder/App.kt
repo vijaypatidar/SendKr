@@ -10,6 +10,7 @@ import com.vkpapps.thunder.utils.UserUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
 /**
  * @author VIJAY PATIDAR
@@ -22,7 +23,7 @@ class App : Application() {
         user = UserUtils(this).loadUser()
         Logger.logger = BuildConfig.DEBUG
         CoroutineScope(IO).launch {
-            MyRoomDatabase.getDatabase(this@App).requestDao().deleteAll();
+            MyRoomDatabase.getDatabase(this@App).requestDao().deleteAll()
         }
     }
 
@@ -31,6 +32,9 @@ class App : Application() {
         lateinit var user: User
 
         @JvmStatic
-        lateinit var context:Context
+        lateinit var context: Context
+
+        @JvmStatic
+        val executor = Executors.newSingleThreadExecutor()
     }
 }

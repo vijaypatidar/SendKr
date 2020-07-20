@@ -3,6 +3,7 @@ package com.vkpapps.thunder.model
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import java.io.File
 import java.io.Serializable
 
 @Entity
@@ -15,6 +16,8 @@ class RequestInfo : Serializable {
     var type = 0
     var status = 0
     var requestType = 0
+    var size: Long = 0
+    var transferred: Long = 0
 
     constructor()
 
@@ -25,6 +28,8 @@ class RequestInfo : Serializable {
         this.name = name
         this.source = source
         this.type = type
+        this.size = File(this.source).length()
+        this.transferred = 0
         status = 0 //pending
         this.requestType = requestType
     }

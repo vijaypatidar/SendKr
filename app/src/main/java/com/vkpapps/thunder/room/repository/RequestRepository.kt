@@ -19,6 +19,10 @@ class RequestRepository(private val requestDao: RequestDao) {
     }
 
     suspend fun updateStatus(rid: String, status: Int) {
-        requestDao.updateStatus(rid, status);
+        requestDao.updateStatus(rid, status)
+    }
+
+    suspend fun updateProgress(rid: String, transferred: Long) {
+        requestDao.updateProgress(rid, transferred)
     }
 }

@@ -25,6 +25,10 @@ class FileRequestReceiver(private val onFileRequestReceiverListener: OnFileReque
                     val send = intent.getBooleanExtra(FileService.ACTION_SEND, true)
                     onFileRequestReceiverListener.onRequestAccepted(rid, clientId!!, send)
                 }
+                FileService.ACTION_PROGRESS_CHANGE -> {
+                    val progress = intent.getLongExtra(FileService.PARAM_TRANSFERRED_PROGRESS, 0)
+                    onFileRequestReceiverListener.onProgressChange(rid, progress)
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -35,6 +39,7 @@ class FileRequestReceiver(private val onFileRequestReceiverListener: OnFileReque
         fun onRequestFailed(rid: String)
         fun onRequestAccepted(rid: String, cid: String, send: Boolean)
         fun onRequestSuccess(rid: String, timeTaken: Long)
+        fun onProgressChange(rid: String, transferred: Long)
     }
 
 }

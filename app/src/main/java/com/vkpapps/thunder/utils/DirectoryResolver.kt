@@ -28,10 +28,18 @@ class DirectoryResolver(private val context: Context) {
     }
 
     fun getSource(obj: RequestInfo): String {
-        val file = File(getDirectory(obj.type), obj.name)
+        var file = File(getDirectory(obj.type), obj.name)
         // in case of folder request make dir for it
         if (file.exists()) {
-            //todo check file if exist
+            if (obj.type == FileType.FILE_TYPE_FOLDER) {
+                var i = 0
+                while (!file.exists()) {
+                    obj.source = obj.source + "(${i++})"
+                    file = File(obj.source)
+                }
+            } else {
+                //todo check file if exist
+            }
         }
         if (obj.type == FileType.FILE_TYPE_FOLDER) {
             file.mkdirs()

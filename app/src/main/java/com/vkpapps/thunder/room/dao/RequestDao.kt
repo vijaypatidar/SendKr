@@ -30,4 +30,7 @@ interface RequestDao {
 
     @Query("UPDATE RequestInfo set status = :status where rid = :rid")
     suspend fun updateStatus(rid: String, status: Int)
+
+    @Query("UPDATE RequestInfo set transferred = :transferred where rid = :rid")
+    suspend fun updateProgress(rid: String, transferred: Long)
 }
