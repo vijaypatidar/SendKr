@@ -14,6 +14,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -45,11 +46,8 @@ import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
 import com.vkpapps.thunder.service.FileService
 import com.vkpapps.thunder.ui.fragments.DashboardFragment
 import com.vkpapps.thunder.ui.fragments.destinations.FragmentDestinationListener
-import com.vkpapps.thunder.utils.DirectoryResolver
+import com.vkpapps.thunder.utils.*
 import com.vkpapps.thunder.utils.HashUtils.getRandomId
-import com.vkpapps.thunder.utils.IPManager
-import com.vkpapps.thunder.utils.PermissionUtils
-import com.vkpapps.thunder.utils.UpdateManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -138,7 +136,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     val ipManager = IPManager(this)
                     val address = ipManager.hostIp()
                     d("setup: connection address $address")
-                    FileService.HOST_ADDRESS = address.substring(0, address.lastIndexOf(".") + 1) + "1"
+                    FileService.HOST_ADDRESS = address
                     socket.connect(InetSocketAddress(FileService.HOST_ADDRESS, 1203), 5000)
                     clientHelper = ClientHelper(socket, this, user, this)
                     clientHelper.start()
@@ -399,7 +397,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 requestInfo.name = rawRequestInfo.name
                 requestInfo.source = rawRequestInfo.source
                 requestInfo.type = rawRequestInfo.type
-                requestInfo.size = File(rawRequestInfo.source).length()
+                if (rawRequestInfo.type == FileType.FILE_TYPE_FOLDER) {
+                    requestInfo.size = MathUtils.getFolderSize(DocumentFile.fromFile(File(rawRequestInfo.source)))
+                } else {
+                    requestInfo.size = File(rawRequestInfo.source).length()
+                }
                 if (isHost) {
                     for (clientHelper in serverHelper.clientHelpers) {
                         val rid = getRandomId()

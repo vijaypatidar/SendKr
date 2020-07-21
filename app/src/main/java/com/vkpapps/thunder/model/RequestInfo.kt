@@ -3,6 +3,7 @@ package com.vkpapps.thunder.model
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.vkpapps.thunder.utils.MathUtils
 import java.io.File
 import java.io.Serializable
 
@@ -18,6 +19,11 @@ class RequestInfo : Serializable {
     var requestType = 0
     var size: Long = 0
     var transferred: Long = 0
+
+    @delegate:Ignore
+    val displaySize: String by lazy {
+        MathUtils.longToStringSize(size.toDouble())
+    }
 
     constructor()
 

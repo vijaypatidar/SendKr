@@ -35,4 +35,20 @@ object MathUtils {
         }
         return res
     }
+
+    fun getFolderSize(file: DocumentFile): Long {
+        var res: Long = 0
+        try {
+            if (file.isDirectory) {
+                file.listFiles().forEach {
+                    res += getFolderSize(it)
+                }
+            } else {
+                return file.length()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return res
+    }
 }

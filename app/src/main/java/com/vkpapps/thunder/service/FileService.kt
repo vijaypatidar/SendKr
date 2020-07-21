@@ -66,7 +66,16 @@ class FileService : IntentService("FileService") {
             val init = System.currentTimeMillis()
             val file = File(source)
             if (file.isDirectory) {
-                ZipUtils().openInputOutStream(socket.getInputStream(), file)
+                val zipUtils = ZipUtils()
+                zipUtils.openInputOutStream(socket.getInputStream(), file)
+                CoroutineScope(Default).launch {
+                    while (!socket.isClosed) {
+                        onProgressChange(rid, zipUtils.transferred)
+                        Logger.d("inside while for receiving ${zipUtils.transferred}")
+                        delay(PROGRESS_UPDATE_TIME)
+                    }
+                    onProgressChange(rid, zipUtils.transferred)
+                }
             } else {
                 val `in` = socket.getInputStream()
                 val out: OutputStream = FileOutputStream(file)
@@ -77,7 +86,7 @@ class FileService : IntentService("FileService") {
                     while (!socket.isClosed) {
                         onProgressChange(rid, transferredByte)
                         Logger.d("inside while for receiving $transferredByte")
-                        delay(1000)
+                        delay(PROGRESS_UPDATE_TIME)
                     }
                     onProgressChange(rid, transferredByte)
                 }
@@ -106,7 +115,16 @@ class FileService : IntentService("FileService") {
             val file = File(source)
             val init = System.currentTimeMillis()
             if (file.isDirectory) {
-                ZipUtils().openZipOutStream(socket.getOutputStream(), file)
+                val zipUtils = ZipUtils()
+                zipUtils.openZipOutStream(socket.getOutputStream(), file)
+                CoroutineScope(Default).launch {
+                    while (!socket.isClosed) {
+                        onProgressChange(rid, zipUtils.transferred)
+                        Logger.d("inside while for receiving ${zipUtils.transferred}")
+                        delay(PROGRESS_UPDATE_TIME)
+                    }
+                    onProgressChange(rid, zipUtils.transferred)
+                }
             } else {
                 val inputStream: InputStream = FileInputStream(file)
                 val outputStream = socket.getOutputStream()
@@ -117,7 +135,7 @@ class FileService : IntentService("FileService") {
                     while (!socket.isClosed) {
                         onProgressChange(rid, transferredByte)
                         Logger.d("inside while for sending $transferredByte")
-                        delay(1000)
+                        delay(PROGRESS_UPDATE_TIME)
                     }
                     onProgressChange(rid, transferredByte)
                 }
@@ -186,6 +204,7 @@ class FileService : IntentService("FileService") {
         var HOST_ADDRESS: String? = null
         private const val MAX_WAIT_TIME = 1500
         private const val PORT = 7511
+        private const val PROGRESS_UPDATE_TIME: Long = 2000
 
         fun startActionSend(rid: String, source: String, clientId: String?, isHost: Boolean) {
             val intent = Intent(App.context, FileService::class.java)

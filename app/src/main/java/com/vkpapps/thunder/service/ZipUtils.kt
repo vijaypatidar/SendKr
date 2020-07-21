@@ -9,6 +9,7 @@ import java.util.zip.ZipOutputStream
 class ZipUtils {
     private val buffer = ByteArray(2048)
     private var bi = 0
+    var transferred: Long = 0
 
     @Throws(IOException::class)
     fun openZipOutStream(outputStream: OutputStream, path: File) {
@@ -28,9 +29,10 @@ class ZipUtils {
             val zipEntry = ZipEntry(path.absolutePath.substring(bi))
             zos.putNextEntry(zipEntry)
             val `in`: InputStream = FileInputStream(path)
-            var len: Int
-            while (`in`.read(buffer).also { len = it } > 0) {
-                zos.write(buffer, 0, len)
+            var read: Int
+            while (`in`.read(buffer).also { read = it } > 0) {
+                zos.write(buffer, 0, read)
+                transferred += read
             }
             `in`.close()
         }
@@ -45,9 +47,10 @@ class ZipUtils {
             val file = File(path, fileName)
             file.parentFile?.mkdirs()
             val fos = FileOutputStream(file)
-            var len: Int
-            while (zis.read(buffer).also { len = it } > 0) {
-                fos.write(buffer, 0, len)
+            var read: Int
+            while (zis.read(buffer).also { read = it } > 0) {
+                fos.write(buffer, 0, read)
+                transferred += read
             }
             fos.close()
             zis.closeEntry()
