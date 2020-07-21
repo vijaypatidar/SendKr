@@ -7,7 +7,7 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class ZipUtils {
-    private val buffer = ByteArray(2048)
+    private val buffer = ByteArray(3000)
     private var bi = 0
     var transferred: Long = 0
 

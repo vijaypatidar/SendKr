@@ -54,8 +54,8 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
             val file = File(source)
             if (file.isDirectory) {
                 val zipUtils = ZipUtils()
-                zipUtils.openInputOutStream(socket.getInputStream(), file)
                 CoroutineScope(Default).launch {
+                    Logger.d("receiving file ----------------")
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
                         Logger.d("inside while for receiving ${zipUtils.transferred}")
@@ -63,6 +63,7 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
                     }
                     onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
                 }
+                zipUtils.openInputOutStream(socket.getInputStream(), file)
             } else {
                 val `in` = socket.getInputStream()
                 val out: OutputStream = FileOutputStream(file)
@@ -103,15 +104,14 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
             val init = System.currentTimeMillis()
             if (file.isDirectory) {
                 val zipUtils = ZipUtils()
-                zipUtils.openZipOutStream(socket.getOutputStream(), file)
                 CoroutineScope(Default).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
-                        Logger.d("inside while for receiving ${zipUtils.transferred}")
                         delay(PROGRESS_UPDATE_TIME)
                     }
                     onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
                 }
+                zipUtils.openZipOutStream(socket.getOutputStream(), file)
             } else {
                 val inputStream: InputStream = FileInputStream(file)
                 val outputStream = socket.getOutputStream()
@@ -121,7 +121,6 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
                 CoroutineScope(Default).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
-                        Logger.d("inside while for sending $transferredByte")
                         delay(PROGRESS_UPDATE_TIME)
                     }
                     onFileRequestReceiverListener.onProgressChange(rid, transferredByte)

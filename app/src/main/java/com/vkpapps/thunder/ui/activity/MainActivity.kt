@@ -261,7 +261,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onProgressChange(rid: String, transferred: Long) {
         requestViewModel.updateProgress(rid, transferred)
-        d("Main activity rid = $rid  progress = $transferred")
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
