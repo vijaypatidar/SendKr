@@ -5,5 +5,6 @@
         android:id="@+id/menu_transferring"
         android:icon="@drawable/ic_transferring"
         android:title="@string/transferring"
+        app:actionLayout="@layout/transferring_menu_action_layout"
         app:showAsAction="always" />
 </menu>

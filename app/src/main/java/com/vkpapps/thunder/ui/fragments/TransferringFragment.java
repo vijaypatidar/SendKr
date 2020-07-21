@@ -3,6 +3,8 @@ package com.vkpapps.thunder.ui.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -42,6 +44,7 @@ public class TransferringFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setHasOptionsMenu(true);
         RecyclerView recyclerView = view.findViewById(R.id.requestList);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -70,6 +73,12 @@ public class TransferringFragment extends Fragment {
 
         AdView adView = view.findViewById(R.id.adView);
         AdsUtils.INSTANCE.getAdRequest(adView);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.findItem(R.id.menu_transferring).setVisible(false);
     }
 
     @Override

@@ -1,9 +1,7 @@
 package com.vkpapps.thunder.ui.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +22,7 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
         customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
 
         btnClearHistory.setOnClickListener {
@@ -31,5 +30,11 @@ class SettingsFragment : Fragment() {
             Toast.makeText(requireContext(), getString(R.string.history_cleared_message), Toast.LENGTH_LONG).show()
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menu.findItem(R.id.menu_transferring).isVisible = false
+    }
+
 
 }

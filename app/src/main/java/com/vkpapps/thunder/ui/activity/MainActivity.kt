@@ -13,6 +13,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -97,7 +98,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         if (!PermissionUtils.checkStoragePermission(this)) {
             PermissionUtils.askStoragePermission(this, 9098)
         }
-
     }
 
     private fun choice() {
@@ -319,6 +319,19 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main_menu, menu)
+        val findItem = menu.findItem(R.id.menu_transferring)
+        findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
+            navController.navigate(object : NavDirections {
+                override fun getArguments(): Bundle {
+                    return Bundle()
+                }
+
+                override fun getActionId(): Int {
+                    return R.id.transferringFragment
+                }
+
+            })
+        }
         return true
     }
 
