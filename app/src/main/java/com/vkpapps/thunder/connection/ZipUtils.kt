@@ -1,4 +1,4 @@
-package com.vkpapps.thunder.service
+package com.vkpapps.thunder.connection
 
 import androidx.documentfile.provider.DocumentFile
 import java.io.*

@@ -55,7 +55,7 @@
             android:layout_toEndOf="@+id/btnAll"
             android:background="@drawable/round"
             android:backgroundTint="@color/colorAccent"
-            android:src="@drawable/ic_arrow_upward"
+            android:src="@drawable/ic_baseline_send_24"
             android:visibility="visible" />
     </RelativeLayout>
 

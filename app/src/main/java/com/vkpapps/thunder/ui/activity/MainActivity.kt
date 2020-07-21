@@ -2,7 +2,6 @@ package com.vkpapps.thunder.ui.activity
 
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -17,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
@@ -26,9 +24,9 @@ import androidx.navigation.ui.NavigationUI
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.analitics.Logger.d
 import com.vkpapps.thunder.connection.ClientHelper
+import com.vkpapps.thunder.connection.FileService
 import com.vkpapps.thunder.connection.ServerHelper
 import com.vkpapps.thunder.interfaces.*
 import com.vkpapps.thunder.loader.PrepareDb
@@ -38,12 +36,9 @@ import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.model.constaints.StatusType
-import com.vkpapps.thunder.receivers.FileRequestReceiver
-import com.vkpapps.thunder.receivers.FileRequestReceiver.OnFileRequestReceiverListener
 import com.vkpapps.thunder.room.database.MyRoomDatabase
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
-import com.vkpapps.thunder.service.FileService
 import com.vkpapps.thunder.ui.fragments.DashboardFragment
 import com.vkpapps.thunder.ui.fragments.destinations.FragmentDestinationListener
 import com.vkpapps.thunder.utils.*
@@ -99,7 +94,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
         // check for policy accepted or not
 //        PrivacyDialog(this).isPolicyAccepted
-        setupReceiver()
         if (!PermissionUtils.checkStoragePermission(this)) {
             PermissionUtils.askStoragePermission(this, 9098)
         }
@@ -169,14 +163,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
             d("rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
-            withContext(Main) {
-                FileService.startActionReceive(requestInfo.name,
-                        requestInfo.source,
-                        rid,
-                        requestInfo.cid,
-                        isHost
-                )
-            }
+            FileService.startActionReceive(this@MainActivity, requestInfo.name,
+                    requestInfo.source,
+                    rid,
+                    requestInfo.cid,
+                    isHost
+            )
         }
         updateStatus(rid, StatusType.STATUS_ONGOING)
     }
@@ -185,13 +177,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
             d("rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
-            withContext(Main) {
-                FileService.startActionSend(rid,
-                        requestInfo.source,
-                        requestInfo.cid,
-                        isHost
-                )
-            }
+            FileService.startActionSend(this@MainActivity, rid,
+                    requestInfo.source,
+                    requestInfo.cid,
+                    isHost
+            )
+
         }
         updateStatus(rid, StatusType.STATUS_ONGOING)
     }
@@ -200,11 +191,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onNewRequestInfo(obj: RequestInfo) {
         CoroutineScope(IO).launch {
             obj.source = directoryResolver.getSource(obj)
-            Logger.d("new file request type = ${obj.type} ${obj.name}")
+            d("new file request type = ${obj.type} ${obj.name}")
             if (isHost) {
                 database.requestDao().insert(obj)
                 withContext(Main) {
                     FileService.startActionReceive(
+                            this@MainActivity,
                             obj.name,
                             obj.source,
                             obj.rid,
@@ -223,6 +215,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
                         withContext(Main) {
                             FileService.startActionSend(
+                                    this@MainActivity,
                                     clone.rid,
                                     clone.source,
                                     clone.cid,
@@ -232,7 +225,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     }
                 }
             } else {
-                Logger.d("client new req size of file = ${obj.size}")
+                d("client new req size of file = ${obj.size}")
                 database.requestDao().insert(obj)
             }
         }
@@ -268,7 +261,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onProgressChange(rid: String, transferred: Long) {
         requestViewModel.updateProgress(rid, transferred)
-        Logger.d("Main activity rid = $rid  progress = $transferred")
+        d("Main activity rid = $rid  progress = $transferred")
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -304,17 +297,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun setupReceiver() {
-        val instance = LocalBroadcastManager.getInstance(this)
-        val requestReceiver = FileRequestReceiver(this)
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(FileService.STATUS_FAILED)
-        intentFilter.addAction(FileService.STATUS_SUCCESS)
-        intentFilter.addAction(FileService.REQUEST_ACCEPTED)
-        intentFilter.addAction(FileService.ACTION_PROGRESS_CHANGE)
-        instance.registerReceiver(requestReceiver, intentFilter)
     }
 
     override fun onRequestUsers(): List<ClientHelper> {
@@ -411,6 +393,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         clientHelper.write(clone)
                         withContext(Main) {
                             FileService.startActionSend(
+                                    this@MainActivity,
                                     clone.rid,
                                     clone.source,
                                     clone.cid,

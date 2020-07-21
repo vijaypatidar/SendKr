@@ -22,7 +22,7 @@
             android:layout_gravity="center_vertical"
             tools:ignore="UnusedAttribute">
 
-            <com.vkpapps.thunder.ui.HorizontalProgressBar
+            <com.vkpapps.thunder.ui.views.HorizontalProgressBar
                 android:id="@+id/progress"
                 android:layout_width="match_parent"
                 android:layout_height="90dp"
@@ -38,7 +38,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="5dp"
                 android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp" />
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/ic_folder" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -63,14 +64,16 @@
                     android:layout_weight="1"
                     android:orientation="vertical"
                     android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    tools:text="file name" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/size"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:text="100Gb" />
             </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatImageView

@@ -35,7 +35,7 @@
             android:theme="@style/AppTheme" />
 
         <service
-            android:name="com.vkpapps.thunder.service.FileService"
+            android:name="com.vkpapps.thunder.connection.FileService"
             android:exported="false"
             android:label="File service" />
 

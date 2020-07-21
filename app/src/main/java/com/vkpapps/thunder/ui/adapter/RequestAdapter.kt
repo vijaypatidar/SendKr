@@ -13,14 +13,17 @@ import com.vkpapps.thunder.R
 import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.model.constaints.StatusType
-import com.vkpapps.thunder.ui.HorizontalProgressBar
+import com.vkpapps.thunder.ui.views.HorizontalProgressBar
 import com.vkpapps.thunder.utils.MathUtils
+import com.vkpapps.thunder.utils.MyThumbnailUtils
+import com.vkpapps.thunder.utils.StorageManager
+import java.io.File
 import java.util.*
 
 class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val requestInfos: MutableList<RequestInfo> = ArrayList()
     private val inflater: LayoutInflater = LayoutInflater.from(context)
-
+    private val thumbnail = StorageManager(context).thumbnails
     override fun getItemViewType(position: Int): Int {
         return requestInfos[position].type
     }
@@ -34,7 +37,6 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
         if (holder is DefaultRequestHolder) {
             holder.name.text = requestInfo.name
             holder.size.text = requestInfo.displaySize
-            setIconType(holder.thumbnail, requestInfo.type)
             updateStatus(holder, requestInfo)
         }
     }
@@ -53,9 +55,14 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
 
     private fun updateStatus(holder: DefaultRequestHolder, requestInfo: RequestInfo) {
         when (requestInfo.status) {
-            StatusType.STATUS_PENDING -> holder.status.setImageResource(R.drawable.ic_pending)
+            StatusType.STATUS_PENDING -> {
+                holder.status.setImageResource(R.drawable.ic_pending)
+                setProgress(holder.progress, 0, requestInfo.size)
+                setIconType(holder.thumbnail, requestInfo.type)
+            }
             StatusType.STATUS_ONGOING -> {
                 holder.status.setImageResource(R.drawable.ic_status_ongoing)
+                setIconType(holder.thumbnail, requestInfo.type)
                 val animation = RotateAnimation(0f, (-360).toFloat(),
                         Animation.RELATIVE_TO_SELF, .5f,
                         Animation.RELATIVE_TO_SELF, .5f)
@@ -67,8 +74,10 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
             StatusType.STATUS_COMPLETED -> {
                 holder.status.setImageResource(R.drawable.ic_status_completed)
                 setProgress(holder.progress, requestInfo.size, requestInfo.size)
+                MyThumbnailUtils.loadThumbnail(File(thumbnail, requestInfo.rid), requestInfo.source, requestInfo.type, holder.thumbnail)
             }
             StatusType.STATUS_FAILED -> {
+                setIconType(holder.thumbnail, requestInfo.type)
                 setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
                 holder.status.setImageResource(R.drawable.ic_status_failed)
             }
@@ -97,7 +106,7 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
     private fun setProgress(progressBar: HorizontalProgressBar, transferred: Long, size: Long) {
         try {
             val progress = MathUtils.roundTo((transferred * 100 / size).toDouble())
-            progressBar.setProgress(progress.toInt())
+            progressBar.setProgress(progress.toFloat())
         } catch (e: Exception) {
             e.printStackTrace()
         }

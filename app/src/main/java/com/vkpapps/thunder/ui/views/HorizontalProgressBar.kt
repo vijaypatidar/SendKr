@@ -1,4 +1,4 @@
-package com.vkpapps.thunder.ui
+package com.vkpapps.thunder.ui.views
 
 import android.content.Context
 import android.graphics.Canvas
@@ -8,11 +8,11 @@ import android.util.AttributeSet
 import android.view.View
 
 class HorizontalProgressBar : View {
-    private var progress = 0
+    private var progress: Float = 0f
 
     private val paint: Paint by lazy {
         val paint = Paint()
-        paint.color = Color.parseColor("#ffccbc")
+        paint.color = Color.parseColor("#ffe0b2")
         paint.style = Paint.Style.FILL
         paint
     }
@@ -27,10 +27,10 @@ class HorizontalProgressBar : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val i = widthOnePercent * progress
-        canvas.drawRect(0f, 0f, i.toFloat(), height.toFloat(), paint)
+        canvas.drawRect(0f, 0f, i, height.toFloat(), paint)
     }
 
-    fun setProgress(progress: Int) {
+    fun setProgress(progress: Float) {
         this.progress = progress
         invalidate()
     }
