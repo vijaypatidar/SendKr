@@ -12,7 +12,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 object MyThumbnailUtils {
-    fun loadAudioThumbnail(file: File, source: String, imageView: AppCompatImageView) {
+    fun loadAudioThumbnail(file: File, source: String, imageView: AppCompatImageView?) {
         if (!file.exists()) {
             try {
                 val mmr = MediaMetadataRetriever()
@@ -20,37 +20,37 @@ object MyThumbnailUtils {
                 val data = mmr.embeddedPicture
                 val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, FileOutputStream(file))
-                Picasso.get().load(file).into(imageView)
+                Picasso.get().load(file).centerCrop().into(imageView)
             } catch (e: Exception) {
                 e.printStackTrace()
-                imageView.setImageResource(R.drawable.ic_default_audio_icon)
+                imageView?.setImageResource(R.drawable.ic_default_audio_icon)
             }
         } else {
             Picasso.get().load(file).into(imageView)
         }
     }
 
-    fun loadVideoThumbnail(file: File, path: String, imageView: ImageView) {
+    fun loadVideoThumbnail(file: File, path: String, imageView: ImageView?) {
         if (!file.exists()) {
             try {
                 val mmr = MediaMetadataRetriever()
                 mmr.setDataSource(path)
                 mmr.frameAtTime?.compress(Bitmap.CompressFormat.JPEG, 90, FileOutputStream(file))
-                Picasso.get().load(file).into(imageView)
+                Picasso.get().load(file).centerCrop().into(imageView)
             } catch (e: Exception) {
                 e.printStackTrace()
-                imageView.setImageResource(R.drawable.ic_movie)
+                imageView?.setImageResource(R.drawable.ic_movie)
             }
         } else {
             Picasso.get().load(file).into(imageView)
         }
     }
 
-    fun loadPhotoThumbnail(path: String, imageView: AppCompatImageView) {
+    fun loadPhotoThumbnail(path: String, imageView: AppCompatImageView?) {
         Picasso.get().load(File(path)).centerCrop().resize(256, 256).into(imageView)
     }
 
-    fun loadThumbnail(icon: File, source: String, type: Int, logo: AppCompatImageView) {
+    fun loadThumbnail(icon: File, source: String, type: Int, logo: AppCompatImageView?) {
         when (type) {
             FileType.FILE_TYPE_PHOTO -> {
                 loadPhotoThumbnail(source, logo)
@@ -62,12 +62,12 @@ object MyThumbnailUtils {
                 loadAudioThumbnail(icon, source, logo)
             }
             FileType.FILE_TYPE_APP -> {
-                logo.setImageResource(R.drawable.ic_apps)
+                logo?.setImageResource(R.drawable.ic_apps)
             }
             FileType.FILE_TYPE_FOLDER -> {
-                logo.setImageResource(R.drawable.ic_folder)
+                logo?.setImageResource(R.drawable.ic_folder)
             }
-            else -> logo.setImageResource(R.drawable.ic_file)
+            else -> logo?.setImageResource(R.drawable.ic_file)
         }
     }
 

@@ -13,7 +13,6 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -47,14 +46,13 @@ import com.vkpapps.thunder.utils.HashUtils.getRandomId
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * @author VIJAY PATIDAR
@@ -163,8 +161,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
             d("rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
-            FileService.startActionReceive(this@MainActivity, requestInfo.name,
-                    requestInfo.source,
+            FileService.startActionReceive(this@MainActivity, requestInfo.source,
                     rid,
                     requestInfo.cid,
                     isHost
@@ -191,18 +188,16 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onNewRequestInfo(obj: RequestInfo) {
         CoroutineScope(IO).launch {
             obj.source = directoryResolver.getSource(obj)
-            d("new file request type = ${obj.type} ${obj.name}")
+            d("new file request type = ${obj.fileType} ${obj.name}")
             if (isHost) {
                 database.requestDao().insert(obj)
-                withContext(Main) {
-                    FileService.startActionReceive(
-                            this@MainActivity,
-                            obj.name,
-                            obj.source,
-                            obj.rid,
-                            obj.cid,
-                            true)
-                }
+                FileService.startActionReceive(
+                        this@MainActivity,
+                        obj.source,
+                        obj.rid,
+                        obj.cid,
+                        true)
+
                 //sender cid
                 val scid = obj.cid
                 for (clientHelper in serverHelper.clientHelpers) {
@@ -213,15 +208,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         //preparing intent for service
                         database.requestDao().insert(clone)
 
-                        withContext(Main) {
-                            FileService.startActionSend(
-                                    this@MainActivity,
-                                    clone.rid,
-                                    clone.source,
-                                    clone.cid,
-                                    true)
-                        }
-
+                        FileService.startActionSend(
+                                this@MainActivity,
+                                clone.rid,
+                                clone.source,
+                                clone.cid,
+                                true)
                     }
                 }
             } else {
@@ -235,17 +227,19 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         updateStatus(rid, StatusType.STATUS_FAILED)
     }
 
-    override fun onRequestAccepted(rid: String, cid: String, send: Boolean) {
+    override fun onRequestAccepted(rid: String, cid: String, send: Boolean): Boolean {
         if (isHost) {
             serverHelper.clientHelpers.forEach {
                 if (it.user.userId == cid) {
                     it.write(
                             FileRequest(if (send) FileRequest.DOWNLOAD_REQUEST_CONFIRM else FileRequest.UPLOAD_REQUEST_CONFIRM, rid)
                     )
+                    return true
                 }
             }
         }
         updateStatus(rid, StatusType.STATUS_ONGOING)
+        return false
     }
 
     override fun onRequestSuccess(rid: String, timeTaken: Long) {
@@ -254,7 +248,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
             historyViewModel.insert(
-                    HistoryInfo(requestInfo.name, requestInfo.source, requestInfo.type)
+                    HistoryInfo(requestInfo.name, requestInfo.source, requestInfo.fileType)
             )
         }
     }
@@ -319,19 +313,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main_menu, menu)
-        val findItem = menu.findItem(R.id.menu_transferring)
-        findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
-            navController.navigate(object : NavDirections {
-                override fun getArguments(): Bundle {
-                    return Bundle()
-                }
-
-                override fun getActionId(): Int {
-                    return R.id.transferringFragment
-                }
-
-            })
-        }
         return true
     }
 
@@ -390,7 +371,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 val requestInfo = RequestInfo()
                 requestInfo.name = rawRequestInfo.name
                 requestInfo.source = rawRequestInfo.source
-                requestInfo.type = rawRequestInfo.type
+                requestInfo.fileType = rawRequestInfo.type
                 if (rawRequestInfo.type == FileType.FILE_TYPE_FOLDER) {
                     requestInfo.size = MathUtils.getFolderSize(DocumentFile.fromFile(File(rawRequestInfo.source)))
                 } else {
@@ -403,14 +384,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         //preparing intent for service
                         database.requestDao().insert(clone)
                         clientHelper.write(clone)
-                        withContext(Main) {
                             FileService.startActionSend(
                                     this@MainActivity,
                                     clone.rid,
                                     clone.source,
                                     clone.cid,
                                     true)
-                        }
                     }
                 } else {
                     requestInfo.rid = getRandomId()
@@ -437,7 +416,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onClientDisconnected(clientHelper: ClientHelper) {
         runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
 
-        //prompt client when disconnect to a party to create or rejoin the party
+        //prompt client when disconnect
         if (!isHost) {
             runOnUiThread { choice() }
         }

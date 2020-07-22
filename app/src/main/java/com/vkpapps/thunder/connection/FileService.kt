@@ -5,6 +5,7 @@ import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestReceiverListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.*
@@ -48,7 +49,11 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
     private fun handleActionReceive(rid: String, source: String, clientId: String, isHost: Boolean) {
 
         try {
-            if (isHost) onFileRequestReceiverListener.onRequestAccepted(rid, clientId, false)
+            CoroutineScope(IO).launch {
+
+                if (isHost && !onFileRequestReceiverListener.onRequestAccepted(rid, clientId, true)) {
+                }
+            }
             val socket = getSocket(isHost)
             val init = System.currentTimeMillis()
             val file = File(source)
@@ -98,7 +103,10 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
 
     private fun handleActionSend(rid: String, source: String, clientId: String, isHost: Boolean) {
         try {
-            if (isHost) onFileRequestReceiverListener.onRequestAccepted(rid, clientId, true)
+            CoroutineScope(IO).launch {
+                if (isHost && !onFileRequestReceiverListener.onRequestAccepted(rid, clientId, true)) {
+                }
+            }
             val socket = getSocket(isHost)
             val file = File(source)
             val init = System.currentTimeMillis()
@@ -134,8 +142,8 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
                 inputStream.close()
                 socket.close()
             }
-            val timeTaken = (System.currentTimeMillis() - init) / 1000
-            Logger.d("timeTaken =  $timeTaken")
+            val timeTaken = (System.currentTimeMillis() - init)
+            Logger.d("timeTaken =  ${timeTaken}ms")
             onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken)
         } catch (e: IOException) {
             onFileRequestReceiverListener.onRequestFailed(rid)
@@ -145,11 +153,6 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
 
 
     companion object {
-        const val ACTION_PROGRESS_CHANGE = "com.vkpapps.thunder.action.ACTION_PROGRESS_CHANGE"
-        const val STATUS_SUCCESS = "com.vkpapps.thunder.action.SUCCESS"
-        const val STATUS_FAILED = "com.vkpapps.thunder.action.FAILED"
-        const val REQUEST_ACCEPTED = "com.vkpapps.thunder.action.ACCEPTED"
-
         @JvmField
         var HOST_ADDRESS: String? = null
         private const val MAX_WAIT_TIME = 1500
@@ -165,7 +168,7 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
             }
         }
 
-        fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, name: String, source: String, rid: String, clientId: String, isHost: Boolean) {
+        fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, source: String, rid: String, clientId: String, isHost: Boolean) {
             synchronized(App.executor) {
                 App.executor.submit(FileService(
                         false, onFileRequestReceiverListener, rid, source, clientId, isHost

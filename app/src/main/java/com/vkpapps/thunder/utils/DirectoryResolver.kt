@@ -28,10 +28,10 @@ class DirectoryResolver(private val context: Context) {
     }
 
     fun getSource(obj: RequestInfo): String {
-        var file = File(getDirectory(obj.type), obj.name)
+        var file = File(getDirectory(obj.fileType), obj.name)
         // in case of folder request make dir for it
         if (file.exists()) {
-            if (obj.type == FileType.FILE_TYPE_FOLDER) {
+            if (obj.fileType == FileType.FILE_TYPE_FOLDER) {
                 var i = 0
                 while (!file.exists()) {
                     obj.source = obj.source + "(${i++})"
@@ -41,7 +41,7 @@ class DirectoryResolver(private val context: Context) {
                 //todo check file if exist
             }
         }
-        if (obj.type == FileType.FILE_TYPE_FOLDER) {
+        if (obj.fileType == FileType.FILE_TYPE_FOLDER) {
             file.mkdirs()
             Logger.d("New dir created ${obj.source}")
         }

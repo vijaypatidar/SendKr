@@ -25,7 +25,7 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     private val thumbnail = StorageManager(context).thumbnails
     override fun getItemViewType(position: Int): Int {
-        return requestInfos[position].type
+        return requestInfos[position].fileType
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -58,11 +58,11 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
             StatusType.STATUS_PENDING -> {
                 holder.status.setImageResource(R.drawable.ic_pending)
                 setProgress(holder.progress, 0, requestInfo.size)
-                setIconType(holder.thumbnail, requestInfo.type)
+                setIconType(holder.thumbnail, requestInfo.fileType)
             }
             StatusType.STATUS_ONGOING -> {
                 holder.status.setImageResource(R.drawable.ic_status_ongoing)
-                setIconType(holder.thumbnail, requestInfo.type)
+                setIconType(holder.thumbnail, requestInfo.fileType)
                 val animation = RotateAnimation(0f, (-360).toFloat(),
                         Animation.RELATIVE_TO_SELF, .5f,
                         Animation.RELATIVE_TO_SELF, .5f)
@@ -74,10 +74,10 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
             StatusType.STATUS_COMPLETED -> {
                 holder.status.setImageResource(R.drawable.ic_status_completed)
                 setProgress(holder.progress, requestInfo.size, requestInfo.size)
-                MyThumbnailUtils.loadThumbnail(File(thumbnail, requestInfo.rid), requestInfo.source, requestInfo.type, holder.thumbnail)
+                MyThumbnailUtils.loadThumbnail(File(thumbnail, requestInfo.rid), requestInfo.source, requestInfo.fileType, holder.thumbnail)
             }
             StatusType.STATUS_FAILED -> {
-                setIconType(holder.thumbnail, requestInfo.type)
+                setIconType(holder.thumbnail, requestInfo.fileType)
                 setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
                 holder.status.setImageResource(R.drawable.ic_status_failed)
             }

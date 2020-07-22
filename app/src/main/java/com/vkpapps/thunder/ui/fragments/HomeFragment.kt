@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -37,6 +39,8 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     private var selectedCount = 0
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
+    private var navController: NavController? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -46,7 +50,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-
+        navController = Navigation.findNavController(view)
         val controller = Navigation.findNavController(view)
         progressBarInternal.max = 100
         val storage = StorageManager(requireContext())
@@ -102,9 +106,23 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.home_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.home_menu, menu)
+        val findItem = menu.findItem(R.id.menu_transferring)
+        findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
+            navController?.navigate(object : NavDirections {
+                override fun getArguments(): Bundle {
+                    return Bundle()
+                }
+
+                override fun getActionId(): Int {
+                    return R.id.action_navigation_home_to_transferringFragment
+                }
+
+            })
+        }
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
