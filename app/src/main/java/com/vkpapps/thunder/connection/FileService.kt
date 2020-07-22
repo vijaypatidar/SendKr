@@ -47,11 +47,10 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
     }
 
     private fun handleActionReceive(rid: String, source: String, clientId: String, isHost: Boolean) {
-
         try {
             CoroutineScope(IO).launch {
+                if (isHost && !onFileRequestReceiverListener.onRequestAccepted(rid, clientId, false)) {
 
-                if (isHost && !onFileRequestReceiverListener.onRequestAccepted(rid, clientId, true)) {
                 }
             }
             val socket = getSocket(isHost)
@@ -76,9 +75,9 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
                 var count: Int
                 var transferredByte: Long = 0
                 CoroutineScope(Default).launch {
+                    Logger.d("inside while for receiving $transferredByte")
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
-                        Logger.d("inside while for receiving $transferredByte")
                         delay(PROGRESS_UPDATE_TIME)
                     }
                     onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
@@ -105,6 +104,7 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
         try {
             CoroutineScope(IO).launch {
                 if (isHost && !onFileRequestReceiverListener.onRequestAccepted(rid, clientId, true)) {
+                    throw  Exception()
                 }
             }
             val socket = getSocket(isHost)

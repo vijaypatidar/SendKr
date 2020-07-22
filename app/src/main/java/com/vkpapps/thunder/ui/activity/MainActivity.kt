@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onDownloadRequest(rid: String) {
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
-            d("rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
+            d("onDownloadRequest rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             FileService.startActionReceive(this@MainActivity, requestInfo.source,
                     rid,
                     requestInfo.cid,
@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onUploadRequest(rid: String) {
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
-            d("rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
+            d("onUploadRequest rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             FileService.startActionSend(this@MainActivity, rid,
                     requestInfo.source,
                     requestInfo.cid,
@@ -188,7 +188,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onNewRequestInfo(obj: RequestInfo) {
         CoroutineScope(IO).launch {
             obj.source = directoryResolver.getSource(obj)
-            d("new file request type = ${obj.fileType} ${obj.name}")
+            d(" new file request type = ${obj.fileType} ${obj.name}")
             if (isHost) {
                 database.requestDao().insert(obj)
                 FileService.startActionReceive(
@@ -196,7 +196,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         obj.source,
                         obj.rid,
                         obj.cid,
-                        true)
+                        isHost)
 
                 //sender cid
                 val scid = obj.cid
@@ -213,7 +213,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                                 clone.rid,
                                 clone.source,
                                 clone.cid,
-                                true)
+                                isHost)
                     }
                 }
             } else {
@@ -384,12 +384,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         //preparing intent for service
                         database.requestDao().insert(clone)
                         clientHelper.write(clone)
-                            FileService.startActionSend(
-                                    this@MainActivity,
-                                    clone.rid,
-                                    clone.source,
-                                    clone.cid,
-                                    true)
+                        FileService.startActionSend(
+                                this@MainActivity,
+                                clone.rid,
+                                clone.source,
+                                clone.cid,
+                                isHost)
                     }
                 } else {
                     requestInfo.rid = getRandomId()

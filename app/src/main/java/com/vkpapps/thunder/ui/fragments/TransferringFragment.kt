@@ -18,7 +18,6 @@ import com.vkpapps.thunder.model.constaints.StatusType
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
 import com.vkpapps.thunder.ui.adapter.RequestAdapter
 import com.vkpapps.thunder.utils.AdsUtils.getAdRequest
-import kotlinx.android.synthetic.main.fragment_transfering.*
 
 /***
  * @author VIJAY PATIDAR
@@ -86,7 +85,6 @@ class TransferringFragment : Fragment() {
         var failedCount = 0
         var pendingCount = 0
         requestInfos.forEach {
-
             when (it.status) {
                 StatusType.STATUS_ONGOING -> pendingCount++
                 StatusType.STATUS_COMPLETED -> {
@@ -96,11 +94,6 @@ class TransferringFragment : Fragment() {
                 StatusType.STATUS_FAILED -> failedCount++
                 StatusType.STATUS_PENDING -> pendingCount++
             }
-
         }
-        sent.text = "sent($sentCount)"
-        received.text = "received($receivedCount)"
-        failed.text = "failed($failedCount)"
-
     }
 }
