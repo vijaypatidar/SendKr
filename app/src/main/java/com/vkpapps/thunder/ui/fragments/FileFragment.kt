@@ -2,14 +2,16 @@ package com.vkpapps.thunder.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
@@ -36,8 +38,9 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var selectCount = 0
     private var title: String? = "default"
-
+    private var navController: NavController? = null
     private var rootDir: String = "/storage/emulated/0/"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (requireArguments().containsKey(FILE_ROOT)) {
@@ -59,6 +62,9 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
+        navController = Navigation.findNavController(view)
+
         // change title
         val supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar
         if (supportActionBar != null) {
@@ -77,10 +83,9 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             }
         }
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        var fileInfos: ArrayList<FileInfo>? = null
+        val fileInfos: ArrayList<FileInfo> = ArrayList()
         CoroutineScope(IO).launch {
             val listFiles = DocumentFile.fromFile(File(rootDir)).listFiles()
-            fileInfos = ArrayList()
             val folder = ArrayList<FileInfo>()
             val file = ArrayList<FileInfo>()
             listFiles.forEach {
@@ -92,11 +97,11 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             }
             folder.sortBy { it.name }
             file.sortBy { it.name }
-            fileInfos?.addAll(folder)
-            fileInfos?.addAll(file)
+            fileInfos.addAll(folder)
+            fileInfos.addAll(file)
             withContext(Main) {
                 adapter.setFileInfos(fileInfos)
-                if (fileInfos?.size == 0) {
+                if (fileInfos.size == 0) {
                     emptyDirectory.visibility = View.VISIBLE
                 } else {
                     emptyDirectory.visibility = View.GONE
@@ -108,7 +113,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             if (selectCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
-                fileInfos?.forEach {
+                fileInfos.forEach {
                     try {
                         if (it.isSelected) {
                             it.isSelected = false
@@ -134,7 +139,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
         btnAll.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectCount = 0
-                fileInfos?.forEach {
+                fileInfos.forEach {
                     it.isSelected = true
                     selectCount++
                 }
@@ -147,7 +152,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
         btnNon.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectCount = 0
-                fileInfos?.forEach {
+                fileInfos.forEach {
                     if (!it.isDirectory) {
                         it.isSelected = false
                     }
@@ -159,6 +164,23 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             }
         }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        val findItem = menu.findItem(R.id.menu_transferring)
+        findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
+            navController?.navigate(object : NavDirections {
+                override fun getArguments(): Bundle {
+                    return Bundle()
+                }
+
+                override fun getActionId(): Int {
+                    return R.id.action_fileFragment_to_transferringFragment
+                }
+
+            })
+        }
     }
 
     override fun onAttach(context: Context) {

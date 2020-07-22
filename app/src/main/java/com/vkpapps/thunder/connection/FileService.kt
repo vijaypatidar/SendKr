@@ -49,8 +49,8 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
     private fun handleActionReceive(rid: String, source: String, clientId: String, isHost: Boolean) {
         try {
             CoroutineScope(IO).launch {
+                delay(500)
                 if (isHost && !onFileRequestReceiverListener.onRequestAccepted(rid, clientId, false)) {
-
                 }
             }
             val socket = getSocket(isHost)
@@ -59,7 +59,6 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
             if (file.isDirectory) {
                 val zipUtils = ZipUtils()
                 CoroutineScope(Default).launch {
-                    Logger.d("receiving file ----------------")
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
                         Logger.d("inside while for receiving ${zipUtils.transferred}")
@@ -75,7 +74,6 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
                 var count: Int
                 var transferredByte: Long = 0
                 CoroutineScope(Default).launch {
-                    Logger.d("inside while for receiving $transferredByte")
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
                         delay(PROGRESS_UPDATE_TIME)
@@ -103,8 +101,9 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
     private fun handleActionSend(rid: String, source: String, clientId: String, isHost: Boolean) {
         try {
             CoroutineScope(IO).launch {
+                delay(500)
                 if (isHost && !onFileRequestReceiverListener.onRequestAccepted(rid, clientId, true)) {
-                    throw  Exception()
+                    //todo
                 }
             }
             val socket = getSocket(isHost)
@@ -158,7 +157,7 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
         private const val MAX_WAIT_TIME = 1500
         private const val PORT = 7511
 
-        private const val PROGRESS_UPDATE_TIME: Long = 2000
+        private const val PROGRESS_UPDATE_TIME: Long = 1500
 
         fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, rid: String, source: String, clientId: String, isHost: Boolean) {
             synchronized(App.executor) {

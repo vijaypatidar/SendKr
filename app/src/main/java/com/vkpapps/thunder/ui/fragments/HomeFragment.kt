@@ -65,9 +65,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         video.setOnClickListener {
             controller.navigate(getDestination(2))
         }
-        files.setOnClickListener {
-            controller.navigate(getDestination(3))
-        }
 
         internal.setOnClickListener {
             val internal = StorageManager(requireContext()).internal
@@ -88,7 +85,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
             Navigation.findNavController(view).navigate(object : NavDirections {
                 override fun getActionId(): Int {
-                    return R.id.fileFragment
+                    return R.id.action_navigation_home_to_files
                 }
 
                 override fun getArguments(): Bundle {
@@ -157,9 +154,8 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             }
 
             override fun getActionId(): Int {
-                return R.id.action_navigation_home_to_navigation_generic
+                return R.id.action_navigation_home_to_navigation_files
             }
-
         }
     }
 

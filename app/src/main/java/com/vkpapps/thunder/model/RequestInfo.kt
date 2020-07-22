@@ -1,5 +1,6 @@
 package com.vkpapps.thunder.model
 
+import androidx.documentfile.provider.DocumentFile
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
@@ -17,14 +18,12 @@ class RequestInfo : Serializable {
     var fileType = 0
     var status = 0//pending
     var size: Long = 0
-        set(value) {
-            field = value
-            displaySize = MathUtils.longToStringSize(size.toDouble())
-        }
     var transferred: Long = 0
-    var displaySize: String = ""
 
-
+    @delegate:Ignore
+    val displaySize: String by lazy {
+        MathUtils.longToStringSize(size.toDouble())
+    }
 
     constructor()
 
@@ -35,8 +34,7 @@ class RequestInfo : Serializable {
         this.name = name
         this.source = source
         this.fileType = type
-        this.size = File(this.source).length()
-        this.displaySize = MathUtils.longToStringSize(size.toDouble())
+        this.size = MathUtils.getFileSize(DocumentFile.fromFile(File(source)))
         this.transferred = 0
     }
 

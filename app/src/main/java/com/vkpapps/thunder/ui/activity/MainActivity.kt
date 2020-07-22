@@ -24,6 +24,7 @@ import androidx.navigation.ui.NavigationUI
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.analitics.Logger.d
 import com.vkpapps.thunder.connection.ClientHelper
 import com.vkpapps.thunder.connection.FileService
@@ -228,6 +229,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onRequestAccepted(rid: String, cid: String, send: Boolean): Boolean {
+        updateStatus(rid, StatusType.STATUS_ONGOING)
         if (isHost) {
             serverHelper.clientHelpers.forEach {
                 if (it.user.userId == cid) {
@@ -238,7 +240,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 }
             }
         }
-        updateStatus(rid, StatusType.STATUS_ONGOING)
         return false
     }
 
@@ -254,6 +255,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onProgressChange(rid: String, transferred: Long) {
+        Logger.d("progress change rid = $rid transferred = $transferred")
         requestViewModel.updateProgress(rid, transferred)
     }
 
@@ -373,10 +375,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 requestInfo.source = rawRequestInfo.source
                 requestInfo.fileType = rawRequestInfo.type
                 if (rawRequestInfo.type == FileType.FILE_TYPE_FOLDER) {
-                    requestInfo.size = MathUtils.getFolderSize(DocumentFile.fromFile(File(rawRequestInfo.source)))
+                    requestInfo.size = MathUtils.getFileSize(DocumentFile.fromFile(File(rawRequestInfo.source)))
                 } else {
                     requestInfo.size = File(rawRequestInfo.source).length()
                 }
+                Logger.d("folder size = ${requestInfo.displaySize} name = ${requestInfo.name}")
                 if (isHost) {
                     for (clientHelper in serverHelper.clientHelpers) {
                         val rid = getRandomId()

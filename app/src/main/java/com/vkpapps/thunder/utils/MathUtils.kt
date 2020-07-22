@@ -1,7 +1,6 @@
 package com.vkpapps.thunder.utils
 
 import androidx.documentfile.provider.DocumentFile
-import java.io.File
 
 object MathUtils {
     fun roundTo(number: Double): Double {
@@ -25,23 +24,22 @@ object MathUtils {
         }
     }
 
-    fun getFileSize(file: DocumentFile): String {
+    fun getFileDisplaySize(file: DocumentFile): String {
         var res = "0 byte"
         try {
-            val length = File(file.uri.path!!).length().toDouble()
-            res = MathUtils.longToStringSize(length)
+            res = longToStringSize(getFileSize(file).toDouble())
         } catch (e: Exception) {
             e.printStackTrace()
         }
         return res
     }
 
-    fun getFolderSize(file: DocumentFile): Long {
+    fun getFileSize(file: DocumentFile): Long {
         var res: Long = 0
         try {
             if (file.isDirectory) {
                 file.listFiles().forEach {
-                    res += getFolderSize(it)
+                    res += getFileSize(it)
                 }
             } else {
                 return file.length()

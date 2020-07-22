@@ -7,6 +7,7 @@ import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.MimeTypeResolver
 
 class FileInfo(var file: DocumentFile) {
+
     val id: String by lazy {
         HashUtils.getHashValue(file.uri.path!!.toByteArray())
     }
@@ -18,7 +19,9 @@ class FileInfo(var file: DocumentFile) {
 
     val source: String? = file.uri.path
 
-    val size: String = MathUtils.getFileSize(file)
+    val displaySize: String by lazy {
+        MathUtils.getFileDisplaySize(file)
+    }
 
     val fileCount: Int by lazy {
         var res = 0

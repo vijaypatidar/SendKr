@@ -49,7 +49,7 @@ class TransferringFragment : Fragment() {
         recyclerView.adapter = adapter
         val viewModel = ViewModelProvider(requireActivity()).get(RequestViewModel::class.java)
         viewModel.allRequestInfo.observe(requireActivity(), Observer { requestInfos: List<RequestInfo> ->
-            if (requestInfos.size > 0) {
+            if (requestInfos.isNotEmpty()) {
                 adapter.setRequestInfos(requestInfos)
                 setTransferringDetail(requestInfos)
                 view.findViewById<View>(R.id.emptyRequestList).visibility = View.GONE
