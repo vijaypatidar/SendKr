@@ -3,9 +3,9 @@ package com.vkpapps.thunder.connection
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestReceiverListener
+import com.vkpapps.thunder.model.FileRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.*
@@ -16,8 +16,7 @@ import java.net.Socket
 /***
  * @author VIJAY PATIDAR
  */
-class FileService(private val send: Boolean, private val onFileRequestReceiverListener: OnFileRequestReceiverListener, private val rid: String, private val source: String, private val clientId: String, private val isHost: Boolean) : Runnable {
-
+class FileService(private val send: Boolean, private val onFileRequestReceiverListener: OnFileRequestReceiverListener, private val rid: String, private val source: String, private val clientHelper: ClientHelper, private val isHost: Boolean) : Runnable {
 
     @Throws(IOException::class)
     private fun getSocket(isHost: Boolean): Socket {
@@ -37,21 +36,20 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
     override fun run() {
         try {
             if (send) {
-                handleActionSend(rid, source, clientId, isHost)
+                handleActionSend(rid, source, isHost)
             } else {
-                handleActionReceive(rid, source, clientId, isHost)
+                handleActionReceive(rid, source, isHost, 0)
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    private fun handleActionReceive(rid: String, source: String, clientId: String, isHost: Boolean) {
+    private fun handleActionReceive(rid: String, source: String, isHost: Boolean, skip: Long) {
         try {
-            CoroutineScope(IO).launch {
-                delay(500)
-                if (isHost && !onFileRequestReceiverListener.onRequestAccepted(rid, clientId, false)) {
-                }
+            if (isHost) {
+                clientHelper.write(FileRequest(FileRequest.UPLOAD_REQUEST_CONFIRM, rid))
+                onFileRequestReceiverListener.onRequestAccepted(rid, clientHelper.user.userId, true)
             }
             val socket = getSocket(isHost)
             val init = System.currentTimeMillis()
@@ -98,13 +96,11 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
         }
     }
 
-    private fun handleActionSend(rid: String, source: String, clientId: String, isHost: Boolean) {
+    private fun handleActionSend(rid: String, source: String, isHost: Boolean) {
         try {
-            CoroutineScope(IO).launch {
-                delay(500)
-                if (isHost && !onFileRequestReceiverListener.onRequestAccepted(rid, clientId, true)) {
-                    //todo
-                }
+            if (isHost) {
+                clientHelper.write(FileRequest(FileRequest.DOWNLOAD_REQUEST_CONFIRM, rid))
+                onFileRequestReceiverListener.onRequestAccepted(rid, clientHelper.user.userId, true)
             }
             val socket = getSocket(isHost)
             val file = File(source)
@@ -159,18 +155,18 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
 
         private const val PROGRESS_UPDATE_TIME: Long = 1500
 
-        fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, rid: String, source: String, clientId: String, isHost: Boolean) {
+        fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, rid: String, source: String, clientHelper: ClientHelper, isHost: Boolean) {
             synchronized(App.executor) {
                 App.executor.submit(FileService(
-                        true, onFileRequestReceiverListener, rid, source, clientId, isHost
+                        true, onFileRequestReceiverListener, rid, source, clientHelper, isHost
                 ))
             }
         }
 
-        fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, source: String, rid: String, clientId: String, isHost: Boolean) {
+        fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, source: String, rid: String, clientHelper: ClientHelper, isHost: Boolean) {
             synchronized(App.executor) {
                 App.executor.submit(FileService(
-                        false, onFileRequestReceiverListener, rid, source, clientId, isHost
+                        false, onFileRequestReceiverListener, rid, source, clientHelper, isHost
                 ))
             }
         }

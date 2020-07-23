@@ -25,7 +25,6 @@ import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -201,7 +200,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         btnSendFiles.setOnClickListener {
 
             if (selectedCount == 0) return@setOnClickListener
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
                 historyInfos.forEach {
                     if (it.isSelected) {
@@ -212,7 +211,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                     }
                 }
                 selectedCount = 0
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     adapter.notifyDataSetChanged()
                     hideShowSendButton()
                     Toast.makeText(requireContext(), "${selected.size} files added to send queue", Toast.LENGTH_SHORT).show()
@@ -223,12 +222,12 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
         btnNon.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 historyInfos.forEach {
                     it.isSelected = false
                 }
                 selectedCount = 0
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     adapter.notifyDataSetChanged()
                     hideShowSendButton()
                 }
@@ -236,13 +235,13 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         }
 
         btnAll.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 selectedCount = 0
                 historyInfos.forEach {
                     it.isSelected = true
                     selectedCount++
                 }
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     adapter.notifyDataSetChanged()
                     hideShowSendButton()
                 }

@@ -24,14 +24,12 @@ import androidx.navigation.ui.NavigationUI
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.analitics.Logger.d
 import com.vkpapps.thunder.connection.ClientHelper
 import com.vkpapps.thunder.connection.FileService
 import com.vkpapps.thunder.connection.ServerHelper
 import com.vkpapps.thunder.interfaces.*
 import com.vkpapps.thunder.loader.PrepareDb
-import com.vkpapps.thunder.model.FileRequest
 import com.vkpapps.thunder.model.HistoryInfo
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.RequestInfo
@@ -69,6 +67,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private lateinit var navController: NavController
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
     private var database = MyRoomDatabase.getDatabase(this)
+
     private val requestViewModel: RequestViewModel by lazy {
         ViewModelProvider(this).get(RequestViewModel::class.java)
     }
@@ -159,12 +158,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onDownloadRequest(rid: String) {
+        // this method is only invoked for client
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
             d("onDownloadRequest rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             FileService.startActionReceive(this@MainActivity, requestInfo.source,
                     rid,
-                    requestInfo.cid,
+                    clientHelper,
                     isHost
             )
         }
@@ -172,12 +172,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onUploadRequest(rid: String) {
+        // this method is only invoked for client
         CoroutineScope(IO).launch {
             val requestInfo = database.requestDao().getRequestInfo(rid)
             d("onUploadRequest rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             FileService.startActionSend(this@MainActivity, rid,
                     requestInfo.source,
-                    requestInfo.cid,
+                    clientHelper,
                     isHost
             )
 
@@ -185,19 +186,22 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         updateStatus(rid, StatusType.STATUS_ONGOING)
     }
 
-
     override fun onNewRequestInfo(obj: RequestInfo) {
         CoroutineScope(IO).launch {
             obj.source = directoryResolver.getSource(obj)
             d(" new file request type = ${obj.fileType} ${obj.name}")
             if (isHost) {
                 database.requestDao().insert(obj)
-                FileService.startActionReceive(
-                        this@MainActivity,
-                        obj.source,
-                        obj.rid,
-                        obj.cid,
-                        isHost)
+                serverHelper.clientHelpers.forEach {
+                    if (it.user.userId == obj.cid) {
+                        FileService.startActionReceive(
+                                this@MainActivity,
+                                obj.source,
+                                obj.rid,
+                                it,
+                                isHost)
+                    }
+                }
 
                 //sender cid
                 val scid = obj.cid
@@ -213,7 +217,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                                 this@MainActivity,
                                 clone.rid,
                                 clone.source,
-                                clone.cid,
+                                clientHelper,
                                 isHost)
                     }
                 }
@@ -228,19 +232,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         updateStatus(rid, StatusType.STATUS_FAILED)
     }
 
-    override fun onRequestAccepted(rid: String, cid: String, send: Boolean): Boolean {
+    override fun onRequestAccepted(rid: String, cid: String, send: Boolean) {
         updateStatus(rid, StatusType.STATUS_ONGOING)
-        if (isHost) {
-            serverHelper.clientHelpers.forEach {
-                if (it.user.userId == cid) {
-                    it.write(
-                            FileRequest(if (send) FileRequest.DOWNLOAD_REQUEST_CONFIRM else FileRequest.UPLOAD_REQUEST_CONFIRM, rid)
-                    )
-                    return true
-                }
-            }
-        }
-        return false
     }
 
     override fun onRequestSuccess(rid: String, timeTaken: Long) {
@@ -255,7 +248,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onProgressChange(rid: String, transferred: Long) {
-        Logger.d("progress change rid = $rid transferred = $transferred")
+        d("progress change rid = $rid transferred = $transferred")
         requestViewModel.updateProgress(rid, transferred)
     }
 
@@ -374,12 +367,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 requestInfo.name = rawRequestInfo.name
                 requestInfo.source = rawRequestInfo.source
                 requestInfo.fileType = rawRequestInfo.type
-                if (rawRequestInfo.type == FileType.FILE_TYPE_FOLDER) {
-                    requestInfo.size = MathUtils.getFileSize(DocumentFile.fromFile(File(rawRequestInfo.source)))
-                } else {
-                    requestInfo.size = File(rawRequestInfo.source).length()
-                }
-                Logger.d("folder size = ${requestInfo.displaySize} name = ${requestInfo.name}")
+                requestInfo.size = MathUtils.getFileSize(DocumentFile.fromFile(File(rawRequestInfo.source)))
+                d("folder size = ${requestInfo.displaySize} name = ${requestInfo.name}")
                 if (isHost) {
                     for (clientHelper in serverHelper.clientHelpers) {
                         val rid = getRandomId()
@@ -391,7 +380,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                                 this@MainActivity,
                                 clone.rid,
                                 clone.source,
-                                clone.cid,
+                                clientHelper,
                                 isHost)
                     }
                 } else {

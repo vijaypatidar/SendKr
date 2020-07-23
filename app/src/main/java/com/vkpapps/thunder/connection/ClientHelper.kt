@@ -1,6 +1,5 @@
 package com.vkpapps.thunder.connection
 
-import android.os.Bundle
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnClientConnectionStateListener
 import com.vkpapps.thunder.interfaces.OnFileRequestListener
@@ -21,8 +20,6 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
     private var onObjectReceiveListener: OnObjectReceiveListener? = null
 
     override fun run() {
-        val bundle = Bundle()
-        bundle.putString("ID", user.userId)
         try {
             outputStream = ObjectOutputStream(socket.getOutputStream())
             // send identity to connected device
@@ -32,7 +29,6 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
             var obj = inputStream.readObject()
             if (obj is User) {
                 user = obj
-
                 //notify user added
                 onClientConnectionStateListener?.onClientConnected(this)
                 var retry = 0
