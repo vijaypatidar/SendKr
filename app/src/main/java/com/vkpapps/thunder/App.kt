@@ -35,6 +35,9 @@ class App : Application() {
         lateinit var context: Context
 
         @JvmStatic
-        val executor = Executors.newSingleThreadExecutor()
+        val taskExecutor = Executors.newSingleThreadExecutor()
+
+        @JvmStatic
+        val entryExecutor = Executors.newSingleThreadExecutor()
     }
 }

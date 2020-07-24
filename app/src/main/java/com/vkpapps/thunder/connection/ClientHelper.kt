@@ -18,6 +18,7 @@ import java.net.Socket
 class ClientHelper(private val socket: Socket, private val onFileRequestListener: OnFileRequestListener, var user: User, private val onClientConnectionStateListener: OnClientConnectionStateListener?) : Thread() {
     private var outputStream: ObjectOutputStream? = null
     private var onObjectReceiveListener: OnObjectReceiveListener? = null
+    var connected: Boolean = true
 
     override fun run() {
         try {
@@ -62,6 +63,7 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
             e.printStackTrace()
         }
         // notify client leaved or disconnected
+        connected = false
         onClientConnectionStateListener?.onClientDisconnected(this)
     }
 
@@ -97,6 +99,7 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
     fun setOnObjectReceiveListener(onObjectReceiveListener: OnObjectReceiveListener) {
         this.onObjectReceiveListener = onObjectReceiveListener
     }
+
 
     fun shutDown() {
         try {

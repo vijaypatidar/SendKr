@@ -48,6 +48,7 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
     private fun handleActionReceive(rid: String, source: String, isHost: Boolean, skip: Long) {
         try {
             if (isHost) {
+                if (!clientHelper.connected) throw  Exception("client disconnected")
                 clientHelper.write(FileRequest(FileRequest.UPLOAD_REQUEST_CONFIRM, rid))
                 onFileRequestReceiverListener.onRequestAccepted(rid, clientHelper.user.userId, true)
             }
@@ -90,7 +91,7 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
             val timeTaken = System.currentTimeMillis() - init
             Logger.d("timeTaken =  $timeTaken")
             onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken)
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             onFileRequestReceiverListener.onRequestFailed(rid)
             e.printStackTrace()
         }
@@ -99,6 +100,7 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
     private fun handleActionSend(rid: String, source: String, isHost: Boolean) {
         try {
             if (isHost) {
+                if (!clientHelper.connected) throw  Exception("client disconnected")
                 clientHelper.write(FileRequest(FileRequest.DOWNLOAD_REQUEST_CONFIRM, rid))
                 onFileRequestReceiverListener.onRequestAccepted(rid, clientHelper.user.userId, true)
             }
@@ -152,20 +154,19 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
         var HOST_ADDRESS: String? = null
         private const val MAX_WAIT_TIME = 1500
         private const val PORT = 7511
-
-        private const val PROGRESS_UPDATE_TIME: Long = 1500
+        private const val PROGRESS_UPDATE_TIME: Long = 2000
 
         fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, rid: String, source: String, clientHelper: ClientHelper, isHost: Boolean) {
-            synchronized(App.executor) {
-                App.executor.submit(FileService(
+            synchronized(App.taskExecutor) {
+                App.taskExecutor.submit(FileService(
                         true, onFileRequestReceiverListener, rid, source, clientHelper, isHost
                 ))
             }
         }
 
         fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, source: String, rid: String, clientHelper: ClientHelper, isHost: Boolean) {
-            synchronized(App.executor) {
-                App.executor.submit(FileService(
+            synchronized(App.taskExecutor) {
+                App.taskExecutor.submit(FileService(
                         false, onFileRequestReceiverListener, rid, source, clientHelper, isHost
                 ))
             }

@@ -24,6 +24,7 @@ import androidx.navigation.ui.NavigationUI
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.analitics.Logger.d
 import com.vkpapps.thunder.connection.ClientHelper
 import com.vkpapps.thunder.connection.FileService
@@ -45,6 +46,7 @@ import com.vkpapps.thunder.utils.HashUtils.getRandomId
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -160,7 +162,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onDownloadRequest(rid: String) {
         // this method is only invoked for client
         CoroutineScope(IO).launch {
-            val requestInfo = database.requestDao().getRequestInfo(rid)
+            val requestInfo = getRequestInfo(rid)
             d("onDownloadRequest rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             FileService.startActionReceive(this@MainActivity, requestInfo.source,
                     rid,
@@ -174,7 +176,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onUploadRequest(rid: String) {
         // this method is only invoked for client
         CoroutineScope(IO).launch {
-            val requestInfo = database.requestDao().getRequestInfo(rid)
+            val requestInfo = getRequestInfo(rid)
             d("onUploadRequest rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
             FileService.startActionSend(this@MainActivity, rid,
                     requestInfo.source,
@@ -240,7 +242,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         updateStatus(rid, StatusType.STATUS_COMPLETED)
         val historyViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
         CoroutineScope(IO).launch {
-            val requestInfo = database.requestDao().getRequestInfo(rid)
+            val requestInfo = getRequestInfo(rid)
             historyViewModel.insert(
                     HistoryInfo(requestInfo.name, requestInfo.source, requestInfo.fileType)
             )
@@ -334,13 +336,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         }
     }
 
-    private fun send(o: Any) {
-        if (isHost) {
-            serverHelper.broadcast(o)
-        } else {
-            clientHelper.write(o)
-        }
-    }
 
     override fun onBackPressed() {
         val currentDestination = navController.currentDestination
@@ -387,7 +382,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     requestInfo.rid = getRandomId()
                     requestInfo.cid = user.userId
                     database.requestDao().insert(requestInfo)
-                    send(requestInfo)
+                    clientHelper.write(requestInfo)
                 }
             }
         }
@@ -407,7 +402,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onClientDisconnected(clientHelper: ClientHelper) {
         runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
-
         //prompt client when disconnect
         if (!isHost) {
             runOnUiThread { choice() }
@@ -417,5 +411,20 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private fun updateStatus(rid: String, status: Int) {
         requestViewModel.updateStatus(rid, status)
     }
+
+    /**
+     * this method will return request information
+     */
+    private suspend fun getRequestInfo(rid: String): RequestInfo {
+        Logger.d("requested for RequestInfo where rid = $rid to insert")
+        var requestInfos: List<RequestInfo> = database.requestDao().getRequestInfo(rid)
+        while (requestInfos.isEmpty()) {
+            delay(100)
+            requestInfos = database.requestDao().getRequestInfo(rid)
+            Logger.e("waiting for rid = $rid to insert")
+        }
+        return requestInfos[0]
+    }
+
 }
 

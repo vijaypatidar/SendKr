@@ -14,7 +14,7 @@ interface RequestDao {
     fun getRequestInfos(): List<RequestInfo>
 
     @Query("SELECT * from requestinfo where rid = :rid")
-    fun getRequestInfo(rid: String): RequestInfo
+    fun getRequestInfo(rid: String): List<RequestInfo>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(requestInfo: RequestInfo)
