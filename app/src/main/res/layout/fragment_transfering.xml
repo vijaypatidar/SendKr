@@ -21,6 +21,7 @@
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:fitsSystemWindows="true"
+            android:visibility="gone"
             app:elevation="0dp">
 
             <LinearLayout

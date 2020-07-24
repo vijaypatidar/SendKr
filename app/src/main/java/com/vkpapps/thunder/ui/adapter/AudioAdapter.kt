@@ -1,9 +1,6 @@
 package com.vkpapps.thunder.ui.adapter
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,15 +59,7 @@ class AudioAdapter(private val onAudioSelectedListener: OnAudioSelectedListener,
                 }
             }
             holder.audioIcon.setOnClickListener {
-                try {
-                    val intent = Intent()
-                    intent.action = Intent.ACTION_VIEW
-                    intent.setDataAndType(Uri.fromFile(File(audioinfo.path)), "audio/mp3")
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    it.context.startActivity(Intent.createChooser(intent, "Play with"))
-                } catch (e: ActivityNotFoundException) {
-                    e.printStackTrace()
-                }
+
 
             }
             val file = File(thumbnails, audioinfo.id)

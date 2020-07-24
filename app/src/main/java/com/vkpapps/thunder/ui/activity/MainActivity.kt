@@ -169,8 +169,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     clientHelper,
                     isHost
             )
+            updateStatus(rid, StatusType.STATUS_ONGOING)
         }
-        updateStatus(rid, StatusType.STATUS_ONGOING)
     }
 
     override fun onUploadRequest(rid: String) {
@@ -183,9 +183,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     clientHelper,
                     isHost
             )
-
+            updateStatus(rid, StatusType.STATUS_ONGOING)
         }
-        updateStatus(rid, StatusType.STATUS_ONGOING)
     }
 
     override fun onNewRequestInfo(obj: RequestInfo) {
