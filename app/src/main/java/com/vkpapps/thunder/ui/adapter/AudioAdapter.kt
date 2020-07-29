@@ -1,15 +1,19 @@
 package com.vkpapps.thunder.ui.adapter
 
 import android.content.Context
+import android.content.Intent
+import android.media.MediaScannerConnection
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdView
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.ui.adapter.AudioAdapter.AudioViewHolder
 import com.vkpapps.thunder.utils.AdsUtils.getAdRequest
@@ -59,8 +63,20 @@ class AudioAdapter(private val onAudioSelectedListener: OnAudioSelectedListener,
                 }
             }
             holder.audioIcon.setOnClickListener {
-
-
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    MediaScannerConnection.scanFile(it.context, arrayOf(audioinfo.path), null) { path, uri ->
+                        run {
+                            val type = it.context.contentResolver.getType(uri)
+                            Logger.d("file $uri type = $type")
+                            intent.setDataAndType(uri, type)
+                            it.context.startActivity(intent)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(it.context, "error occurred", Toast.LENGTH_SHORT).show()
+                    e.printStackTrace()
+                }
             }
             val file = File(thumbnails, audioinfo.id)
             myThumbnailUtils.loadAudioThumbnail(file, audioinfo.path, holder.audioIcon)

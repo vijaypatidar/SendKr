@@ -1,5 +1,7 @@
 package com.vkpapps.thunder.ui.adapter
 
+import android.content.Intent
+import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.FileInfo
 import com.vkpapps.thunder.ui.adapter.FileAdapter.MyViewHolder
 import com.vkpapps.thunder.ui.fragments.FileFragment
@@ -79,6 +82,17 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
                     fileInfo.type,
                     holder.icon
             )
+            holder.itemView.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                MediaScannerConnection.scanFile(it.context, arrayOf(fileInfo.source), null) { path, uri ->
+                    run {
+                        val type = it.context.contentResolver.getType(uri)
+                        Logger.d("file $uri type = $type")
+                        intent.setDataAndType(uri, type)
+                        it.context.startActivity(intent)
+                    }
+                }
+            }
         }
         holder.btnSelected.isChecked = fileInfo.isSelected
         holder.btnSelected.setOnClickListener {

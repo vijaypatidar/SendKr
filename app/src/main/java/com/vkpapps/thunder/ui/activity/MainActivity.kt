@@ -415,7 +415,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
      * this method will return request information
      */
     private suspend fun getRequestInfo(rid: String): RequestInfo {
-        Logger.d("requested for RequestInfo where rid = $rid to insert")
+        d("requested for RequestInfo where rid = $rid to insert")
         var requestInfos: List<RequestInfo> = database.requestDao().getRequestInfo(rid)
         while (requestInfos.isEmpty()) {
             delay(100)
