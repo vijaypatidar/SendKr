@@ -5,7 +5,9 @@ import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -62,19 +64,16 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         OnFragmentAttachStatusListener, OnFileRequestListener, OnFileRequestPrepareListener,
         OnFileRequestReceiverListener, OnClientConnectionStateListener {
 
-    private lateinit var serverHelper: ServerHelper
-    private lateinit var clientHelper: ClientHelper
-    private var isHost = false
     private var user = App.user
     private lateinit var navController: NavController
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
-    private var database = MyRoomDatabase.getDatabase(this)
+    private var database = MyRoomDatabase.getDatabase(App.context)
 
     private val requestViewModel: RequestViewModel by lazy {
         ViewModelProvider(this).get(RequestViewModel::class.java)
     }
-    private val directoryResolver: DirectoryResolver by lazy {
-        DirectoryResolver(this)
+    private val downloadPathResolver: DownloadPathResolver by lazy {
+        DownloadPathResolver(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,14 +89,21 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
         NavigationUI.setupWithNavController(navView, navController)
         navController.addOnDestinationChangedListener(FragmentDestinationListener(this))
-        choice()
-        UpdateManager(true).checkForUpdate(true, this)
 
-        // check for policy accepted or not
-//        PrivacyDialog(this).isPolicyAccepted
         if (!PermissionUtils.checkStoragePermission(this)) {
             PermissionUtils.askStoragePermission(this, 9098)
         }
+
+        if (!connected || (!isHost && !clientHelper.connected)) {
+            choice()
+            UpdateManager(true).checkForUpdate(true, this)
+            d("creating new connection")
+            fileToShare(false)
+        } else {
+            d("using old connection")
+            fileToShare(true)
+        }
+
     }
 
     private fun choice() {
@@ -123,6 +129,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         if (isHost) {
             serverHelper = ServerHelper(this, user, this)
             serverHelper.start()
+            connected = true
         } else {
             Thread(Runnable {
                 val socket = Socket()
@@ -134,6 +141,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     socket.connect(InetSocketAddress(FileService.HOST_ADDRESS, 1203), 5000)
                     clientHelper = ClientHelper(socket, this, user, this)
                     clientHelper.start()
+                    connected = true
                 } catch (e: IOException) {
                     runOnUiThread {
                         val ab = androidx.appcompat.app.AlertDialog.Builder(this)
@@ -163,8 +171,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         // this method is only invoked for client
         CoroutineScope(IO).launch {
             val requestInfo = getRequestInfo(rid)
-            d("onDownloadRequest rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
-            FileService.startActionReceive(this@MainActivity, requestInfo.source,
+            d("onDownloadRequest rid = $rid source = ${requestInfo.uri} name = ${requestInfo.name}")
+            FileService.startActionReceive(this@MainActivity, Uri.parse(requestInfo.uri),
                     rid,
                     clientHelper,
                     isHost
@@ -177,9 +185,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         // this method is only invoked for client
         CoroutineScope(IO).launch {
             val requestInfo = getRequestInfo(rid)
-            d("onUploadRequest rid = $rid source = ${requestInfo.source} name = ${requestInfo.name}")
+            d("onUploadRequest rid = $rid source = ${requestInfo.uri} name = ${requestInfo.name}")
             FileService.startActionSend(this@MainActivity, rid,
-                    requestInfo.source,
+                    Uri.parse(requestInfo.uri),
                     clientHelper,
                     isHost
             )
@@ -189,7 +197,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onNewRequestInfo(obj: RequestInfo) {
         CoroutineScope(IO).launch {
-            obj.source = directoryResolver.getSource(obj)
+            obj.uri = Uri.fromFile(File(downloadPathResolver.getSource(obj))).toString()
             d(" new file request type = ${obj.fileType} ${obj.name}")
             if (isHost) {
                 database.requestDao().insert(obj)
@@ -197,7 +205,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     if (it.user.userId == obj.cid) {
                         FileService.startActionReceive(
                                 this@MainActivity,
-                                obj.source,
+                                Uri.parse(obj.uri),
                                 obj.rid,
                                 it,
                                 isHost)
@@ -217,7 +225,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         FileService.startActionSend(
                                 this@MainActivity,
                                 clone.rid,
-                                clone.source,
+                                Uri.parse(clone.uri),
                                 clientHelper,
                                 isHost)
                     }
@@ -237,14 +245,16 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         updateStatus(rid, StatusType.STATUS_ONGOING)
     }
 
-    override fun onRequestSuccess(rid: String, timeTaken: Long) {
+    override fun onRequestSuccess(rid: String, timeTaken: Long, send: Boolean) {
         updateStatus(rid, StatusType.STATUS_COMPLETED)
-        val historyViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
-        CoroutineScope(IO).launch {
-            val requestInfo = getRequestInfo(rid)
-            historyViewModel.insert(
-                    HistoryInfo(requestInfo.name, requestInfo.source, requestInfo.fileType)
-            )
+        if (!send) {
+            val historyViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
+            CoroutineScope(IO).launch {
+                val requestInfo = getRequestInfo(rid)
+                historyViewModel.insert(
+                        HistoryInfo(requestInfo.name, Uri.parse(requestInfo.uri), requestInfo.fileType)
+                )
+            }
         }
     }
 
@@ -359,10 +369,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             for (rawRequestInfo in requests) {
                 val requestInfo = RequestInfo()
                 requestInfo.name = rawRequestInfo.name
-                requestInfo.source = rawRequestInfo.source
+                requestInfo.uri = rawRequestInfo.uri.toString()
                 requestInfo.fileType = rawRequestInfo.type
-                requestInfo.size = MathUtils.getFileSize(DocumentFile.fromFile(File(rawRequestInfo.source)))
-                d("folder size = ${requestInfo.displaySize} name = ${requestInfo.name}")
+                requestInfo.size = rawRequestInfo.size
                 if (isHost) {
                     for (clientHelper in serverHelper.clientHelpers) {
                         val rid = getRandomId()
@@ -373,9 +382,10 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         FileService.startActionSend(
                                 this@MainActivity,
                                 clone.rid,
-                                clone.source,
+                                Uri.parse(clone.uri),
                                 clientHelper,
                                 isHost)
+
                     }
                 } else {
                     requestInfo.rid = getRandomId()
@@ -395,7 +405,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         if (clientHelper.user.appVersion < BuildConfig.VERSION_CODE) {
             val source = packageManager.getInstallerPackageName(packageName)
             if (source != null)
-                sendFiles(Collections.singletonList(RawRequestInfo(getString(R.string.app_name), source, FileType.FILE_TYPE_APP)))
+                sendFiles(Collections.singletonList(RawRequestInfo(getString(R.string.app_name),
+                        Uri.parse(source),
+                        FileType.FILE_TYPE_APP,
+                        DocumentFile.fromFile(File(source)).length()))
+                )
         }
     }
 
@@ -403,6 +417,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
         //prompt client when disconnect
         if (!isHost) {
+            connected = false
             runOnUiThread { choice() }
         }
     }
@@ -425,5 +440,49 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         return requestInfos[0]
     }
 
+    private fun fileToShare(sendNow: Boolean) {
+        if (PermissionUtils.checkStoragePermission(this)) {
+            val toShare = intent.getParcelableArrayListExtra<Parcelable>("shared")
+            if (toShare != null) {
+                d("toShare = ${toShare.size} $toShare")
+                if (sendNow) {
+                    val rawRequestInfos = ArrayList<RawRequestInfo>()
+                    toShare.forEach {
+                        val uri = it as Uri
+                        val file = DocumentFile.fromSingleUri(this@MainActivity, uri)
+                        file?.run {
+                            try {
+                                rawRequestInfos.add(RawRequestInfo(file.name!!, file.uri, DownloadDestinationFolderResolver.getFileType(file.type), file.length()))
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                    //send to connected clients
+                    sendFiles(rawRequestInfos)
+                } else {
+                    //todo add to temp list
+                }
+            }
+        } else {
+            //todo add
+            PermissionUtils.askStoragePermission(this, 1)
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        var connected: Boolean = false
+
+        @JvmStatic
+        var isHost: Boolean = false
+
+        @JvmStatic
+        private lateinit var serverHelper: ServerHelper
+
+        @JvmStatic
+        private lateinit var clientHelper: ClientHelper
+
+    }
 }
 

@@ -9,6 +9,7 @@ import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.net.toFile
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
@@ -34,7 +35,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private
         holder.title.text = videoInfo.name
         holder.size.text = videoInfo.size
         holder.btnSelected.isChecked = videoInfo.isSelected
-        holder.btnSelected.setOnClickListener { v: View? ->
+        holder.btnSelected.setOnClickListener {
             videoInfo.isSelected = !videoInfo.isSelected
             holder.btnSelected.isChecked = videoInfo.isSelected
             if (videoInfo.isSelected) {
@@ -46,7 +47,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private
         holder.picture.setOnClickListener {
             try {
                 val intent = Intent(Intent.ACTION_VIEW)
-                MediaScannerConnection.scanFile(it.context, arrayOf(videoInfo.path), null) { path, uri ->
+                MediaScannerConnection.scanFile(it.context, arrayOf(videoInfo.uri.toFile().absolutePath), null) { _, uri ->
                     run {
                         val type = it.context.contentResolver.getType(uri)
                         Logger.d("file $uri type = $type")
@@ -59,7 +60,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private
                 e.printStackTrace()
             }
         }
-        myThumbnailUtils.loadVideoThumbnail(file, videoInfo.path, holder.picture)
+        myThumbnailUtils.loadVideoThumbnail(file, videoInfo.uri.toFile().absolutePath, holder.picture)
     }
 
     override fun getItemCount(): Int {

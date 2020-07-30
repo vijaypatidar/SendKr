@@ -1,6 +1,7 @@
 package com.vkpapps.thunder.ui.adapter
 
 import android.content.Context
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.net.toFile
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.model.RequestInfo
@@ -74,7 +76,11 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
             StatusType.STATUS_COMPLETED -> {
                 holder.status.setImageResource(R.drawable.ic_status_completed)
                 setProgress(holder.progress, requestInfo.size, requestInfo.size)
-                MyThumbnailUtils.loadThumbnail(File(thumbnail, requestInfo.rid), requestInfo.source, requestInfo.fileType, holder.thumbnail)
+                try {
+                    MyThumbnailUtils.loadThumbnail(File(thumbnail, requestInfo.rid), Uri.parse(requestInfo.uri).toFile().absolutePath, requestInfo.fileType, holder.thumbnail)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             StatusType.STATUS_FAILED -> {
                 setIconType(holder.thumbnail, requestInfo.fileType)

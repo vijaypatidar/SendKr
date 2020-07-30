@@ -5,8 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,8 +22,8 @@ import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.room.liveViewModel.VideoViewModel
 import com.vkpapps.thunder.ui.adapter.VideoAdapter
 import com.vkpapps.thunder.ui.adapter.VideoAdapter.OnVideoSelectListener
+import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_video.*
-import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
@@ -83,7 +84,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
             }
         })
 
-        btnSendFiles.setOnClickListener {
+        selectionView.btnSendFiles.setOnClickListener {
 
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
@@ -92,7 +93,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
                     if (it.isSelected) {
                         it.isSelected = false
                         selected.add(RawRequestInfo(
-                                it.name, it.path, FileType.FILE_TYPE_VIDEO
+                                it.name, it.uri, FileType.FILE_TYPE_VIDEO, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
                         ))
                     }
                 }
@@ -106,7 +107,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
             }
         }
 
-        btnNon.setOnClickListener {
+        selectionView.btnSelectNon.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 videoInfos.forEach {
@@ -120,7 +121,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
             }
         }
 
-        btnAll.setOnClickListener {
+        selectionView.btnSelectAll.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectedCount = 0
                 videoInfos.forEach {
@@ -167,18 +168,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
     }
 
     private fun hideShowSendButton() {
-        if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) {
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-            return
-        }
-        if (selectedCount == 0) {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_exit)
-            selectionSection.visibility = View.GONE
-            onNavigationVisibilityListener?.onNavVisibilityChange(true)
-        } else {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_enter)
-            selectionSection.visibility = View.VISIBLE
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-        }
+        selectionView.changeVisibility(selectedCount)
+        onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
     }
 }

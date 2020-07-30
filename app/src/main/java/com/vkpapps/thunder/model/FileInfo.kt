@@ -1,10 +1,11 @@
 package com.vkpapps.thunder.model
 
+import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.utils.DownloadDestinationFolderResolver
 import com.vkpapps.thunder.utils.HashUtils
 import com.vkpapps.thunder.utils.MathUtils
-import com.vkpapps.thunder.utils.MimeTypeResolver
 
 class FileInfo(var file: DocumentFile) {
 
@@ -15,9 +16,8 @@ class FileInfo(var file: DocumentFile) {
         file.name
     }
     var isSelected: Boolean = false
-    val isDirectory: Boolean = file.isDirectory
 
-    val source: String? = file.uri.path
+    val uri: Uri = file.uri
 
     val displaySize: String by lazy {
         MathUtils.getFileDisplaySize(file)
@@ -33,5 +33,5 @@ class FileInfo(var file: DocumentFile) {
         res
     }
 
-    val type: Int by lazy { if (file.isDirectory) FileType.FILE_TYPE_FOLDER else MimeTypeResolver.getFileType(file.type) }
+    val type: Int by lazy { if (file.isDirectory) FileType.FILE_TYPE_FOLDER else DownloadDestinationFolderResolver.getFileType(file.type) }
 }

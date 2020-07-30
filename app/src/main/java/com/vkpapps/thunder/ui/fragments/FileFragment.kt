@@ -1,12 +1,14 @@
 package com.vkpapps.thunder.ui.fragments
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -16,11 +18,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.FileInfo
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.ui.adapter.FileAdapter
+import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_file.*
 import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
@@ -39,10 +43,11 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
     private var selectCount = 0
     private var title: String? = "default"
     private var navController: NavController? = null
-    private var rootDir: String = "/storage/emulated/0/"
+    private var rootDir: String = DocumentFile.fromFile(File("/storage/emulated/0/")).uri.toString()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Logger.d("uri of file ========== $rootDir")
         if (requireArguments().containsKey(FILE_ROOT)) {
             val string = arguments?.getString(FILE_ROOT)
             if (string != null) {
@@ -85,7 +90,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val fileInfos: ArrayList<FileInfo> = ArrayList()
         CoroutineScope(IO).launch {
-            val listFiles = DocumentFile.fromFile(File(rootDir)).listFiles()
+            val listFiles = DocumentFile.fromFile(Uri.parse(rootDir).toFile()).listFiles()
             val folder = ArrayList<FileInfo>()
             val file = ArrayList<FileInfo>()
             listFiles.forEach {
@@ -118,7 +123,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                         if (it.isSelected) {
                             it.isSelected = false
                             selected.add(RawRequestInfo(
-                                    it.name!!, it.source!!, it.type
+                                    it.name!!, it.uri, it.type, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
                             ))
                         }
                     } catch (e: Exception) {
@@ -161,7 +166,6 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                 }
             }
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

@@ -1,5 +1,6 @@
 package com.vkpapps.thunder.loader
 
+import android.net.Uri
 import android.provider.MediaStore
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.model.VideoInfo
@@ -13,15 +14,15 @@ class PrepareVideoList {
 
     fun getList(): List<VideoInfo> {
         val videoInfos = ArrayList<VideoInfo>()
-        val uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         val projection = arrayOf(MediaStore.Video.VideoColumns.DATA)
-        val c = App.context.contentResolver.query(uri, projection, null, null, null)
+        val c = App.context.contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection, null, null, null)
         if (c != null) {
             while (c.moveToNext()) {
                 val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
                 if (path != null) {
                     val file = File(path)
-                    val videoInfo = VideoInfo(file.name, path)
+                    val uri = Uri.fromFile(file)
+                    val videoInfo = VideoInfo(file.name, uri)
                     videoInfo.id = HashUtils.getHashValue(path.toByteArray())
                     videoInfo.modified = file.lastModified()
                     videoInfos.add(videoInfo)

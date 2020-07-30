@@ -6,7 +6,7 @@ package com.vkpapps.thunder.interfaces
 interface OnFileRequestReceiverListener {
     fun onRequestFailed(rid: String)
     fun onRequestAccepted(rid: String, cid: String, send: Boolean)
-    fun onRequestSuccess(rid: String, timeTaken: Long)
+    fun onRequestSuccess(rid: String, timeTaken: Long, send: Boolean)
     fun onProgressChange(rid: String, transferred: Long)
 }
 

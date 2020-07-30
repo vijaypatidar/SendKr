@@ -27,13 +27,13 @@
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:elevation="0dp"
                 android:orientation="vertical"
                 android:scrollbars="horizontal"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed"
                 app:tabIndicatorHeight="2dp"
                 app:tabSelectedTextColor="@color/colorAccent"
-                android:layout_marginTop="5dp"
                 app:tabTextColor="@android:color/white">
 
                 <LinearLayout
@@ -343,8 +343,8 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/history_list_item" />
 
-        <include
-            layout="@layout/selection_options"
+        <com.vkpapps.thunder.ui.views.SelectionView
+            android:id="@+id/selectionView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

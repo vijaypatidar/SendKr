@@ -18,7 +18,7 @@ import com.vkpapps.thunder.utils.PermissionUtils.checkStoragePermission
  * @author VIJAY PATIDAR
  */
 class GenericFragment : Fragment() {
-    private var destination = -1
+    private var destination = 0
     private var navController: NavController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,9 +50,7 @@ class GenericFragment : Fragment() {
             val videoFragment = VideoFragment()
             adapter.addFragment(videoFragment, "Videos")
             viewPager.adapter = adapter
-            if (destination > 0) {
-                viewPager.currentItem = destination
-            }
+            viewPager.currentItem = destination
         } else {
             Navigation.findNavController(view).popBackStack()
             askStoragePermission(activity, 101)

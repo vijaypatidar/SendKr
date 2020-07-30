@@ -4,11 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.vkpapps.thunder.model.*
+import com.vkpapps.thunder.room.UriConverter
 import com.vkpapps.thunder.room.dao.*
 
 @Database(entities = [RequestInfo::class, PhotoInfo::class, AudioInfo::class, VideoInfo::class, HistoryInfo::class], version = 1, exportSchema = false)
-public abstract class MyRoomDatabase : RoomDatabase() {
+@TypeConverters(UriConverter::class)
+abstract class MyRoomDatabase : RoomDatabase() {
 
     abstract fun requestDao(): RequestDao
     abstract fun photoDao(): PhotoDao

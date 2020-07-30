@@ -5,8 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -20,6 +21,7 @@ import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.room.liveViewModel.PhotoViewModel
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter.OnPhotoSelectListener
+import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_photo.*
 import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
@@ -77,8 +79,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                 emptyPhoto.visibility = View.VISIBLE
             }
         })
-        btnSendFiles.setOnClickListener {
-
+        selectionView.btnSendFiles.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(Dispatchers.IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
@@ -86,7 +87,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                     if (it.isSelected) {
                         it.isSelected = false
                         selected.add(RawRequestInfo(
-                                it.name, it.path, FileType.FILE_TYPE_PHOTO
+                                it.name, it.uri, FileType.FILE_TYPE_PHOTO, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
                         ))
                     }
                 }
@@ -100,7 +101,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
             }
         }
 
-        btnNon.setOnClickListener {
+        selectionView.btnSelectNon.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(Dispatchers.IO).launch {
                 photoInfos.forEach {
@@ -114,7 +115,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
             }
         }
 
-        btnAll.setOnClickListener {
+        selectionView.btnSelectAll.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 selectedCount = 0
                 photoInfos.forEach {
@@ -155,15 +156,9 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
             onNavigationVisibilityListener?.onNavVisibilityChange(false)
             return
         }
-        if (selectedCount == 0) {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_exit)
-            selectionSection.visibility = View.GONE
-            onNavigationVisibilityListener?.onNavVisibilityChange(true)
-        } else {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_enter)
-            selectionSection.visibility = View.VISIBLE
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-        }
+        selectionView.changeVisibility(selectedCount)
+        onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
+
     }
 
     override fun onPhotoSelected(photoInfo: PhotoInfo) {

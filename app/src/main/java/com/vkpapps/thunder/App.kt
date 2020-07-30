@@ -10,6 +10,7 @@ import com.vkpapps.thunder.utils.UserUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
@@ -35,9 +36,10 @@ class App : Application() {
         lateinit var context: Context
 
         @JvmStatic
-        val taskExecutor = Executors.newSingleThreadExecutor()
+        var databasePrepared: Boolean = false
 
         @JvmStatic
-        val entryExecutor = Executors.newSingleThreadExecutor()
+        val taskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+
     }
 }

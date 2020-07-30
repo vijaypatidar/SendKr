@@ -10,6 +10,7 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.net.toFile
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdView
 import com.vkpapps.thunder.R
@@ -65,7 +66,7 @@ class AudioAdapter(private val onAudioSelectedListener: OnAudioSelectedListener,
             holder.audioIcon.setOnClickListener {
                 try {
                     val intent = Intent(Intent.ACTION_VIEW)
-                    MediaScannerConnection.scanFile(it.context, arrayOf(audioinfo.path), null) { path, uri ->
+                    MediaScannerConnection.scanFile(it.context, arrayOf(audioinfo.uri.path), null) { _, uri ->
                         run {
                             val type = it.context.contentResolver.getType(uri)
                             Logger.d("file $uri type = $type")
@@ -79,7 +80,7 @@ class AudioAdapter(private val onAudioSelectedListener: OnAudioSelectedListener,
                 }
             }
             val file = File(thumbnails, audioinfo.id)
-            myThumbnailUtils.loadAudioThumbnail(file, audioinfo.path, holder.audioIcon)
+            myThumbnailUtils.loadAudioThumbnail(file, audioinfo.uri.toFile().absolutePath, holder.audioIcon)
             holder.audioIcon.adjustViewBounds = true
         }
     }

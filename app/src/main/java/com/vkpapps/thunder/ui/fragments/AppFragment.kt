@@ -3,9 +3,10 @@ package com.vkpapps.thunder.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.*
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
@@ -20,8 +21,8 @@ import com.vkpapps.thunder.model.AppInfo
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.ui.adapter.AppAdapter
+import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_app.*
-import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
@@ -68,7 +69,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
             }
         }
 
-        btnSendFiles.setOnClickListener {
+        selectionView.btnSendFiles.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
@@ -76,14 +77,14 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                     if (it.isSelected) {
                         it.isSelected = false
                         selected.add(RawRequestInfo(
-                                it.name, it.source, FileType.FILE_TYPE_APP
+                                it.name, it.uri, FileType.FILE_TYPE_APP, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
                         ))
                     }
-                    if (it.obbSource != null && it.isObbSelected) {
+                    if (it.obbUri != null && it.isObbSelected) {
                         it.isObbSelected = false
                         selected.add(RawRequestInfo(
-                                it.obbName!!, it.obbSource!!, FileType.FILE_TYPE_ANY
-                        ))
+                                it.obbName!!, it.obbUri!!, FileType.FILE_TYPE_ANY, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile())
+                        )))
                     }
 
                 }
@@ -97,12 +98,12 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
             }
         }
 
-        btnNon.setOnClickListener {
+        selectionView.btnSelectNon.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 appInfos.forEach {
                     it.isSelected = false
-                    if (it.obbSource != null) {
+                    if (it.obbUri != null) {
                         it.isObbSelected = false
                     }
                 }
@@ -114,13 +115,13 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
             }
         }
 
-        btnAll.setOnClickListener {
+        selectionView.btnSelectAll.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectedCount = 0
                 appInfos.forEach {
                     it.isSelected = true
                     selectedCount++
-                    if (it.obbSource != null) {
+                    if (it.obbUri != null) {
                         it.isObbSelected = true
                         selectedCount++
                     }
@@ -179,15 +180,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
     }
 
     private fun hideShowSendButton() {
-        if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) return
-        if (selectedCount > 0) {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_enter)
-            selectionSection.visibility = View.VISIBLE
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-        } else {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_exit)
-            selectionSection.visibility = View.GONE
-            onNavigationVisibilityListener?.onNavVisibilityChange(true)
-        }
+        onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
+        selectionView.changeVisibility(selectedCount)
     }
 }

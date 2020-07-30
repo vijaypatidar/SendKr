@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.net.toFile
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
@@ -69,7 +70,7 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
 
                     override fun getArguments(): Bundle {
                         val bundle = Bundle()
-                        bundle.putString(FileFragment.FILE_ROOT, fileInfo.file.uri.path)
+                        bundle.putString(FileFragment.FILE_ROOT, fileInfo.file.uri.toString())
                         bundle.putString(FileFragment.FRAGMENT_TITLE, fileInfo.name)
                         return bundle
                     }
@@ -78,18 +79,18 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
         } else {
             holder.info.text = fileInfo.displaySize
             thumbnailUtils.loadThumbnail(File(thumbnails, fileInfo.id),
-                    fileInfo.source!!,
+                    fileInfo.uri.toFile().absolutePath,
                     fileInfo.type,
                     holder.icon
             )
             holder.itemView.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
-                MediaScannerConnection.scanFile(it.context, arrayOf(fileInfo.source), null) { path, uri ->
+                MediaScannerConnection.scanFile(it.context, arrayOf(fileInfo.uri.toFile().absolutePath), null) { _, uri ->
                     run {
                         val type = it.context.contentResolver.getType(uri)
                         Logger.d("file $uri type = $type")
                         intent.setDataAndType(uri, type)
-                        it.context.startActivity(intent)
+                        it.context.startActivity(Intent.createChooser(intent, "Open with"))
                     }
                 }
             }

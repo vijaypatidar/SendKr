@@ -5,8 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
@@ -23,10 +24,10 @@ import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.room.liveViewModel.AudioViewModel
 import com.vkpapps.thunder.ui.adapter.AudioAdapter
 import com.vkpapps.thunder.ui.adapter.AudioAdapter.OnAudioSelectedListener
+import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.PermissionUtils.askStoragePermission
 import com.vkpapps.thunder.utils.PermissionUtils.checkStoragePermission
 import kotlinx.android.synthetic.main.fragment_music.*
-import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
@@ -89,7 +90,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
             })
 
 
-            btnSendFiles.setOnClickListener {
+            selectionView.btnSendFiles.setOnClickListener {
                 if (selectedCount == 0) return@setOnClickListener
                 CoroutineScope(IO).launch {
                     val selected = ArrayList<RawRequestInfo>()
@@ -97,7 +98,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                         if (it.isSelected) {
                             it.isSelected = false
                             selected.add(RawRequestInfo(
-                                    it.name, it.path, FileType.FILE_TYPE_MUSIC
+                                    it.name, it.uri, FileType.FILE_TYPE_MUSIC, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
                             ))
                         }
                     }
@@ -110,7 +111,8 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                     onFileRequestPrepareListener?.sendFiles(selected)
                 }
             }
-            btnNon.setOnClickListener {
+
+            selectionView.btnSelectNon.setOnClickListener {
                 if (selectedCount == 0) return@setOnClickListener
                 CoroutineScope(IO).launch {
                     allSong?.forEach {
@@ -124,7 +126,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                 }
             }
 
-            btnAll.setOnClickListener {
+            selectionView.btnSelectAll.setOnClickListener {
                 CoroutineScope(IO).launch {
                     selectedCount = 0
                     allSong?.forEach {
@@ -176,18 +178,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
     }
 
     private fun hideShowSendButton() {
-        if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) {
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-            return
-        }
-        if (selectedCount == 0) {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_exit)
-            selectionSection.visibility = View.GONE
-            onNavigationVisibilityListener?.onNavVisibilityChange(true)
-        } else {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_enter)
-            selectionSection.visibility = View.VISIBLE
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-        }
+        selectionView.changeVisibility(selectedCount)
+        onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
     }
 }

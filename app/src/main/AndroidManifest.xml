@@ -31,13 +31,7 @@
             android:name="com.vkpapps.thunder.ui.activity.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop"
             android:theme="@style/AppTheme" />
-
-        <service
-            android:name="com.vkpapps.thunder.connection.FileService"
-            android:exported="false"
-            android:label="File service" />
 
         <activity
             android:name="com.vkpapps.thunder.ui.activity.SplashActivity"
@@ -52,7 +46,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="*/*" />
             </intent-filter>

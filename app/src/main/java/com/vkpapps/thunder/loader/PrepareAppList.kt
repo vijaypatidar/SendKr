@@ -1,6 +1,8 @@
 package com.vkpapps.thunder.loader
 
 import android.content.pm.ApplicationInfo
+import android.net.Uri
+import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.model.AppInfo
@@ -20,11 +22,11 @@ object PrepareAppList {
             if (it != null && (it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0) {
                 val appInfo = AppInfo(
                         it.applicationInfo.loadLabel(packageManager).toString() + ".apk",
-                        it.applicationInfo.sourceDir,
+                        Uri.fromFile(File(it.applicationInfo.sourceDir)),
                         it.applicationInfo.loadIcon(packageManager),
                         it.packageName)
 
-                appInfo.size = MathUtils.longToStringSize(File(appInfo.source).length().toDouble())
+                appInfo.size = MathUtils.longToStringSize(appInfo.uri.toFile().length().toDouble())
                 //check for obb
                 try {
                     // check in all storage devices
@@ -34,8 +36,8 @@ object PrepareAppList {
                         val listFiles = obb.listFiles()
                         if (listFiles.isNotEmpty()) {
                             appInfo.obbName = listFiles[0].name
-                            appInfo.obbSource = listFiles[0].uri.path
-                            appInfo.obbSize = MathUtils.longToStringSize(File(appInfo.obbSource!!).length().toDouble())
+                            appInfo.obbUri = listFiles[0].uri
+                            appInfo.obbSize = MathUtils.longToStringSize(appInfo.obbUri!!.toFile().length().toDouble())
                         }
                     }
                 } catch (e: Exception) {
@@ -44,7 +46,6 @@ object PrepareAppList {
                 appInfos.add(appInfo)
             }
         }
-
 
         appInfos.sortBy { appInfo -> appInfo.name }
         appInfos

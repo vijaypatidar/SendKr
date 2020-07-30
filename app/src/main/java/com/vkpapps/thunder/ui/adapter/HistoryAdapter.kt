@@ -12,6 +12,7 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.net.toFile
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
@@ -44,7 +45,7 @@ class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHi
         val historyInfo = historyInfos[position]
         holder.name.text = historyInfo.name
         holder.btnSelect.isChecked = historyInfo.isSelected
-        holder.btnSelect.setOnClickListener { v: View? ->
+        holder.btnSelect.setOnClickListener {
             historyInfo.isSelected = !historyInfo.isSelected
             holder.btnSelect.isChecked = historyInfo.isSelected
             if (historyInfo.isSelected) {
@@ -70,7 +71,7 @@ class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHi
                     override fun getArguments(): Bundle {
                         val bundle = Bundle()
                         bundle.putString(FileFragment.FRAGMENT_TITLE, historyInfo.name)
-                        bundle.putString(FileFragment.FILE_ROOT, historyInfo.source)
+                        bundle.putString(FileFragment.FILE_ROOT, historyInfo.uri.toString())
                         return bundle
                     }
                 })
@@ -79,7 +80,7 @@ class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHi
             holder.itemView.setOnClickListener {
                 try {
                     val intent = Intent(Intent.ACTION_VIEW)
-                    MediaScannerConnection.scanFile(it.context, arrayOf(historyInfo.source), null) { path, uri ->
+                    MediaScannerConnection.scanFile(it.context, arrayOf(historyInfo.uri.toFile().absolutePath), null) { _, uri ->
                         run {
                             val type = it.context.contentResolver.getType(uri)
                             Logger.d("file $uri type = $type")
@@ -94,7 +95,11 @@ class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHi
             }
         }
         val icon = File(thumbnails, historyInfo.id)
-        myThumbnailUtils.loadThumbnail(icon, historyInfo.source, historyInfo.type, holder.logo)
+        try {
+            myThumbnailUtils.loadThumbnail(icon, historyInfo.uri.toFile().absolutePath, historyInfo.type, holder.logo)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun getItemCount(): Int {

@@ -8,8 +8,9 @@ import java.io.File
 
 /**
  * @author VIJAY PATIDAR
+ *
  */
-class DirectoryResolver(private val context: Context) {
+class DownloadPathResolver(private val context: Context) {
     private val root: File = StorageManager(context).downloadDir
     private fun getDirectory(type: Int): File {
         val file = when (type) {
@@ -31,19 +32,19 @@ class DirectoryResolver(private val context: Context) {
         var file = File(getDirectory(obj.fileType), obj.name)
         // in case of folder request make dir for it
         if (file.exists()) {
+            //todo check file if exist
             if (obj.fileType == FileType.FILE_TYPE_FOLDER) {
                 var i = 0
-                while (!file.exists()) {
-                    obj.source = obj.source + "(${i++})"
-                    file = File(obj.source)
-                }
+//                while (!file.exists()) {
+//                    obj.uri = obj.uri + "(${i++})"
+//                    file = File(obj.uri)
+//                }
             } else {
-                //todo check file if exist
             }
         }
         if (obj.fileType == FileType.FILE_TYPE_FOLDER) {
             file.mkdirs()
-            Logger.d("New dir created ${obj.source}")
+            Logger.d("New dir created ${obj.uri}")
         }
         return file.absolutePath
     }

@@ -35,8 +35,8 @@
                 android:textSize="16sp" />
         </RelativeLayout>
 
-        <include
-            layout="@layout/selection_options"
+        <com.vkpapps.thunder.ui.views.SelectionView
+            android:id="@+id/selectionView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </RelativeLayout>

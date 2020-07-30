@@ -1,11 +1,13 @@
 package com.vkpapps.thunder.ui.fragments
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -21,14 +23,15 @@ import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.ui.adapter.HistoryAdapter
 import com.vkpapps.thunder.utils.AdsUtils
+import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.*
 
 /***
@@ -74,7 +77,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
                 override fun getArguments(): Bundle {
                     val bundle = Bundle()
-                    bundle.putString(FileFragment.FILE_ROOT, internal.absolutePath)
+                    bundle.putString(FileFragment.FILE_ROOT, Uri.fromFile(internal).toString())
                     bundle.putString(FileFragment.FRAGMENT_TITLE, "Internal Storage")
                     return bundle
                 }
@@ -89,7 +92,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
                 override fun getArguments(): Bundle {
                     val bundle = Bundle()
-                    bundle.putString(FileFragment.FILE_ROOT, "/storage/")
+                    bundle.putString(FileFragment.FILE_ROOT, DocumentFile.fromFile(File("/storage/")).uri.toString())
                     bundle.putString(FileFragment.FRAGMENT_TITLE, "External Storage")
                     return bundle
                 }
@@ -158,22 +161,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         }
     }
 
-    private fun hideShowSendButton() {
-        if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) {
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-            return
-        }
-        if (selectedCount == 0) {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_exit)
-            selectionSection.visibility = View.GONE
-            onNavigationVisibilityListener?.onNavVisibilityChange(true)
-        } else {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_enter)
-            selectionSection.visibility = View.VISIBLE
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-        }
-    }
-
     private fun setupHistory() {
         history.layoutManager = LinearLayoutManager(requireContext())
         val adapter = HistoryAdapter(requireContext(), this)
@@ -197,7 +184,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             }
         })
 
-        btnSendFiles.setOnClickListener {
+        selectionView.btnSendFiles.setOnClickListener {
 
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
@@ -206,7 +193,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                     if (it.isSelected) {
                         it.isSelected = false
                         selected.add(RawRequestInfo(
-                                it.name, it.source, it.type
+                                it.name, it.uri, it.type, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
                         ))
                     }
                 }
@@ -220,7 +207,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             }
         }
 
-        btnNon.setOnClickListener {
+        selectionView.btnSelectNon.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 historyInfos.forEach {
@@ -234,7 +221,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             }
         }
 
-        btnAll.setOnClickListener {
+        selectionView.btnSelectAll.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectedCount = 0
                 historyInfos.forEach {
@@ -257,5 +244,10 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     override fun onHistoryDeselected(historyInfo: HistoryInfo) {
         selectedCount--
         hideShowSendButton()
+    }
+
+    private fun hideShowSendButton() {
+        onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
+        selectionView.changeVisibility(selectedCount)
     }
 }

@@ -3,6 +3,7 @@ package com.vkpapps.thunder.utils
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import com.squareup.picasso.Picasso
@@ -46,14 +47,14 @@ object MyThumbnailUtils {
         }
     }
 
-    fun loadPhotoThumbnail(path: String, imageView: AppCompatImageView?) {
-        Picasso.get().load(File(path)).centerCrop().resize(256, 256).into(imageView)
+    fun loadPhotoThumbnail(uri: Uri, imageView: AppCompatImageView?) {
+        Picasso.get().load(uri).centerCrop().resize(256, 256).into(imageView)
     }
 
     fun loadThumbnail(icon: File, source: String, type: Int, logo: AppCompatImageView?) {
         when (type) {
             FileType.FILE_TYPE_PHOTO -> {
-                loadPhotoThumbnail(source, logo)
+                loadPhotoThumbnail(Uri.fromFile(File(source)), logo)
             }
             FileType.FILE_TYPE_VIDEO -> {
                 loadVideoThumbnail(icon, source, logo)

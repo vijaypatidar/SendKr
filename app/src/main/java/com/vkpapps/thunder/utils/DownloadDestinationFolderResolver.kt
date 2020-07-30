@@ -2,19 +2,19 @@ package com.vkpapps.thunder.utils
 
 import com.vkpapps.thunder.model.constaints.FileType
 
-object MimeTypeResolver {
+object DownloadDestinationFolderResolver {
     fun getFileType(mimeType: String?): Int {
         return when {
             mimeType == null -> {
                 FileType.FILE_TYPE_ANY
             }
-            mimeType.contains("image") -> {
+            mimeType.startsWith("image") -> {
                 FileType.FILE_TYPE_PHOTO
             }
-            mimeType.contains("video") -> {
+            mimeType.startsWith("video") -> {
                 FileType.FILE_TYPE_VIDEO
             }
-            mimeType.contains("audio") -> {
+            mimeType.startsWith("audio") -> {
                 FileType.FILE_TYPE_MUSIC
             }
             mimeType.contains("application/vnd.android.package-archive") -> {

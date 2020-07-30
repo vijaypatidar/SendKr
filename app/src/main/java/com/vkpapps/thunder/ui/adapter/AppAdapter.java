@@ -45,7 +45,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
         appHolder.packageName.setText(appInfo.getSize());
         appHolder.btnSelected.setOnClickListener((v) -> {
             appInfo.setSelected(!appInfo.isSelected());
-            if (appInfo.getObbSource() != null && appInfo.isSelected() != appInfo.isObbSelected()) {
+            if (appInfo.getObbUri() != null && appInfo.isSelected() != appInfo.isObbSelected()) {
                 appInfo.setObbSelected(appInfo.isSelected());
                 appHolder.btnObbSelected.setChecked(appInfo.isObbSelected());
                 selectionChange(appInfo, appInfo.isObbSelected());
@@ -53,7 +53,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
             selectionChange(appInfo, appInfo.isSelected());
             appHolder.btnSelected.setChecked(appInfo.isSelected());
         });
-        if (appInfo.getObbSource() != null) {
+        if (appInfo.getObbUri() != null) {
             appHolder.obb.setVisibility(View.VISIBLE);
             appHolder.obbName.setText(appInfo.getObbName());
             appHolder.obbSize.setText(appInfo.getObbSize());

@@ -1,6 +1,7 @@
 package com.vkpapps.thunder.ui.fragments
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.AppCompatImageView
@@ -8,7 +9,6 @@ import androidx.fragment.app.Fragment
 import com.squareup.picasso.Picasso
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
-import java.io.File
 
 class PhotoViewFragment : Fragment() {
     private var imageView: AppCompatImageView? = null
@@ -26,8 +26,8 @@ class PhotoViewFragment : Fragment() {
         imageView?.adjustViewBounds = true
         val arguments = arguments
         if (arguments != null) {
-            val path = arguments.getString("PATH")
-            if (path != null) Picasso.get().load(File(path)).into(imageView)
+            val path = arguments.getString("Uri")
+            if (path != null) Picasso.get().load(Uri.parse(path)).into(imageView)
         }
     }
 
