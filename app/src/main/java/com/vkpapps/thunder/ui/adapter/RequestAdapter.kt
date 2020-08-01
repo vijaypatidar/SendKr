@@ -9,7 +9,6 @@ import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.net.toFile
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.model.RequestInfo
@@ -18,14 +17,12 @@ import com.vkpapps.thunder.model.constaints.StatusType
 import com.vkpapps.thunder.ui.views.HorizontalProgressBar
 import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
-import com.vkpapps.thunder.utils.StorageManager
-import java.io.File
 import java.util.*
 
 class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val requestInfos: MutableList<RequestInfo> = ArrayList()
     private val inflater: LayoutInflater = LayoutInflater.from(context)
-    private val thumbnail = StorageManager(context).thumbnails
+
     override fun getItemViewType(position: Int): Int {
         return requestInfos[position].fileType
     }
@@ -77,7 +74,7 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
                 holder.status.setImageResource(R.drawable.ic_status_completed)
                 setProgress(holder.progress, requestInfo.size, requestInfo.size)
                 try {
-                    MyThumbnailUtils.loadThumbnail(File(thumbnail, requestInfo.rid), Uri.parse(requestInfo.uri).toFile().absolutePath, requestInfo.fileType, holder.thumbnail)
+                    MyThumbnailUtils.loadThumbnail(requestInfo.rid, Uri.parse(requestInfo.uri), requestInfo.fileType, holder.thumbnail)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

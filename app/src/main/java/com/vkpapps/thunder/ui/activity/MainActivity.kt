@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             FileService.startActionReceive(this@MainActivity, Uri.parse(requestInfo.uri),
                     rid,
                     clientHelper,
-                    isHost
+                    requestInfo.fileType == FileType.FILE_TYPE_FOLDER
             )
             updateStatus(rid, StatusType.STATUS_ONGOING)
         }
@@ -208,7 +208,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                                 Uri.parse(obj.uri),
                                 obj.rid,
                                 it,
-                                isHost)
+                                obj.fileType == FileType.FILE_TYPE_FOLDER)
                     }
                 }
 
@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                                 clone.rid,
                                 Uri.parse(clone.uri),
                                 clientHelper,
-                                isHost)
+                                obj.fileType == FileType.FILE_TYPE_FOLDER)
                     }
                 }
             } else {
@@ -384,7 +384,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                                 clone.rid,
                                 Uri.parse(clone.uri),
                                 clientHelper,
-                                isHost)
+                                rawRequestInfo.type == FileType.FILE_TYPE_FOLDER)
 
                     }
                 } else {

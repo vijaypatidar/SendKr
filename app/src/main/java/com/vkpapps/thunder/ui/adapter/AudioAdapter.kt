@@ -10,7 +10,6 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.net.toFile
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdView
 import com.vkpapps.thunder.R
@@ -19,8 +18,6 @@ import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.ui.adapter.AudioAdapter.AudioViewHolder
 import com.vkpapps.thunder.utils.AdsUtils.getAdRequest
 import com.vkpapps.thunder.utils.MyThumbnailUtils
-import com.vkpapps.thunder.utils.StorageManager
-import java.io.File
 import java.util.*
 
 
@@ -29,7 +26,6 @@ import java.util.*
  */
 class AudioAdapter(private val onAudioSelectedListener: OnAudioSelectedListener, context: Context) : RecyclerView.Adapter<AudioViewHolder>() {
     private val audioInfos: MutableList<AudioInfo?>? = ArrayList()
-    private val thumbnails: File = StorageManager(context).thumbnails
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     private val myThumbnailUtils = MyThumbnailUtils
 
@@ -79,8 +75,7 @@ class AudioAdapter(private val onAudioSelectedListener: OnAudioSelectedListener,
                     e.printStackTrace()
                 }
             }
-            val file = File(thumbnails, audioinfo.id)
-            myThumbnailUtils.loadAudioThumbnail(file, audioinfo.uri.toFile().absolutePath, holder.audioIcon)
+            myThumbnailUtils.loadAudioThumbnail(audioinfo.id, audioinfo.uri, holder.audioIcon)
             holder.audioIcon.adjustViewBounds = true
         }
     }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
@@ -26,7 +25,6 @@ import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.ui.adapter.FileAdapter
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_file.*
-import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -114,7 +112,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             }
         }
 
-        btnSendFiles.setOnClickListener {
+        selectionView.btnSendFiles.setOnClickListener {
             if (selectCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
@@ -141,7 +139,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             }
         }
 
-        btnAll.setOnClickListener {
+        selectionView.btnSelectAll.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectCount = 0
                 fileInfos.forEach {
@@ -154,7 +152,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                 }
             }
         }
-        btnNon.setOnClickListener {
+        selectionView.btnSelectNon.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectCount = 0
                 fileInfos.forEach {
@@ -196,19 +194,8 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
     }
 
     private fun hideShowSendButton() {
-        if (selectionSection.visibility == View.VISIBLE && selectCount > 0) {
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-            return
-        }
-        if (selectCount == 0) {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_exit)
-            selectionSection.visibility = View.GONE
-            onNavigationVisibilityListener?.onNavVisibilityChange(true)
-        } else {
-            selectionSection.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.fragment_fade_enter)
-            selectionSection.visibility = View.VISIBLE
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-        }
+        onNavigationVisibilityListener?.onNavVisibilityChange(selectCount == 0)
+        selectionView.changeVisibility(selectCount)
     }
 
     companion object {

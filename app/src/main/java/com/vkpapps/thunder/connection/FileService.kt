@@ -2,11 +2,11 @@ package com.vkpapps.thunder.connection
 
 import android.net.Uri
 import androidx.core.net.toFile
-import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestReceiverListener
 import com.vkpapps.thunder.model.FileRequest
+import com.vkpapps.thunder.ui.activity.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.delay
@@ -22,19 +22,24 @@ import java.net.Socket
 /***
  * @author VIJAY PATIDAR
  */
-class FileService(private val send: Boolean, private val onFileRequestReceiverListener: OnFileRequestReceiverListener, private val rid: String, private val uri: Uri, private val clientHelper: ClientHelper, private val isHost: Boolean) : Runnable {
+class FileService(private val send: Boolean,
+                  private val onFileRequestReceiverListener: OnFileRequestReceiverListener,
+                  private val rid: String,
+                  private val uri: Uri,
+                  private val clientHelper: ClientHelper,
+                  private val isDirectory: Boolean) : Runnable {
 
     @Throws(IOException::class)
-    private fun getSocket(isHost: Boolean): Socket {
+    private fun getSocket(): Socket {
         lateinit var socket: Socket
-        if (isHost) {
+        if (MainActivity.isHost) {
             ServerSocket(PORT).use { serverSocket ->
                 serverSocket.soTimeout = MAX_WAIT_TIME
                 socket = serverSocket.accept()
             }
         } else {
             socket = Socket()
-            socket.connect(InetSocketAddress(HOST_ADDRESS, PORT), MAX_WAIT_TIME)
+            socket.connect(InetSocketAddress(HOST_ADDRESS, PORT))
         }
         return socket
     }
@@ -52,21 +57,21 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
     }
 
     private fun handleActionReceive() {
+        Logger.d("handleActionReceive $uri")
         try {
-            if (isHost) {
+            if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
                 clientHelper.write(FileRequest(FileRequest.UPLOAD_REQUEST_CONFIRM, rid))
                 onFileRequestReceiverListener.onRequestAccepted(rid, clientHelper.user.userId, true)
             }
-            val socket = getSocket(isHost)
+            val socket = getSocket()
             val init = System.currentTimeMillis()
             val file = uri.toFile()
-            if (file.isDirectory) {
+            if (isDirectory) {
                 val zipUtils = ZipUtils()
                 CoroutineScope(Default).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
-                        Logger.d("inside while for receiving ${zipUtils.transferred}")
                         delay(PROGRESS_UPDATE_TIME)
                     }
                     onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
@@ -95,7 +100,6 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
                 socket.close()
             }
             val timeTaken = System.currentTimeMillis() - init
-            Logger.d("timeTaken =  $timeTaken")
             onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken, false)
         } catch (e: Exception) {
             onFileRequestReceiverListener.onRequestFailed(rid)
@@ -106,18 +110,14 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
     private fun handleActionSend() {
         Logger.d("handleActionSend $uri")
         try {
-            if (isHost) {
+            if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
                 clientHelper.write(FileRequest(FileRequest.DOWNLOAD_REQUEST_CONFIRM, rid))
                 onFileRequestReceiverListener.onRequestAccepted(rid, clientHelper.user.userId, true)
             }
-            val socket = getSocket(isHost)
-            Logger.d("inputStream open for 1$uri")
-            val file = DocumentFile.fromSingleUri(App.context, uri)!!
-            Logger.d("inputStream open for 2$uri")
+            val socket = getSocket()
             val init = System.currentTimeMillis()
-            Logger.d("inputStream open for $uri")
-            if (file.isDirectory) {
+            if (isDirectory) {
                 val zipUtils = ZipUtils()
                 CoroutineScope(Default).launch {
                     while (!socket.isClosed) {
@@ -150,7 +150,6 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
                 socket.close()
             }
             val timeTaken = (System.currentTimeMillis() - init)
-            Logger.d("timeTaken =  ${timeTaken}ms")
             onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken, true)
         } catch (e: IOException) {
             onFileRequestReceiverListener.onRequestFailed(rid)
@@ -166,18 +165,18 @@ class FileService(private val send: Boolean, private val onFileRequestReceiverLi
         private const val PORT = 7511
         private const val PROGRESS_UPDATE_TIME: Long = 2000
 
-        fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, rid: String, uri: Uri, clientHelper: ClientHelper, isHost: Boolean) {
+        fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, rid: String, uri: Uri, clientHelper: ClientHelper, isDirectory: Boolean) {
             synchronized(App.taskExecutor) {
                 App.taskExecutor.submit(FileService(
-                        true, onFileRequestReceiverListener, rid, uri, clientHelper, isHost
+                        true, onFileRequestReceiverListener, rid, uri, clientHelper, isDirectory
                 ))
             }
         }
 
-        fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, uri: Uri, rid: String, clientHelper: ClientHelper, isHost: Boolean) {
+        fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, uri: Uri, rid: String, clientHelper: ClientHelper, isDirectory: Boolean) {
             synchronized(App.taskExecutor) {
                 App.taskExecutor.submit(FileService(
-                        false, onFileRequestReceiverListener, rid, uri, clientHelper, isHost
+                        false, onFileRequestReceiverListener, rid, uri, clientHelper, isDirectory
                 ))
             }
         }

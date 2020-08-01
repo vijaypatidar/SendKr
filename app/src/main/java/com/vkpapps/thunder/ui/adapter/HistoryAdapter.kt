@@ -23,8 +23,6 @@ import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.ui.adapter.HistoryAdapter.HistoryViewHolder
 import com.vkpapps.thunder.ui.fragments.FileFragment
 import com.vkpapps.thunder.utils.MyThumbnailUtils
-import com.vkpapps.thunder.utils.StorageManager
-import java.io.File
 import java.util.*
 
 /**
@@ -32,7 +30,6 @@ import java.util.*
  */
 class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHistorySelectListener) : RecyclerView.Adapter<HistoryViewHolder>() {
     private val historyInfos: MutableList<HistoryInfo> = ArrayList()
-    private val thumbnails: File = StorageManager(context).thumbnails
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     private val myThumbnailUtils = MyThumbnailUtils
 
@@ -94,9 +91,8 @@ class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHi
                 }
             }
         }
-        val icon = File(thumbnails, historyInfo.id)
         try {
-            myThumbnailUtils.loadThumbnail(icon, historyInfo.uri.toFile().absolutePath, historyInfo.type, holder.logo)
+            myThumbnailUtils.loadThumbnail(historyInfo.id, historyInfo.uri, historyInfo.type, holder.logo)
         } catch (e: Exception) {
             e.printStackTrace()
         }

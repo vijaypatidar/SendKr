@@ -19,13 +19,11 @@ import com.vkpapps.thunder.model.FileInfo
 import com.vkpapps.thunder.ui.adapter.FileAdapter.MyViewHolder
 import com.vkpapps.thunder.ui.fragments.FileFragment
 import com.vkpapps.thunder.utils.MyThumbnailUtils
-import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.util.*
 
 /***
@@ -34,7 +32,6 @@ import java.util.*
 class FileAdapter(private val onFileSelectListener: OnFileSelectListener, private val view: View) : RecyclerView.Adapter<MyViewHolder>() {
     private val fileInfos: MutableList<FileInfo> = ArrayList()
     private val thumbnailUtils: MyThumbnailUtils = MyThumbnailUtils
-    private val thumbnails: File = StorageManager(view.context).thumbnails
     override fun getItemViewType(position: Int): Int {
         return if (fileInfos[position].file.isDirectory) {
             0
@@ -78,8 +75,8 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
             }
         } else {
             holder.info.text = fileInfo.displaySize
-            thumbnailUtils.loadThumbnail(File(thumbnails, fileInfo.id),
-                    fileInfo.uri.toFile().absolutePath,
+            thumbnailUtils.loadThumbnail(fileInfo.id,
+                    fileInfo.uri,
                     fileInfo.type,
                     holder.icon
             )

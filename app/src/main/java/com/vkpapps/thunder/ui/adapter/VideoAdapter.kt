@@ -15,15 +15,12 @@ import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.VideoInfo
 import com.vkpapps.thunder.utils.MyThumbnailUtils
-import com.vkpapps.thunder.utils.StorageManager
-import java.io.File
 
 /**
  * @author VIJAY PATIDAR
  */
 class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private val onVideoSelectListener: OnVideoSelectListener) : RecyclerView.Adapter<VideoAdapter.MyHolder>() {
     private val myThumbnailUtils = MyThumbnailUtils
-    private val thumbnails: File = StorageManager(view.context).thumbnails
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.video_list_item, parent, false)
         return MyHolder(view)
@@ -31,7 +28,6 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private
 
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
         val videoInfo = videoInfos!![position]
-        val file = File(thumbnails, videoInfo.id)
         holder.title.text = videoInfo.name
         holder.size.text = videoInfo.size
         holder.btnSelected.isChecked = videoInfo.isSelected
@@ -60,7 +56,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private
                 e.printStackTrace()
             }
         }
-        myThumbnailUtils.loadVideoThumbnail(file, videoInfo.uri.toFile().absolutePath, holder.picture)
+        myThumbnailUtils.loadVideoThumbnail(videoInfo.id, videoInfo.uri, holder.picture)
     }
 
     override fun getItemCount(): Int {
