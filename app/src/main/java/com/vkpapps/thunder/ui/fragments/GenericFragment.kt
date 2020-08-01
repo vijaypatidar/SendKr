@@ -10,6 +10,7 @@ import androidx.navigation.Navigation
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.ui.activity.MainActivity
 import com.vkpapps.thunder.ui.fragments.viewpager.MyPagerAdapter
 import com.vkpapps.thunder.utils.PermissionUtils.askStoragePermission
 import com.vkpapps.thunder.utils.PermissionUtils.checkStoragePermission
@@ -53,7 +54,7 @@ class GenericFragment : Fragment() {
             viewPager.currentItem = destination
         } else {
             Navigation.findNavController(view).popBackStack()
-            askStoragePermission(activity, 101)
+            askStoragePermission(activity, MainActivity.ASK_PERMISSION_FROM_GENERIC_FRAGMENT)
         }
     }
 

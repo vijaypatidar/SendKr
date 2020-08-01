@@ -52,7 +52,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView: RecyclerView = view.findViewById(R.id.videoList)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = VideoAdapter(videoInfos, view, this)
+        adapter = VideoAdapter(videoInfos, this)
         recyclerView.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
                 if (selectedCount == 0)

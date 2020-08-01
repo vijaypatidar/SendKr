@@ -52,14 +52,15 @@ object MyThumbnailUtils {
         }
     }
 
-    fun loadPhotoThumbnail(uri: Uri, imageView: AppCompatImageView?) {
+    fun loadPhotoThumbnail(id: String, uri: Uri, imageView: AppCompatImageView?) {
         Picasso.get().load(uri).centerCrop().resize(256, 256).into(imageView)
     }
+
 
     fun loadThumbnail(id: String, uri: Uri, type: Int, logo: AppCompatImageView?) {
         when (type) {
             FileType.FILE_TYPE_PHOTO -> {
-                loadPhotoThumbnail(uri, logo)
+                loadPhotoThumbnail(id, uri, logo)
             }
             FileType.FILE_TYPE_VIDEO -> {
                 loadVideoThumbnail(id, uri, logo)

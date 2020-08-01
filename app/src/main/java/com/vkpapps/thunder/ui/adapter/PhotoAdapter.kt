@@ -37,7 +37,7 @@ class PhotoAdapter(private val photoInfos: List<PhotoInfo>?, private val onPhoto
                 onPhotoSelectListener.onPhotoDeselected(photoInfo)
             }
         }
-        myThumbnailUtils.loadPhotoThumbnail(photoInfo.uri, holder.picture)
+        myThumbnailUtils.loadPhotoThumbnail(photoInfo.id, photoInfo.uri, holder.picture)
         holder.btnFullscreen.setOnClickListener {
             controller.navigate(object : NavDirections {
                 override fun getArguments(): Bundle {

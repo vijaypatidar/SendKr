@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.vkpapps.thunder"
-    android:installLocation="preferExternal">
+    package="com.vkpapps.thunder">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -18,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
+        android:supportsRtl="false"
         tools:targetApi="q">
 
         <meta-data
@@ -37,6 +37,7 @@
             android:name="com.vkpapps.thunder.ui.activity.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SplashScreen"
+            android:launchMode="singleTask"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,5 +52,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

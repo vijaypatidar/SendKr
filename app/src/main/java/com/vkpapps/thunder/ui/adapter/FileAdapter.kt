@@ -87,7 +87,7 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
                         val type = it.context.contentResolver.getType(uri)
                         Logger.d("file $uri type = $type")
                         intent.setDataAndType(uri, type)
-                        it.context.startActivity(Intent.createChooser(intent, "Open with"))
+                        it.context.startActivity(intent)
                     }
                 }
             }

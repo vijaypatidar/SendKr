@@ -151,7 +151,7 @@ class FileService(private val send: Boolean,
             }
             val timeTaken = (System.currentTimeMillis() - init)
             onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken, true)
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             onFileRequestReceiverListener.onRequestFailed(rid)
             e.printStackTrace()
         }

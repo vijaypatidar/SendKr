@@ -68,7 +68,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private lateinit var navController: NavController
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
     private var database = MyRoomDatabase.getDatabase(App.context)
-
     private val requestViewModel: RequestViewModel by lazy {
         ViewModelProvider(this).get(RequestViewModel::class.java)
     }
@@ -90,20 +89,15 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         NavigationUI.setupWithNavController(navView, navController)
         navController.addOnDestinationChangedListener(FragmentDestinationListener(this))
 
-        if (!PermissionUtils.checkStoragePermission(this)) {
-            PermissionUtils.askStoragePermission(this, 9098)
-        }
-
         if (!connected || (!isHost && !clientHelper.connected)) {
+            d("creating new connection")
             choice()
             UpdateManager(true).checkForUpdate(true, this)
-            d("creating new connection")
-            fileToShare(false)
         } else {
             d("using old connection")
-            fileToShare(true)
         }
 
+        fileToShare()
     }
 
     private fun choice() {
@@ -325,7 +319,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // request made by local Song fragment
-        if (requestCode == 101) {
+        if (requestCode == ASK_PERMISSION_FROM_GENERIC_FRAGMENT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 CoroutineScope(IO).launch {
                     PrepareDb().prepareAll()
@@ -334,7 +328,16 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             } else {
                 Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
             }
-        } else if (requestCode == 9098) {
+        } else if (requestCode == ASK_PERMISSION_FROM_GENERIC_FRAGMENT) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                CoroutineScope(IO).launch {
+                    PrepareDb().prepareAll()
+                }
+                fileToShare()
+            } else {
+                Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
+            }
+        } else if (requestCode == ASK_PERMISSION_FROM_MAIN_ACTIVITY) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 CoroutineScope(IO).launch {
                     PrepareDb().prepareAll()
@@ -365,35 +368,39 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun sendFiles(requests: List<RawRequestInfo>) {
-        CoroutineScope(IO).launch {
-            for (rawRequestInfo in requests) {
-                val requestInfo = RequestInfo()
-                requestInfo.name = rawRequestInfo.name
-                requestInfo.uri = rawRequestInfo.uri.toString()
-                requestInfo.fileType = rawRequestInfo.type
-                requestInfo.size = rawRequestInfo.size
-                if (isHost) {
-                    for (clientHelper in serverHelper.clientHelpers) {
-                        val rid = getRandomId()
-                        val clone = requestInfo.clone(rid, clientHelper.user.userId)
-                        //preparing intent for service
-                        database.requestDao().insert(clone)
-                        clientHelper.write(clone)
-                        FileService.startActionSend(
-                                this@MainActivity,
-                                clone.rid,
-                                Uri.parse(clone.uri),
-                                clientHelper,
-                                rawRequestInfo.type == FileType.FILE_TYPE_FOLDER)
+        if (connected && (!isHost || serverHelper.clientHelpers.size != 0)) {
+            CoroutineScope(IO).launch {
+                for (rawRequestInfo in requests) {
+                    val requestInfo = RequestInfo()
+                    requestInfo.name = rawRequestInfo.name
+                    requestInfo.uri = rawRequestInfo.uri.toString()
+                    requestInfo.fileType = rawRequestInfo.type
+                    requestInfo.size = rawRequestInfo.size
+                    if (isHost) {
+                        for (clientHelper in serverHelper.clientHelpers) {
+                            val rid = getRandomId()
+                            val clone = requestInfo.clone(rid, clientHelper.user.userId)
+                            //preparing intent for service
+                            database.requestDao().insert(clone)
+                            clientHelper.write(clone)
+                            FileService.startActionSend(
+                                    this@MainActivity,
+                                    clone.rid,
+                                    Uri.parse(clone.uri),
+                                    clientHelper,
+                                    rawRequestInfo.type == FileType.FILE_TYPE_FOLDER)
 
+                        }
+                    } else {
+                        requestInfo.rid = getRandomId()
+                        requestInfo.cid = user.userId
+                        database.requestDao().insert(requestInfo)
+                        clientHelper.write(requestInfo)
                     }
-                } else {
-                    requestInfo.rid = getRandomId()
-                    requestInfo.cid = user.userId
-                    database.requestDao().insert(requestInfo)
-                    clientHelper.write(requestInfo)
                 }
             }
+        } else {
+            pendingRequest.addAll(requests)
         }
     }
 
@@ -410,6 +417,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         FileType.FILE_TYPE_APP,
                         DocumentFile.fromFile(File(source)).length()))
                 )
+        }
+        if (pendingRequest.isNotEmpty()) {
+            synchronized(pendingRequest) {
+                sendFiles(ArrayList<RawRequestInfo>(pendingRequest))
+                pendingRequest.clear()
+            }
         }
     }
 
@@ -440,37 +453,38 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         return requestInfos[0]
     }
 
-    private fun fileToShare(sendNow: Boolean) {
+    private fun fileToShare() {
         if (PermissionUtils.checkStoragePermission(this)) {
             val toShare = intent.getParcelableArrayListExtra<Parcelable>("shared")
             if (toShare != null) {
                 d("toShare = ${toShare.size} $toShare")
-                if (sendNow) {
-                    val rawRequestInfos = ArrayList<RawRequestInfo>()
-                    toShare.forEach {
-                        val uri = it as Uri
-                        val file = DocumentFile.fromSingleUri(this@MainActivity, uri)
-                        file?.run {
-                            try {
-                                rawRequestInfos.add(RawRequestInfo(file.name!!, file.uri, DownloadDestinationFolderResolver.getFileType(file.type), file.length()))
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
+                val rawRequestInfos = ArrayList<RawRequestInfo>()
+                toShare.forEach {
+                    val uri = it as Uri
+                    val file = DocumentFile.fromSingleUri(this@MainActivity, uri)
+                    file?.run {
+                        try {
+                            rawRequestInfos.add(RawRequestInfo(file.name!!, file.uri, DownloadDestinationFolderResolver.getFileType(file.type), file.length()))
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
                     }
-                    //send to connected clients
-                    sendFiles(rawRequestInfos)
-                } else {
-                    //todo add to temp list
                 }
+                sendFiles(rawRequestInfos)
             }
         } else {
-            //todo add
-            PermissionUtils.askStoragePermission(this, 1)
+            PermissionUtils.askStoragePermission(this, ASK_PERMISSION_FROM_SHARED_INTENT)
         }
     }
 
     companion object {
+        const val ASK_PERMISSION_FROM_SHARED_INTENT = 0
+        const val ASK_PERMISSION_FROM_GENERIC_FRAGMENT = 1
+        const val ASK_PERMISSION_FROM_MAIN_ACTIVITY = 2
+
+        @JvmStatic
+        private val pendingRequest = ArrayList<RawRequestInfo>()
+
         @JvmStatic
         var connected: Boolean = false
 

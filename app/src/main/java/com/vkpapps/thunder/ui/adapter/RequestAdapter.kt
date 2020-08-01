@@ -23,6 +23,13 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
     private val requestInfos: MutableList<RequestInfo> = ArrayList()
     private val inflater: LayoutInflater = LayoutInflater.from(context)
 
+    private val animation = RotateAnimation(0f, (-360).toFloat(),
+            Animation.RELATIVE_TO_SELF, .5f,
+            Animation.RELATIVE_TO_SELF, .5f).apply {
+        duration = 1000
+        repeatCount = 1
+    }
+
     override fun getItemViewType(position: Int): Int {
         return requestInfos[position].fileType
     }
@@ -62,11 +69,6 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
             StatusType.STATUS_ONGOING -> {
                 holder.status.setImageResource(R.drawable.ic_status_ongoing)
                 setIconType(holder.thumbnail, requestInfo.fileType)
-                val animation = RotateAnimation(0f, (-360).toFloat(),
-                        Animation.RELATIVE_TO_SELF, .5f,
-                        Animation.RELATIVE_TO_SELF, .5f)
-                animation.duration = 1000
-                animation.repeatCount = Animation.INFINITE
                 holder.status.animation = animation
                 setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
             }
