@@ -1,37 +1,46 @@
 package com.vkpapps.thunder.ui.fragments
 
-import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.animation.AnimationUtils
+import android.view.*
 import android.widget.Toast
+import androidx.cardview.widget.CardView
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.aysnc.PrepareAppList
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.thunder.loader.PrepareAppList
 import com.vkpapps.thunder.model.AppInfo
-import com.vkpapps.thunder.model.FileRequest
+import com.vkpapps.thunder.model.RawRequestInfo
+import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.ui.adapter.AppAdapter
-import com.vkpapps.thunder.ui.dialog.LoadingDialogs
+import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_app.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /***
  * @author VIJAY PATIDAR
  */
-class AppFragment : Fragment(), PrepareAppList.OnAppListPrepareListener, AppAdapter.OnAppSelectListener {
+class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
 
     private val appInfos = ArrayList<AppInfo>()
     private var adapter: AppAdapter? = null
-    private var loadingDialog: AlertDialog? = null
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
-    private var selectedCount = 0
+    var selectedCount = 0
+    private var navController: NavController? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -40,43 +49,109 @@ class AppFragment : Fragment(), PrepareAppList.OnAppListPrepareListener, AppAdap
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        setHasOptionsMenu(true)
+        navController = Navigation.findNavController(view)
         adapter = AppAdapter(appInfos, this)
         appList.adapter = adapter
         appList.layoutManager = LinearLayoutManager(requireContext())
         appList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
-                onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                if (selectedCount == 0)
+                    onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
                 return false
             }
         }
-        val prepareAppList = PrepareAppList(this);
-        prepareAppList.execute()
-        loadingDialog = LoadingDialogs(requireContext()).loadingDialog
-        loadingDialog?.show()
+        CoroutineScope(IO).launch {
+            val list = PrepareAppList.appList
+            appInfos.addAll(list)
+            withContext(Main) {
+                adapter?.notifyDataSetChanged()
+            }
+        }
 
-        btnSend.setOnClickListener {
-            val selected = ArrayList<FileRequest>()
-            appInfos.forEach {
-                if (it.isSelected) {
+        selectionView.btnSendFiles.setOnClickListener {
+            if (selectedCount == 0) return@setOnClickListener
+            CoroutineScope(IO).launch {
+                val selected = ArrayList<RawRequestInfo>()
+                appInfos.forEach {
+                    if (it.isSelected) {
+                        it.isSelected = false
+                        selected.add(RawRequestInfo(
+                                it.name, it.uri, FileType.FILE_TYPE_APP, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
+                        ))
+                    }
+                    if (it.obbUri != null && it.isObbSelected) {
+                        it.isObbSelected = false
+                        selected.add(RawRequestInfo(
+                                it.obbName!!, it.obbUri!!, FileType.FILE_TYPE_ANY, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile())
+                        )))
+                    }
+
+                }
+                selectedCount = 0
+                withContext(Main) {
+                    adapter?.notifyDataSetChanged()
+                    hideShowSendButton()
+                    Toast.makeText(requireContext(), "${selected.size} apps added to send queue", Toast.LENGTH_SHORT).show()
+                }
+                onFileRequestPrepareListener?.sendFiles(selected)
+            }
+        }
+
+        selectionView.btnSelectNon.setOnClickListener {
+            if (selectedCount == 0) return@setOnClickListener
+            CoroutineScope(IO).launch {
+                appInfos.forEach {
                     it.isSelected = false
-                    selected.add(FileRequest(FileRequest.DOWNLOAD_REQUEST, it.name, it.source, FileRequest.FILE_TYPE_APP))
+                    if (it.obbUri != null) {
+                        it.isObbSelected = false
+                    }
+                }
+                selectedCount = 0
+                withContext(Dispatchers.Main) {
+                    adapter?.notifyDataSetChanged()
+                    hideShowSendButton()
                 }
             }
-            selectedCount=0
-            adapter?.notifyDataSetChanged()
-            hideShowSendButton()
-            onFileRequestPrepareListener?.sendFiles(selected, FileRequest.FILE_TYPE_APP)
-            Toast.makeText(requireContext(), "${selected.size} apps added to send queue", Toast.LENGTH_SHORT).show()
+        }
+
+        selectionView.btnSelectAll.setOnClickListener {
+            CoroutineScope(IO).launch {
+                selectedCount = 0
+                appInfos.forEach {
+                    it.isSelected = true
+                    selectedCount++
+                    if (it.obbUri != null) {
+                        it.isObbSelected = true
+                        selectedCount++
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    adapter?.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
         }
     }
 
-    override fun onAppListPrepared(appInfos: List<AppInfo>) {
-        this.appInfos.clear();
-        this.appInfos.addAll(appInfos)
-        adapter?.notifyDataSetChanged()
-        loadingDialog?.cancel()
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        val findItem = menu.findItem(R.id.menu_transferring)
+        findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
+            navController?.navigate(object : NavDirections {
+                override fun getArguments(): Bundle {
+                    return Bundle()
+                }
+
+                override fun getActionId(): Int {
+                    return R.id.action_navigation_app_to_transferringFragment
+                }
+
+            })
+        }
+
     }
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -105,13 +180,7 @@ class AppFragment : Fragment(), PrepareAppList.OnAppListPrepareListener, AppAdap
     }
 
     private fun hideShowSendButton() {
-        if (btnSend.visibility== View.VISIBLE&&selectedCount>0)return
-        if (selectedCount==0){
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(),R.anim.slide_out_to_bottom)
-            btnSend.visibility = View.GONE
-        }else{
-            btnSend.animation = AnimationUtils.loadAnimation(requireContext(),R.anim.slide_in_from_bottom)
-            btnSend.visibility = View.VISIBLE
-        }
+        onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
+        selectionView.changeVisibility(selectedCount)
     }
 }

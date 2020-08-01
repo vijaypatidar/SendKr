@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     app:cardCornerRadius="@dimen/top_corner_radius">
 
     <RelativeLayout
@@ -14,13 +14,10 @@
             android:id="@+id/videoList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerInParent="true" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btnSend"
-            style="@style/ButtonSend"
-            tools:visibility="visible" />
-
+            android:layout_centerInParent="true"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="3"
+            tools:listitem="@layout/video_list_item" />
 
         <RelativeLayout
             android:id="@+id/emptyVideo"
@@ -37,5 +34,10 @@
                 android:text="@string/empty_video"
                 android:textSize="16sp" />
         </RelativeLayout>
+
+        <com.vkpapps.thunder.ui.views.SelectionView
+            android:id="@+id/selectionView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

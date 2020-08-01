@@ -33,11 +33,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
-        <service
-            android:name="com.vkpapps.thunder.service.FileService"
-            android:exported="false"
-            android:label="File service" />
-
         <activity
             android:name="com.vkpapps.thunder.ui.activity.SplashActivity"
             android:screenOrientation="portrait"
@@ -46,6 +41,13 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
     </application>

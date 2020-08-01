@@ -2,6 +2,7 @@ package com.vkpapps.thunder.utils
 
 import android.content.Context
 import android.os.Build
+import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.analitics.Logger.d
 import com.vkpapps.thunder.model.User
 import java.io.*
@@ -22,6 +23,7 @@ class UserUtils(val context: Context) {
             objectInputStream.close()
             //return user
             if (obj is User){
+                obj.appVersion = BuildConfig.VERSION_CODE
                 return obj
             }
         } catch (e: IOException) {
@@ -32,6 +34,7 @@ class UserUtils(val context: Context) {
         // return default user
         val user = User()
         user.name = Build.MODEL
+        user.appVersion = BuildConfig.VERSION_CODE
         user.userId = HashUtils.getHashValue(Random.nextBytes(20))
         d(user.userId)
         setUser(user)

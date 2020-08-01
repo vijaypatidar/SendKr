@@ -2,6 +2,8 @@ package com.vkpapps.thunder.utils
 
 import java.math.BigInteger
 import java.security.MessageDigest
+import kotlin.random.Random
+
 /***
  * @author VIJAY PATIDAR
  */
@@ -11,5 +13,9 @@ object HashUtils {
         val bytes = digest.digest(input)
         val bigInteger = BigInteger(1, bytes)
         return bigInteger.toString(16).trim()
+    }
+
+    fun getRandomId(): String {
+        return getHashValue(Random.nextBytes(30))
     }
 }

@@ -14,7 +14,7 @@ import com.vkpapps.thunder.R
  */
 class FragmentDestinationListener(private val activity: AppCompatActivity) : OnDestinationChangedListener {
     private val actionBar: ActionBar? = activity.supportActionBar
-    private val navView: BottomNavigationView = activity.findViewById(R.id.nav_view)
+    private val navView: BottomNavigationView = activity.findViewById(R.id.navView)
     private var previous = R.id.navigation_home
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
         actionBar?.elevation = 0f

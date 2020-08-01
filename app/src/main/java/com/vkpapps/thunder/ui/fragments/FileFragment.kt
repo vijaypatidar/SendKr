@@ -1,0 +1,215 @@
+package com.vkpapps.thunder.ui.fragments
+
+import android.content.Context
+import android.net.Uri
+import android.os.Bundle
+import android.view.*
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
+import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnFlingListener
+import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
+import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
+import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.thunder.model.FileInfo
+import com.vkpapps.thunder.model.RawRequestInfo
+import com.vkpapps.thunder.ui.adapter.FileAdapter
+import com.vkpapps.thunder.utils.MathUtils
+import kotlinx.android.synthetic.main.fragment_file.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+
+/***
+ * @author VIJAY PATIDAR
+ */
+class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
+    private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
+    private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
+    private var selectCount = 0
+    private var title: String? = "default"
+    private var navController: NavController? = null
+    private var rootDir: String = DocumentFile.fromFile(File("/storage/emulated/0/")).uri.toString()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Logger.d("uri of file ========== $rootDir")
+        if (requireArguments().containsKey(FILE_ROOT)) {
+            val string = arguments?.getString(FILE_ROOT)
+            if (string != null) {
+                rootDir = string
+            }
+        }
+        if (requireArguments().containsKey(FRAGMENT_TITLE)) {
+            title = requireArguments().getString(FRAGMENT_TITLE)
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_file, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
+        navController = Navigation.findNavController(view)
+
+        // change title
+        val supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar
+        if (supportActionBar != null) {
+            supportActionBar.title = title
+        }
+
+        // show list and detail
+        val adapter = FileAdapter(this, view)
+        val recyclerView: RecyclerView = view.findViewById(R.id.fileList)
+        recyclerView.adapter = adapter
+        recyclerView.onFlingListener = object : OnFlingListener() {
+            override fun onFling(velocityX: Int, velocityY: Int): Boolean {
+                if (selectCount == 0)
+                    onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                return false
+            }
+        }
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        val fileInfos: ArrayList<FileInfo> = ArrayList()
+        CoroutineScope(IO).launch {
+            val listFiles = DocumentFile.fromFile(Uri.parse(rootDir).toFile()).listFiles()
+            val folder = ArrayList<FileInfo>()
+            val file = ArrayList<FileInfo>()
+            listFiles.forEach {
+                if (it.isDirectory) {
+                    folder.add(FileInfo(it))
+                } else {
+                    file.add(FileInfo(it))
+                }
+            }
+            folder.sortBy { it.name }
+            file.sortBy { it.name }
+            fileInfos.addAll(folder)
+            fileInfos.addAll(file)
+            withContext(Main) {
+                adapter.setFileInfos(fileInfos)
+                if (fileInfos.size == 0) {
+                    emptyDirectory.visibility = View.VISIBLE
+                } else {
+                    emptyDirectory.visibility = View.GONE
+                }
+            }
+        }
+
+        selectionView.btnSendFiles.setOnClickListener {
+            if (selectCount == 0) return@setOnClickListener
+            CoroutineScope(IO).launch {
+                val selected = ArrayList<RawRequestInfo>()
+                fileInfos.forEach {
+                    try {
+                        if (it.isSelected) {
+                            it.isSelected = false
+                            selected.add(RawRequestInfo(
+                                    it.name!!, it.uri, it.type, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
+                            ))
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                }
+                selectCount = 0
+                withContext(Main) {
+                    adapter.notifyDataSetChanged()
+                    hideShowSendButton()
+                    Toast.makeText(requireContext(), "${selected.size} files added to send queue", Toast.LENGTH_SHORT).show()
+                }
+                onFileRequestPrepareListener?.sendFiles(selected)
+            }
+        }
+
+        selectionView.btnSelectAll.setOnClickListener {
+            CoroutineScope(IO).launch {
+                selectCount = 0
+                fileInfos.forEach {
+                    it.isSelected = true
+                    selectCount++
+                }
+                withContext(Main) {
+                    adapter.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
+        }
+        selectionView.btnSelectNon.setOnClickListener {
+            CoroutineScope(IO).launch {
+                selectCount = 0
+                fileInfos.forEach {
+                    it.isSelected = false
+                }
+                withContext(Main) {
+                    adapter.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        val findItem = menu.findItem(R.id.menu_transferring)
+        findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
+            navController?.navigate(object : NavDirections {
+                override fun getArguments(): Bundle {
+                    return Bundle()
+                }
+
+                override fun getActionId(): Int {
+                    return R.id.action_fileFragment_to_transferringFragment
+                }
+
+            })
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnNavigationVisibilityListener) {
+            onNavigationVisibilityListener = context
+        }
+        if (context is OnFileRequestPrepareListener) {
+            onFileRequestPrepareListener = context
+        }
+    }
+
+    private fun hideShowSendButton() {
+        onNavigationVisibilityListener?.onNavVisibilityChange(selectCount == 0)
+        selectionView.changeVisibility(selectCount)
+    }
+
+    companion object {
+        const val FILE_ROOT = "FILE_ROOT"
+        const val FRAGMENT_TITLE = "FRAGMENT_TITLE"
+    }
+
+    override fun onFileDeselected(fileInfo: FileInfo) {
+        selectCount--
+        hideShowSendButton()
+    }
+
+    override fun onFileSelected(fileInfo: FileInfo) {
+        selectCount++
+        hideShowSendButton()
+    }
+}

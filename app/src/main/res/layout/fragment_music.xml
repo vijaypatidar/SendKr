@@ -17,10 +17,6 @@
             android:layout_height="match_parent"
             tools:listitem="@layout/app_list_item" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btnSend"
-            style="@style/ButtonSend"
-            tools:visibility="visible" />
 
         <RelativeLayout
             android:id="@+id/emptyMusic"
@@ -37,5 +33,10 @@
                 android:text="@string/empty_music"
                 android:textSize="16sp" />
         </RelativeLayout>
+
+        <com.vkpapps.thunder.ui.views.SelectionView
+            android:id="@+id/selectionView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

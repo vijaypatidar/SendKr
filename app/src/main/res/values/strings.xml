@@ -17,7 +17,7 @@
     <string name="accept_policy">By using the app you agree to the Sender <a href="https://vijaypatidar.me">Privacy Policy</a></string>
     <string name="cancel">Cancel</string>
     <string name="i_agree">I Agree</string>
-    <string name="github_url">https://github.com/vijaypatidar31</string>
+    <string name="github_url">https://github.com/vijaypatidar</string>
     <string name="empty_client_list">No device connected</string>
     <string name="empty_directory">Directory is empty</string>
     <string name="title_file">Files</string>
@@ -30,4 +30,15 @@
     <string name="Setting">Settings</string>
     <string name="send">send</string>
     <string name="empty_music">no song found</string>
+    <string name="loading">Loading…</string>
+    <string name="empty_request">nothing to share or shared</string>
+    <string name="transferring">Transferring</string>
+    <string name="history">History</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
+    <string name="photo">Photo</string>
+    <string name="external">External</string>
+    <string name="internal">Internal</string>
+    <string name="download_location">Download location</string>
+    <string name="history_cleared_message">History deleted</string>
 </resources>
