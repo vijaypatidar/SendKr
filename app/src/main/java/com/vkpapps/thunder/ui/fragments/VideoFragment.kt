@@ -35,7 +35,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 /***
  * @author VIJAY PATIDAR
@@ -86,6 +85,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
                 }
                 videoInfos.clear()
                 videoInfos.addAll(it)
+                sort()
                 adapter?.notifyDataSetChanged()
                 emptyVideo.visibility = View.GONE
             } else {
@@ -149,10 +149,23 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
             ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
         }
         model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
-            Logger.d("Dialog result ${it.target} ${it.sortBy}")
             if (it.target == 3) {
+                Logger.d("Dialog result video ${it.sortBy}")
                 sortBy = it.sortBy
-                //todo
+                CoroutineScope(Dispatchers.IO).launch {
+                    if (!videoInfos.isNullOrEmpty()) {
+                        sort()
+                        withContext(Dispatchers.Main) {
+                            adapter?.notifyDataSetChanged()
+                            emptyVideo.visibility = View.GONE
+                        }
+
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            emptyVideo.visibility = View.VISIBLE
+                        }
+                    }
+                }
             }
         })
     }
@@ -212,4 +225,29 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
         selectionView.changeVisibility(selectedCount)
         onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
     }
+
+    private fun sort() {
+        when (sortBy) {
+            FilterDialogFragment.SORT_BY_NAME -> {
+                videoInfos.sortBy { videoInfo -> videoInfo.name }
+            }
+            FilterDialogFragment.SORT_BY_NAME_Z_TO_A -> {
+                videoInfos.sortBy { videoInfo -> videoInfo.name }
+                videoInfos.reverse()
+            }
+            FilterDialogFragment.SORT_BY_OLDEST_FIRST -> {
+                videoInfos.sortBy { videoInfo -> videoInfo.lastModified }
+            }
+            FilterDialogFragment.SORT_BY_LATEST_FIRST -> {
+                videoInfos.sortBy { videoInfo -> videoInfo.lastModified * -1 }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_ASC -> {
+                videoInfos.sortBy { videoInfo -> videoInfo.size }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_DSC -> {
+                videoInfos.sortBy { videoInfo -> videoInfo.size * -1 }
+            }
+        }
+    }
+
 }

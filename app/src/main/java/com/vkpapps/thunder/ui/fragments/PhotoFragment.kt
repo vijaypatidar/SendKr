@@ -38,13 +38,16 @@ import java.util.*
  * @author VIJAY PATIDAR
  */
 class PhotoFragment : Fragment(), OnPhotoSelectListener {
+    companion object {
+        private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
+    }
+
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private val photoInfos: MutableList<PhotoInfo> = ArrayList()
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var photoAdapter: PhotoAdapter? = null
     private var selectedCount = 0
     private var controller: NavController? = null
-    private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -140,12 +143,49 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
             ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
         }
         model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
-            Logger.d("Dialog result ${it.target} ${it.sortBy}")
             if (it.target == 1) {
+                Logger.d("Dialog result ${it.target} ${it.sortBy}")
                 sortBy = it.sortBy
-                //todo
+                CoroutineScope(Dispatchers.IO).launch {
+                    if (!photoInfos.isNullOrEmpty()) {
+                        sort()
+                        withContext(Dispatchers.Main) {
+                            photoAdapter?.notifyDataSetChanged()
+                            emptyPhoto.visibility = View.GONE
+                        }
+
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            emptyPhoto.visibility = View.VISIBLE
+                        }
+                    }
+                }
             }
         })
+    }
+
+    private fun sort() {
+        when (sortBy) {
+            FilterDialogFragment.SORT_BY_NAME -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.name }
+            }
+            FilterDialogFragment.SORT_BY_NAME_Z_TO_A -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.name }
+                photoInfos.reverse()
+            }
+            FilterDialogFragment.SORT_BY_OLDEST_FIRST -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.lastModified }
+            }
+            FilterDialogFragment.SORT_BY_LATEST_FIRST -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.lastModified * -1 }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_ASC -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.size }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_DSC -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.size * -1 }
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -14,15 +14,17 @@ import java.io.File
 class PreparePhotoList {
     fun getList(): List<PhotoInfo> {
         val appInfos = ArrayList<PhotoInfo>()
-        val projection = arrayOf(MediaStore.Images.ImageColumns.DATA)
+        val projection = arrayOf(MediaStore.Images.ImageColumns.DATA, MediaStore.Images.ImageColumns.SIZE, MediaStore.Images.ImageColumns.DATE_ADDED)
         val c = App.context.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null)
         if (c != null) {
             while (c.moveToNext()) {
                 val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
                 if (path != null) {
                     val uri = Uri.fromFile(File(path))
+                    val lastModified = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED))
+                    val size = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE))
                     val file = uri.toFile()
-                    val photoInfo = PhotoInfo(file.name, uri)
+                    val photoInfo = PhotoInfo(file.name, uri, size, lastModified)
                     photoInfo.modified = file.lastModified()
                     photoInfo.id = HashUtils.getHashValue(path.toByteArray())
                     appInfos.add(photoInfo)

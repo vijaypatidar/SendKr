@@ -33,6 +33,7 @@ import kotlinx.android.synthetic.main.fragment_music.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -40,11 +41,17 @@ import kotlinx.coroutines.withContext
  * @author VIJAY PATIDAR
  */
 class AudioFragment : Fragment(), OnAudioSelectedListener {
+
+    companion object {
+        private var sortBy = FilterDialogFragment.SORT_BY_NAME
+    }
+
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var selectedCount = 0
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var controller: NavController? = null
-    private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
+    private val audioInfos: MutableList<AudioInfo> = ArrayList()
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -57,8 +64,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
         controller = Navigation.findNavController(view)
 
         val recyclerView: RecyclerView = view.findViewById(R.id.audioList)
-        var allSong: List<AudioInfo>? = null
-        val audioAdapter = AudioAdapter(this, view.context)
+        val audioAdapter = AudioAdapter(audioInfos, this, view.context)
         recyclerView.itemAnimator = DefaultItemAnimator()
         recyclerView.layoutManager = LinearLayoutManager(view.context)
         recyclerView.adapter = audioAdapter
@@ -76,6 +82,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
         //load music
         val audioViewModel = ViewModelProvider(requireActivity()).get(AudioViewModel::class.java)
         audioViewModel.audioInfos.observe(requireActivity(), androidx.lifecycle.Observer {
+            Logger.d("on audio changes")
             if (it.isNotEmpty()) {
                 CoroutineScope(IO).launch {
                     it.forEach { item ->
@@ -87,8 +94,10 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                         hideShowSendButton()
                     }
                 }
-                allSong = it
-                audioAdapter.setAudioInfos(allSong)
+                audioInfos.clear()
+                audioInfos.addAll(it)
+                sort()
+                audioAdapter.notifyDataSetChanged()
                 emptyMusic.visibility = View.GONE
             } else {
                 emptyMusic.visibility = View.VISIBLE
@@ -100,7 +109,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
-                allSong?.forEach {
+                audioInfos.forEach {
                     if (it.isSelected) {
                         it.isSelected = false
                         selected.add(RawRequestInfo(
@@ -121,7 +130,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
         selectionView.btnSelectNon.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
-                allSong?.forEach {
+                audioInfos.forEach {
                     it.isSelected = false
                 }
                 selectedCount = 0
@@ -135,7 +144,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
         selectionView.btnSelectAll.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectedCount = 0
-                allSong?.forEach {
+                audioInfos.forEach {
                     it.isSelected = true
                     selectedCount++
                 }
@@ -151,10 +160,22 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
             ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
         }
         model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
-            Logger.d("Dialog result ${it.target} ${it.sortBy}")
-            if (it.target == 1) {
+            if (it.target == 2) {
+                Logger.d("Dialog result ${it.sortBy} audio")
                 sortBy = it.sortBy
-                //todo
+                CoroutineScope(IO).launch {
+                    if (!audioInfos.isNullOrEmpty()) {
+                        sort()
+                        withContext(Main) {
+                            audioAdapter.notifyDataSetChanged()
+                            emptyMusic.visibility = View.GONE
+                        }
+                    } else {
+                        withContext(Main) {
+                            emptyMusic.visibility = View.VISIBLE
+                        }
+                    }
+                }
             }
         })
     }
@@ -168,7 +189,6 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                         putInt(FilterDialogFragment.PARAM_CURRENT_SORT_BY, sortBy)
                     }
                 }
-
                 override fun getActionId(): Int {
                     return R.id.filterDialogFragment
                 }
@@ -213,5 +233,29 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
     private fun hideShowSendButton() {
         selectionView.changeVisibility(selectedCount)
         onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
+    }
+
+    private fun sort() {
+        when (sortBy) {
+            FilterDialogFragment.SORT_BY_NAME -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.name }
+            }
+            FilterDialogFragment.SORT_BY_NAME_Z_TO_A -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.name }
+                audioInfos.reverse()
+            }
+            FilterDialogFragment.SORT_BY_OLDEST_FIRST -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.lastModified }
+            }
+            FilterDialogFragment.SORT_BY_LATEST_FIRST -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.lastModified * -1 }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_ASC -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.size }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_DSC -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.size * -1 }
+            }
+        }
     }
 }

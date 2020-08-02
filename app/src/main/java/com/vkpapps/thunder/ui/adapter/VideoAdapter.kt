@@ -29,7 +29,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideo
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
         val videoInfo = videoInfos!![position]
         holder.title.text = videoInfo.name
-        holder.size.text = videoInfo.size
+        holder.size.text = videoInfo.displaySize
         holder.btnSelected.isChecked = videoInfo.isSelected
         holder.btnSelected.setOnClickListener {
             videoInfo.isSelected = !videoInfo.isSelected

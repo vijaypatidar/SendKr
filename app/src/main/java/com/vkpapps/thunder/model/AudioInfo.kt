@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
  * @author VIJAY PATIDAR
  */
 @Entity
-class AudioInfo(var uri: Uri, var name: String) {
+class AudioInfo(val uri: Uri, val name: String, val size: Long, val lastModified: Long) {
     @PrimaryKey
     @NonNull
     lateinit var id: String

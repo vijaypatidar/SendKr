@@ -42,6 +42,8 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
             SORT_BY_NAME_Z_TO_A -> sortByNameZToA.isChecked = true
             SORT_BY_LATEST_FIRST -> sortByLatest.isChecked = true
             SORT_BY_OLDEST_FIRST -> sortByOldest.isChecked = true
+            SORT_BY_SIZE_ASC -> sortBySize.isChecked = true
+            SORT_BY_SIZE_DSC -> sortBySizeDsc.isChecked = true
         }
 
         btnApply.setOnClickListener {
@@ -50,6 +52,8 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
                     sortByNameZToA.isChecked -> SORT_BY_NAME_Z_TO_A
                     sortByLatest.isChecked -> SORT_BY_LATEST_FIRST
                     sortByOldest.isChecked -> SORT_BY_OLDEST_FIRST
+                    sortBySize.isChecked -> SORT_BY_SIZE_ASC
+                    sortBySizeDsc.isChecked -> SORT_BY_SIZE_DSC
                     else -> SORT_BY_NAME
                 }
                 model.select(SharedModel(sortBy, target))
@@ -66,6 +70,8 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
         const val SORT_BY_NAME_Z_TO_A = 1
         const val SORT_BY_LATEST_FIRST = 2
         const val SORT_BY_OLDEST_FIRST = 3
+        const val SORT_BY_SIZE_ASC = 4
+        const val SORT_BY_SIZE_DSC = 5
     }
 
     data class SharedModel(val sortBy: Int, val target: Int)
