@@ -64,6 +64,7 @@ class TransferringFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         menu.findItem(R.id.menu_transferring).isVisible = false
+        menu.findItem(R.id.menu_filtering).isVisible = false
     }
 
     override fun onDetach() {

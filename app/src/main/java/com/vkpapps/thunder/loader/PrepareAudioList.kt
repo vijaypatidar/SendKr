@@ -5,6 +5,7 @@ import android.provider.MediaStore
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.utils.HashUtils
+import com.vkpapps.thunder.utils.MyThumbnailUtils
 import java.io.File
 
 /***
@@ -26,6 +27,11 @@ class PrepareAudioList {
             }
             c.close()
         }
+        Thread(Runnable {
+            audioInfos.forEach {
+                MyThumbnailUtils.loadAudioThumbnail(it.id, it.uri, null)
+            }
+        }).start()
         return audioInfos
     }
 }

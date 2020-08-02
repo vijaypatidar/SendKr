@@ -10,6 +10,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
@@ -42,7 +43,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
     private var title: String? = "default"
     private var navController: NavController? = null
     private var rootDir: String = DocumentFile.fromFile(File("/storage/emulated/0/")).uri.toString()
-
+    private var sortBy = FilterDialogFragment.SORT_BY_NAME
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Logger.d("uri of file ========== $rootDir")
@@ -164,6 +165,17 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                 }
             }
         }
+
+        val model = activity?.run {
+            ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
+        }
+        model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
+            Logger.d("Dialog result ${it.target} ${it.sortBy}")
+            if (it.target == 4) {
+                sortBy = it.sortBy
+                //todo
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -172,15 +184,36 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
         findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
             navController?.navigate(object : NavDirections {
                 override fun getArguments(): Bundle {
-                    return Bundle()
+                    return Bundle().apply {
+                        putInt(FilterDialogFragment.PARAM_TARGET, 4)
+                        putInt(FilterDialogFragment.PARAM_CURRENT_SORT_BY, sortBy)
+                    }
                 }
 
                 override fun getActionId(): Int {
                     return R.id.action_fileFragment_to_transferringFragment
                 }
-
             })
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.menu_filtering) {
+            navController?.navigate(object : NavDirections {
+                override fun getArguments(): Bundle {
+                    return Bundle().apply {
+
+                    }
+                }
+
+                override fun getActionId(): Int {
+                    return R.id.filterDialogFragment
+                }
+            })
+            true
+        } else
+            super.onOptionsItemSelected(item)
+
     }
 
     override fun onAttach(context: Context) {

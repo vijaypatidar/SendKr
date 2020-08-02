@@ -149,6 +149,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
 
             })
         }
+        menu.findItem(R.id.menu_filtering).isVisible = false
 
     }
 

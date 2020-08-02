@@ -204,7 +204,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             FileService.startActionSend(this@MainActivity, rid,
                     Uri.parse(requestInfo.uri),
                     clientHelper,
-                    isHost
+                    requestInfo.fileType == FileType.FILE_TYPE_FOLDER
             )
             updateStatus(rid, StatusType.STATUS_ONGOING)
         }
@@ -349,7 +349,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             } else {
                 Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
             }
-        } else if (requestCode == ASK_PERMISSION_FROM_GENERIC_FRAGMENT) {
+        } else if (requestCode == ASK_PERMISSION_FROM_SHARED_INTENT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 CoroutineScope(IO).launch {
                     PrepareDb().prepareAll()
@@ -508,6 +508,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         if (requestCode == REQUEST_UPDATE_PROFILE) {
             if (resultCode == RESULT_OK) {
                 setProfileActionView()
+                if (connected) {
+                    if (isHost) {
+                        serverHelper.broadcast(user)
+                    } else {
+                        clientHelper.write(user)
+                    }
+                }
             }
         }
     }

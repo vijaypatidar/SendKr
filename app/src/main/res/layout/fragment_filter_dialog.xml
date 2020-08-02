@@ -1,0 +1,78 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/round_on_top"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <View
+        android:layout_width="50dp"
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        android:background="@drawable/round"
+        android:backgroundTint="@color/colorPrimary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="2dp"
+        android:gravity="center"
+        android:text="@string/sort_by"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="2dp"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/sortByNameAToZ"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:text="@string/a_z"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/sortByNameZToA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:text="@string/z_a"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/sortByLatest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:text="@string/latest_first"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/sortByOldest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:text="@string/oldest_first"
+            android:textSize="14sp" />
+    </RadioGroup>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnApply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="@color/colorAccent"
+        android:text="@string/apply"
+        android:textColor="@color/white" />
+</LinearLayout>

@@ -3,6 +3,7 @@ package com.vkpapps.thunder.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -10,10 +11,14 @@ import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.RawRequestInfo
@@ -40,7 +45,9 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
     private var adapter: VideoAdapter? = null
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var selectedCount = 0
+    private var controller: NavController? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
+    private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -50,6 +57,8 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
+        controller = Navigation.findNavController(view)
         val recyclerView: RecyclerView = view.findViewById(R.id.videoList)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = VideoAdapter(videoInfos, this)
@@ -134,8 +143,40 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
                 }
             }
         }
+
+
+        val model = activity?.run {
+            ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
+        }
+        model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
+            Logger.d("Dialog result ${it.target} ${it.sortBy}")
+            if (it.target == 3) {
+                sortBy = it.sortBy
+                //todo
+            }
+        })
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.menu_filtering) {
+
+            controller?.navigate(object : NavDirections {
+                override fun getArguments(): Bundle {
+                    return Bundle().apply {
+                        putInt(FilterDialogFragment.PARAM_TARGET, 3)
+                        putInt(FilterDialogFragment.PARAM_CURRENT_SORT_BY, sortBy)
+                    }
+                }
+
+                override fun getActionId(): Int {
+                    return R.id.filterDialogFragment
+                }
+            })
+            true
+        } else
+            super.onOptionsItemSelected(item)
+
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

@@ -30,7 +30,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         userName.setText(user.name)
-        user.profileByteArray.isNotEmpty().run {
+        if (user.profileByteArray.isNotEmpty()) {
             userPic.setImageBitmap(BitmapUtils().byteArrayToBitmap(user.profileByteArray))
         }
 

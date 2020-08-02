@@ -25,7 +25,10 @@ object MyThumbnailUtils {
                 val data = mmr.embeddedPicture
                 val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, FileOutputStream(file))
-                Picasso.get().load(file).centerCrop().into(imageView)
+                imageView?.run {
+                    Picasso.get().load(file).centerCrop().into(imageView)
+                }
+                mmr.close()
             } catch (e: Exception) {
                 e.printStackTrace()
                 imageView?.setImageResource(R.drawable.ic_default_audio_icon)
@@ -42,7 +45,9 @@ object MyThumbnailUtils {
                 val mmr = MediaMetadataRetriever()
                 mmr.setDataSource(App.context, uri)
                 mmr.frameAtTime?.compress(Bitmap.CompressFormat.JPEG, 90, FileOutputStream(file))
-                Picasso.get().load(file).centerCrop().into(imageView)
+                imageView?.run {
+                    Picasso.get().load(file).centerCrop().into(imageView)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 imageView?.setImageResource(R.drawable.ic_movie)

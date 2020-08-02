@@ -45,7 +45,7 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
                         } else if (obj is User) {
                             // update user information
                             if (obj.userId == user.userId) {
-                                user.name = obj.name
+                                user.copyFrom(obj)
                             }
                         } else {
                             Logger.e("invalid object received $obj")

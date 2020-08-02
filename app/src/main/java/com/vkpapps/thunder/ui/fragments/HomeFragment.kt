@@ -120,6 +120,8 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
             })
         }
+        //hide filter button
+        menu.findItem(R.id.menu_filtering).isVisible = false
     }
 
 

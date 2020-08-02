@@ -5,6 +5,7 @@ import android.provider.MediaStore
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.model.VideoInfo
 import com.vkpapps.thunder.utils.HashUtils
+import com.vkpapps.thunder.utils.MyThumbnailUtils
 import java.io.File
 
 /***
@@ -30,6 +31,11 @@ class PrepareVideoList {
             }
             c.close()
         }
+        Thread(Runnable {
+            videoInfos.forEach {
+                MyThumbnailUtils.loadVideoThumbnail(it.id, it.uri, null)
+            }
+        }).start()
 
         return videoInfos
     }

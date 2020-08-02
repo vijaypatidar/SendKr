@@ -38,6 +38,7 @@ class GenericFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+
         navController = Navigation.findNavController(view)
         if (checkStoragePermission(view.context)) {
             val tabLayout: TabLayout = view.findViewById(R.id.tabLayout)

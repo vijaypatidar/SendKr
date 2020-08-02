@@ -34,6 +34,8 @@ class ZipUtils {
                 zos.write(buffer, 0, read)
                 transferred += read
             }
+            zos.flush()
+            zos.closeEntry()
             `in`.close()
         }
     }
@@ -52,6 +54,7 @@ class ZipUtils {
                 fos.write(buffer, 0, read)
                 transferred += read
             }
+            fos.flush()
             fos.close()
             zis.closeEntry()
             entry = zis.nextEntry

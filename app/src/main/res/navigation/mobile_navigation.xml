@@ -129,6 +129,10 @@
         android:id="@+id/photoViewFragment"
         android:name="com.vkpapps.thunder.ui.fragments.PhotoViewFragment"
         android:label="Image"
-        tools:layout="@layout/fragment_photo_view" />
+        tools:layout="@layout/fragment_photo_view"></fragment>
+    <dialog
+        android:id="@+id/filterDialogFragment"
+        android:name="com.vkpapps.thunder.ui.fragments.FilterDialogFragment"
+        android:label="Filter&amp;Sort by" />
 
 </navigation>

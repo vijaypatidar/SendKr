@@ -70,6 +70,7 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
 
             })
         }
+        menu.findItem(R.id.menu_filtering).isVisible = false
     }
 
     override fun onAttach(context: Context) {
