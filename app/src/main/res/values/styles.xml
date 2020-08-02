@@ -8,12 +8,17 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppThemeNoAction" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="AppThemeNoAction" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+
+    <style name="ProfileActivityTheme" parent="AppTheme">
+        <item name="colorPrimary">@color/profileActivity</item>
+        <item name="colorPrimaryDark">@color/profileActivityDark</item>
+        <item name="android:navigationBarColor">@color/profileActivity</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
     <style name="SplashScreen" parent="AppThemeNoAction">

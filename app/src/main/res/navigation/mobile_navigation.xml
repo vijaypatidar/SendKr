@@ -10,9 +10,6 @@
         tools:layout="@layout/fragment_home">
 
         <action
-            android:id="@+id/action_navigation_local_to_navigation_profile"
-            app:destination="@id/navigation_profile" />
-        <action
             android:id="@+id/action_navigation_home_to_navigation_setting"
             app:destination="@id/navigation_setting"
             app:enterAnim="@anim/slide_in_from_bottom"
@@ -75,9 +72,6 @@
             app:popEnterAnim="@anim/slide_in_from_bottom"
             app:popExitAnim="@anim/slide_out_to_bottom" />
         <action
-            android:id="@+id/action_navigation_files_to_navigation_profile"
-            app:destination="@id/navigation_profile" />
-        <action
             android:id="@+id/action_navigation_files_to_photoViewFragment"
             app:destination="@id/photoViewFragment" />
     </fragment>
@@ -89,9 +83,6 @@
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard">
         <action
-            android:id="@+id/action_navigation_dashboard_to_navigation_profile"
-            app:destination="@id/navigation_profile" />
-        <action
             android:id="@+id/action_navigation_dashboard_to_transferringFragment"
             app:destination="@id/transferringFragment"
             app:enterAnim="@anim/slide_in_from_bottom"
@@ -99,12 +90,6 @@
             app:popEnterAnim="@anim/slide_in_from_bottom"
             app:popExitAnim="@anim/slide_out_to_bottom" />
     </fragment>
-
-    <fragment
-        android:id="@+id/navigation_profile"
-        android:name="com.vkpapps.thunder.ui.fragments.ProfileFragment"
-        android:label="Profile"
-        tools:layout="@layout/fragment_user_detail" />
 
     <fragment
         android:id="@+id/navigation_about"

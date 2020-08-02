@@ -39,7 +39,7 @@ class TransferringFragment : Fragment() {
         recyclerView.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
                 if (onNavigationVisibilityListener != null) {
-                    onNavigationVisibilityListener!!.onNavVisibilityChange(velocityY < 0)
+                    onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
                 }
                 return false
             }

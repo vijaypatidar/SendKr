@@ -2,6 +2,7 @@ package com.vkpapps.thunder.ui.activity
 
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -13,8 +14,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -23,6 +27,8 @@ import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
@@ -32,6 +38,7 @@ import com.vkpapps.thunder.connection.ClientHelper
 import com.vkpapps.thunder.connection.FileService
 import com.vkpapps.thunder.connection.ServerHelper
 import com.vkpapps.thunder.interfaces.*
+import com.vkpapps.thunder.loader.PrepareAppList
 import com.vkpapps.thunder.loader.PrepareDb
 import com.vkpapps.thunder.model.HistoryInfo
 import com.vkpapps.thunder.model.RawRequestInfo
@@ -68,12 +75,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private lateinit var navController: NavController
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
     private var database = MyRoomDatabase.getDatabase(App.context)
-    private val requestViewModel: RequestViewModel by lazy {
-        ViewModelProvider(this).get(RequestViewModel::class.java)
-    }
-    private val downloadPathResolver: DownloadPathResolver by lazy {
-        DownloadPathResolver(this)
-    }
+    private val requestViewModel: RequestViewModel by lazy { ViewModelProvider(this).get(RequestViewModel::class.java) }
+    private val downloadPathResolver: DownloadPathResolver by lazy { DownloadPathResolver(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,6 +91,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
         NavigationUI.setupWithNavController(navView, navController)
         navController.addOnDestinationChangedListener(FragmentDestinationListener(this))
+        setProfileActionView()
 
         if (!connected || (!isHost && !clientHelper.connected)) {
             d("creating new connection")
@@ -98,6 +102,23 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         }
 
         fileToShare()
+    }
+
+    private fun setProfileActionView() {
+        val menuView: BottomNavigationMenuView = navView.getChildAt(0) as BottomNavigationMenuView
+        val profileMenuItemView: BottomNavigationItemView = menuView.getChildAt(4) as BottomNavigationItemView
+        val profileActionView = LayoutInflater.from(this).inflate(R.layout.profile_action_view, menuView, false)
+        profileMenuItemView.addView(profileActionView)
+        if (user.profileByteArray.isNotEmpty()) {
+            val profilePic = profileActionView.findViewById<AppCompatImageView>(R.id.myProfilePic)
+            profilePic.scaleType = ImageView.ScaleType.CENTER_CROP
+            profilePic.setImageBitmap(BitmapUtils().byteArrayToBitmap(user.profileByteArray))
+        }
+        //create activity for updating profile
+        profileActionView.setOnClickListener {
+            startActivityForResult(Intent(this, ProfileActivity::class.java), REQUEST_UPDATE_PROFILE)
+        }
+        (menuView.getChildAt(0) as BottomNavigationItemView).dispatchSetSelected(true)
     }
 
     private fun choice() {
@@ -389,7 +410,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                                     Uri.parse(clone.uri),
                                     clientHelper,
                                     rawRequestInfo.type == FileType.FILE_TYPE_FOLDER)
-
                         }
                     } else {
                         requestInfo.rid = getRandomId()
@@ -410,13 +430,19 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             Toast.makeText(this@MainActivity, "${clientHelper.user.name} connected", Toast.LENGTH_SHORT).show()
         }
         if (clientHelper.user.appVersion < BuildConfig.VERSION_CODE) {
-            val source = packageManager.getInstallerPackageName(packageName)
-            if (source != null)
-                sendFiles(Collections.singletonList(RawRequestInfo(getString(R.string.app_name),
-                        Uri.parse(source),
-                        FileType.FILE_TYPE_APP,
-                        DocumentFile.fromFile(File(source)).length()))
-                )
+            try {
+                PrepareAppList.thunder?.run {
+                    val uri = this.uri
+                    Logger.d("i have new version $uri")
+                    sendFiles(Collections.singletonList(RawRequestInfo(this.name,
+                            uri,
+                            FileType.FILE_TYPE_APP,
+                            uri.toFile().length()))
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
         if (pendingRequest.isNotEmpty()) {
             synchronized(pendingRequest) {
@@ -477,10 +503,20 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_UPDATE_PROFILE) {
+            if (resultCode == RESULT_OK) {
+                setProfileActionView()
+            }
+        }
+    }
+
     companion object {
         const val ASK_PERMISSION_FROM_SHARED_INTENT = 0
         const val ASK_PERMISSION_FROM_GENERIC_FRAGMENT = 1
         const val ASK_PERMISSION_FROM_MAIN_ACTIVITY = 2
+        const val REQUEST_UPDATE_PROFILE = 3
 
         @JvmStatic
         private val pendingRequest = ArrayList<RawRequestInfo>()

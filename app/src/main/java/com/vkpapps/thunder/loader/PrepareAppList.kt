@@ -50,4 +50,14 @@ object PrepareAppList {
         appInfos.sortBy { appInfo -> appInfo.name }
         appInfos
     }
+
+    val thunder: AppInfo? by lazy {
+        var appInfo: AppInfo? = null
+        appList.forEach {
+            if (it.packageName == App.context.packageName) {
+                appInfo = it
+            }
+        }
+        appInfo
+    }
 }

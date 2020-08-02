@@ -80,7 +80,7 @@ class FileService(private val send: Boolean,
             } else {
                 val `in` = socket.getInputStream()
                 val out: OutputStream = FileOutputStream(file)
-                val bytes = ByteArray(3000)
+                val bytes = ByteArray(BUFFER_SIZE)
                 var count: Int
                 var transferredByte: Long = 0
                 CoroutineScope(Default).launch {
@@ -130,7 +130,7 @@ class FileService(private val send: Boolean,
             } else {
                 val inputStream: InputStream = App.context.contentResolver.openInputStream(uri)!!
                 val outputStream = socket.getOutputStream()
-                val bytes = ByteArray(3000)
+                val bytes = ByteArray(BUFFER_SIZE)
                 var count: Int
                 var transferredByte: Long = 0
                 CoroutineScope(Default).launch {
@@ -163,6 +163,7 @@ class FileService(private val send: Boolean,
         var HOST_ADDRESS: String? = null
         private const val MAX_WAIT_TIME = 1500
         private const val PORT = 7511
+        const val BUFFER_SIZE = 5120
         private const val PROGRESS_UPDATE_TIME: Long = 2000
 
         fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, rid: String, uri: Uri, clientHelper: ClientHelper, isDirectory: Boolean) {
