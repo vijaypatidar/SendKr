@@ -121,7 +121,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             })
         }
         //hide filter button
-        menu.findItem(R.id.menu_filtering).isVisible = false
+        menu.findItem(R.id.menu_sorting).isVisible = false
     }
 
 
@@ -153,7 +153,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         return object : NavDirections {
             override fun getArguments(): Bundle {
                 val bundle = Bundle()
-                bundle.putInt(GenericFragment.PARAM_DESTINATION, des)
+                bundle.putInt(MediaFragment.PARAM_DESTINATION, des)
                 return bundle
             }
 

@@ -189,7 +189,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.menu_filtering) {
+        return if (item.itemId == R.id.menu_sorting) {
             controller?.navigate(object : NavDirections {
                 override fun getArguments(): Bundle {
                     return Bundle().apply {

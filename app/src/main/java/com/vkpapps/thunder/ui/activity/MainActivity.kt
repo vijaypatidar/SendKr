@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_app, R.id.navigation_dashboard, R.id.navigation_files)
+                R.id.navigation_home, R.id.navigation_app, R.id.navigation_dashboard, R.id.navigation_media)
                 .build()
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
@@ -345,7 +345,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 CoroutineScope(IO).launch {
                     PrepareDb().prepareAll()
                 }
-                navController.navigate(R.id.navigation_files)
+                navController.navigate(R.id.navigation_media)
             } else {
                 Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
             }

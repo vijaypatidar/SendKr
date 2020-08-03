@@ -8,8 +8,8 @@
         app:actionLayout="@layout/transferring_menu_action_layout"
         app:showAsAction="always" />
     <item
-        android:id="@+id/menu_filtering"
-        android:icon="@drawable/ic_baseline_filter_list_24"
+        android:id="@+id/menu_sorting"
+        android:icon="@drawable/ic_baseline_sort_24"
         android:title="@string/filtering"
         app:showAsAction="ifRoom" />
 

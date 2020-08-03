@@ -181,7 +181,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.menu_filtering) {
+        return if (item.itemId == R.id.menu_sorting) {
             controller?.navigate(object : NavDirections {
                 override fun getArguments(): Bundle {
                     return Bundle().apply {
@@ -189,6 +189,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                         putInt(FilterDialogFragment.PARAM_CURRENT_SORT_BY, sortBy)
                     }
                 }
+
                 override fun getActionId(): Int {
                     return R.id.filterDialogFragment
                 }

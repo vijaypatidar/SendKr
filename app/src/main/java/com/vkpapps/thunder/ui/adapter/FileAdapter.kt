@@ -10,8 +10,8 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.net.toFile
+import androidx.navigation.NavController
 import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
@@ -24,13 +24,11 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 /***
  * @author VIJAY PATIDAR
  */
-class FileAdapter(private val onFileSelectListener: OnFileSelectListener, private val view: View) : RecyclerView.Adapter<MyViewHolder>() {
-    private val fileInfos: MutableList<FileInfo> = ArrayList()
+class FileAdapter(private val onFileSelectListener: OnFileSelectListener, private val controller: NavController, private val fileInfos: MutableList<FileInfo>) : RecyclerView.Adapter<MyViewHolder>() {
     private val thumbnailUtils: MyThumbnailUtils = MyThumbnailUtils
     override fun getItemViewType(position: Int): Int {
         return if (fileInfos[position].file.isDirectory) {
@@ -60,7 +58,7 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
                 }
             }
             holder.itemView.setOnClickListener {
-                Navigation.findNavController(view).navigate(object : NavDirections {
+                controller.navigate(object : NavDirections {
                     override fun getActionId(): Int {
                         return R.id.action_navigation_files_to_files
                     }
@@ -106,14 +104,6 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
 
     override fun getItemCount(): Int {
         return fileInfos.size
-    }
-
-    fun setFileInfos(fileInfos: List<FileInfo>) {
-        synchronized(this.fileInfos) {
-            this.fileInfos.clear()
-            this.fileInfos.addAll(fileInfos)
-            notifyDataSetChanged()
-        }
     }
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

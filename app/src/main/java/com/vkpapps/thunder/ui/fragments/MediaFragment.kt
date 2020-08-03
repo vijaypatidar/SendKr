@@ -18,7 +18,7 @@ import com.vkpapps.thunder.utils.PermissionUtils.checkStoragePermission
 /***
  * @author VIJAY PATIDAR
  */
-class GenericFragment : Fragment() {
+class MediaFragment : Fragment() {
     private var destination = 0
     private var navController: NavController? = null
 
@@ -32,7 +32,7 @@ class GenericFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_generic, container, false)
+        return inflater.inflate(R.layout.fragment_media, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,7 +69,7 @@ class GenericFragment : Fragment() {
                 }
 
                 override fun getActionId(): Int {
-                    return R.id.action_navigation_files_to_transferringFragment
+                    return R.id.action_navigation_media_to_transferringFragment
                 }
 
             })

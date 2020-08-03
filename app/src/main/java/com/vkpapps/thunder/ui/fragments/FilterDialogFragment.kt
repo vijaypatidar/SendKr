@@ -1,5 +1,7 @@
 package com.vkpapps.thunder.ui.fragments
 
+import android.app.Dialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +9,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.vkpapps.thunder.R
 import kotlinx.android.synthetic.main.fragment_filter_dialog.*
@@ -28,6 +31,16 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_filter_dialog, container, false)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return super.onCreateDialog(savedInstanceState).apply {
+            this.setOnShowListener {
+                (it as BottomSheetDialog)
+                        .findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                        ?.setBackgroundColor(Color.TRANSPARENT)
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

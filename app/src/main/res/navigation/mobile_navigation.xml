@@ -42,7 +42,7 @@
             app:popExitAnim="@anim/slide_out_to_bottom" />
         <action
             android:id="@+id/action_navigation_home_to_navigation_files"
-            app:destination="@id/navigation_files" />
+            app:destination="@id/navigation_media" />
     </fragment>
 
     <fragment
@@ -60,12 +60,12 @@
     </fragment>
 
     <fragment
-        android:id="@+id/navigation_files"
-        android:name="com.vkpapps.thunder.ui.fragments.GenericFragment"
-        android:label="@string/files"
-        tools:layout="@layout/fragment_generic">
+        android:id="@+id/navigation_media"
+        android:name="com.vkpapps.thunder.ui.fragments.MediaFragment"
+        android:label="@string/media"
+        tools:layout="@layout/fragment_media">
         <action
-            android:id="@+id/action_navigation_files_to_transferringFragment"
+            android:id="@+id/action_navigation_media_to_transferringFragment"
             app:destination="@id/transferringFragment"
             app:enterAnim="@anim/slide_in_from_bottom"
             app:exitAnim="@anim/slide_out_to_bottom"
@@ -129,10 +129,12 @@
         android:id="@+id/photoViewFragment"
         android:name="com.vkpapps.thunder.ui.fragments.PhotoViewFragment"
         android:label="Image"
-        tools:layout="@layout/fragment_photo_view"></fragment>
+        tools:layout="@layout/fragment_photo_view" />
+
     <dialog
         android:id="@+id/filterDialogFragment"
         android:name="com.vkpapps.thunder.ui.fragments.FilterDialogFragment"
-        android:label="Filter&amp;Sort by" />
+        android:label="Filter&amp;Sort by"
+        tools:layout="@layout/fragment_filter_dialog" />
 
 </navigation>

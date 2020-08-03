@@ -51,4 +51,7 @@
     <string name="latest_first">Latest first</string>
     <string name="oldest_first">Oldest first</string>
     <string name="apply">APPLY</string>
+    <string name="size_increasing">Size(increasing)</string>
+    <string name="size_decreasing">Size(decreasing)</string>
+    <string name="media">Media</string>
 </resources>
