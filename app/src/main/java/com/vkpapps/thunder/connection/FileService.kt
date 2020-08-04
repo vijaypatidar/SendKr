@@ -8,7 +8,7 @@ import com.vkpapps.thunder.interfaces.OnFileRequestReceiverListener
 import com.vkpapps.thunder.model.FileRequest
 import com.vkpapps.thunder.ui.activity.MainActivity
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.FileOutputStream
@@ -29,8 +29,6 @@ class FileService(private val send: Boolean,
                   private val clientHelper: ClientHelper,
                   private val isDirectory: Boolean,
                   private val skip: Long) : Runnable {
-
-    val isResumed: Boolean = true
 
     @Throws(IOException::class)
     private fun getSocket(): Socket {
@@ -72,7 +70,7 @@ class FileService(private val send: Boolean,
             val file = uri.toFile()
             if (isDirectory) {
                 val zipUtils = ZipUtils()
-                CoroutineScope(Default).launch {
+                CoroutineScope(IO).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
                         delay(PROGRESS_UPDATE_TIME)
@@ -86,7 +84,7 @@ class FileService(private val send: Boolean,
                 val bytes = ByteArray(BUFFER_SIZE)
                 var count: Int
                 var transferredByte: Long = 0
-                CoroutineScope(Default).launch {
+                CoroutineScope(IO).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
                         delay(PROGRESS_UPDATE_TIME)
@@ -122,7 +120,7 @@ class FileService(private val send: Boolean,
             val init = System.currentTimeMillis()
             if (isDirectory) {
                 val zipUtils = ZipUtils()
-                CoroutineScope(Default).launch {
+                CoroutineScope(IO).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
                         delay(PROGRESS_UPDATE_TIME)
@@ -137,14 +135,14 @@ class FileService(private val send: Boolean,
                 val bytes = ByteArray(BUFFER_SIZE)
                 var count: Int = 0
                 var transferredByte: Long = 0
-                CoroutineScope(Default).launch {
+                CoroutineScope(IO).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
                         delay(PROGRESS_UPDATE_TIME)
                     }
                     onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
                 }
-                while (isResumed && inputStream.read(bytes).also { count = it } > 0) {
+                while (inputStream.read(bytes).also { count = it } > 0) {
                     outputStream.write(bytes, 0, count)
                     transferredByte += count
                 }
@@ -154,11 +152,7 @@ class FileService(private val send: Boolean,
                 socket.close()
             }
             val timeTaken = (System.currentTimeMillis() - init)
-            if (isResumed) {
-                onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken, true)
-            } else {
-                //todo request paused
-            }
+            onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken, true)
         } catch (e: Exception) {
             onFileRequestReceiverListener.onRequestFailed(rid)
             e.printStackTrace()
@@ -171,7 +165,7 @@ class FileService(private val send: Boolean,
         var HOST_ADDRESS: String? = null
         private const val MAX_WAIT_TIME = 1500
         private const val PORT = 7511
-        const val BUFFER_SIZE = 5120
+        const val BUFFER_SIZE = 4096
         private const val PROGRESS_UPDATE_TIME: Long = 2000
 
         fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, rid: String, uri: Uri, clientHelper: ClientHelper, isDirectory: Boolean) {

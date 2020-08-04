@@ -100,6 +100,10 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
             }
             holder.btnSelected.isChecked = fileInfo.isSelected
         }
+        holder.itemView.setOnLongClickListener {
+            onFileSelectListener.onFileLongClickListener(fileInfo)
+            true
+        }
     }
 
     override fun getItemCount(): Int {
@@ -114,6 +118,7 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
     }
 
     interface OnFileSelectListener {
+        fun onFileLongClickListener(fileInfo: FileInfo)
         fun onFileSelected(fileInfo: FileInfo)
         fun onFileDeselected(fileInfo: FileInfo)
     }

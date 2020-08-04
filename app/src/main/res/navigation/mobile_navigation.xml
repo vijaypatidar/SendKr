@@ -104,7 +104,7 @@
     <fragment
         android:id="@+id/fileFragment"
         android:name="com.vkpapps.thunder.ui.fragments.FileFragment"
-        android:label="File Fragment">
+        android:label="File">
         <action
             android:id="@+id/action_navigation_files_to_files"
             app:destination="@id/fileFragment"
@@ -133,8 +133,13 @@
 
     <dialog
         android:id="@+id/filterDialogFragment"
-        android:name="com.vkpapps.thunder.ui.fragments.FilterDialogFragment"
+        android:name="com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment"
         android:label="Filter&amp;Sort by"
         tools:layout="@layout/fragment_filter_dialog" />
+    <dialog
+        android:id="@+id/filePropertyDialogFragment"
+        android:name="com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment"
+        android:label="Property"
+        tools:layout="@layout/fragment_file_property_dialog" />
 
 </navigation>

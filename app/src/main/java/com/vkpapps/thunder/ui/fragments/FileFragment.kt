@@ -24,6 +24,8 @@ import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.FileInfo
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.ui.adapter.FileAdapter
+import com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment
+import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_file.*
 import kotlinx.coroutines.CoroutineScope
@@ -115,9 +117,6 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                 }
                 sort()
             }
-
-
-
 
             selectionView.btnSendFiles.setOnClickListener {
                 if (selectCount == 0) return@setOnClickListener
@@ -258,6 +257,21 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
     override fun onFileDeselected(fileInfo: FileInfo) {
         selectCount--
         hideShowSendButton()
+    }
+
+    override fun onFileLongClickListener(fileInfo: FileInfo) {
+        navController?.navigate(object : NavDirections {
+            override fun getArguments(): Bundle {
+                return Bundle().apply {
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, fileInfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, fileInfo.uri.toString())
+                }
+            }
+
+            override fun getActionId(): Int {
+                return R.id.filePropertyDialogFragment
+            }
+        })
     }
 
     override fun onFileSelected(fileInfo: FileInfo) {

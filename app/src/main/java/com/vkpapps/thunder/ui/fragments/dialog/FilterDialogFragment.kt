@@ -1,4 +1,4 @@
-package com.vkpapps.thunder.ui.fragments
+package com.vkpapps.thunder.ui.fragments.dialog
 
 import android.app.Dialog
 import android.graphics.Color
@@ -37,17 +37,21 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
         return super.onCreateDialog(savedInstanceState).apply {
             this.setOnShowListener {
                 (it as BottomSheetDialog)
-                        .findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-                        ?.setBackgroundColor(Color.TRANSPARENT)
+                        .findViewById<View>(R.id.design_bottom_sheet)
+                        ?.apply {
+                            setBackgroundColor(Color.TRANSPARENT)
+                        }
             }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val model = activity?.run {
             ViewModelProvider(this).get(SharedViewModel::class.java)
         }
+
 
         //set radio button to current state
         when (sortBy) {

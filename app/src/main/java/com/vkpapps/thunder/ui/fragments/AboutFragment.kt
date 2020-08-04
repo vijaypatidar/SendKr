@@ -40,8 +40,8 @@ class AboutFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        val findItem = menu.findItem(R.id.menu_transferring)
-        findItem?.isVisible = false
+        menu.findItem(R.id.menu_transferring)?.isVisible = false
+        menu.findItem(R.id.menu_sorting)?.isVisible = false
     }
 
     override fun onAttach(context: Context) {

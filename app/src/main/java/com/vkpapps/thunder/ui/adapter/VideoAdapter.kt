@@ -56,6 +56,10 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideo
                 e.printStackTrace()
             }
         }
+        holder.itemView.setOnLongClickListener {
+            onVideoSelectListener.onVideoLongClickListener(videoInfo)
+            true
+        }
         myThumbnailUtils.loadVideoThumbnail(videoInfo.id, videoInfo.uri, holder.picture)
     }
 
@@ -72,6 +76,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideo
     }
 
     interface OnVideoSelectListener {
+        fun onVideoLongClickListener(videoInfo: VideoInfo)
         fun onVideoSelected(videoInfo: VideoInfo)
         fun onVideoDeselected(videoInfo: VideoInfo)
     }

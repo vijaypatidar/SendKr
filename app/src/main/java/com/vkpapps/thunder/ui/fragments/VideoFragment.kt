@@ -27,6 +27,8 @@ import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.room.liveViewModel.VideoViewModel
 import com.vkpapps.thunder.ui.adapter.VideoAdapter
 import com.vkpapps.thunder.ui.adapter.VideoAdapter.OnVideoSelectListener
+import com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment
+import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_video.*
 import kotlinx.coroutines.CoroutineScope
@@ -203,6 +205,21 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
     override fun onDetach() {
         super.onDetach()
         onNavigationVisibilityListener = null
+    }
+
+    override fun onVideoLongClickListener(videoInfo: VideoInfo) {
+        controller?.navigate(object : NavDirections {
+            override fun getArguments(): Bundle {
+                return Bundle().apply {
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, videoInfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, videoInfo.uri.toString())
+                }
+            }
+
+            override fun getActionId(): Int {
+                return R.id.filePropertyDialogFragment
+            }
+        })
     }
 
     override fun onVideoSelected(videoInfo: VideoInfo) {

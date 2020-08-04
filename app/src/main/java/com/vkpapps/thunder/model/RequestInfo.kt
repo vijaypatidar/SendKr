@@ -8,6 +8,7 @@ import java.io.Serializable
 
 @Entity
 class RequestInfo : Serializable {
+
     @PrimaryKey
     var rid: String = ""
     var cid: String = ""
@@ -16,12 +17,13 @@ class RequestInfo : Serializable {
     var fileType = 0
     var status = 0//pending
     var size: Long = 0
+        set(value) {
+            displaySize = MathUtils.longToStringSize(value.toDouble())
+            field = value
+        }
     var transferred: Long = 0
+    var displaySize: String = ""
 
-    @delegate:Ignore
-    val displaySize: String by lazy {
-        MathUtils.longToStringSize(size.toDouble())
-    }
 
     constructor()
 

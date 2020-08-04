@@ -12,5 +12,4 @@
         android:icon="@drawable/ic_baseline_sort_24"
         android:title="@string/filtering"
         app:showAsAction="ifRoom" />
-
 </menu>

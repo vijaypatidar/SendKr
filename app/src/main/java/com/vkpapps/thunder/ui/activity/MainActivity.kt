@@ -15,9 +15,11 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
@@ -55,6 +57,7 @@ import com.vkpapps.thunder.utils.HashUtils.getRandomId
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -74,6 +77,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private var user = App.user
     private lateinit var navController: NavController
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
+    private var transferringProgressBar: ProgressBar? = null
+    private var transferringCountTextView: AppCompatTextView? = null
     private var database = MyRoomDatabase.getDatabase(App.context)
     private val requestViewModel: RequestViewModel by lazy { ViewModelProvider(this).get(RequestViewModel::class.java) }
     private val downloadPathResolver: DownloadPathResolver by lazy { DownloadPathResolver(this) }
@@ -100,8 +105,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         } else {
             d("using old connection")
         }
-
         fileToShare()
+        updateTransferringProgressBar()
     }
 
     private fun setProfileActionView() {
@@ -250,10 +255,14 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 database.requestDao().insert(obj)
             }
         }
+        pendingTransferringCount++
+
     }
 
     override fun onRequestFailed(rid: String) {
         updateStatus(rid, StatusType.STATUS_FAILED)
+        pendingTransferringCount--
+
     }
 
     override fun onRequestAccepted(rid: String, cid: String, send: Boolean) {
@@ -271,6 +280,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 )
             }
         }
+        pendingTransferringCount--
+
     }
 
     override fun onProgressChange(rid: String, transferred: Long) {
@@ -334,6 +345,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main_menu, menu)
+        menu.findItem(R.id.menu_transferring).actionView?.run {
+            transferringProgressBar = this.findViewById(R.id.transferringProgressBar)
+            transferringCountTextView = this.findViewById(R.id.pendingCount)
+        }
+
         return true
     }
 
@@ -389,6 +405,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun sendFiles(requests: List<RawRequestInfo>) {
+        pendingTransferringCount += requests.size
         if (connected && (!isHost || serverHelper.clientHelpers.size != 0)) {
             CoroutineScope(IO).launch {
                 for (rawRequestInfo in requests) {
@@ -503,6 +520,22 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         }
     }
 
+    private fun updateTransferringProgressBar() {
+        CoroutineScope(Main).launch {
+            while (!isDestroyed) {
+                val visible = if (pendingTransferringCount == 0) View.GONE else View.VISIBLE
+                transferringProgressBar?.visibility = visible
+                transferringCountTextView?.visibility = visible
+                if (pendingTransferringCount > 100) {
+                    transferringCountTextView?.text = "9+"
+                } else {
+                    transferringCountTextView?.text = pendingTransferringCount.toString()
+                }
+                delay(1200)
+            }
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_UPDATE_PROFILE) {
@@ -528,6 +561,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         @JvmStatic
         private val pendingRequest = ArrayList<RawRequestInfo>()
 
+        @Volatile
+        private var pendingTransferringCount = 0
+
         @JvmStatic
         var connected: Boolean = false
 
@@ -539,7 +575,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
         @JvmStatic
         private lateinit var clientHelper: ClientHelper
-
     }
 }
 

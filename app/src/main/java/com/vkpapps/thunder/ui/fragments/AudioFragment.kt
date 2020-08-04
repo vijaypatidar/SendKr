@@ -28,6 +28,8 @@ import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.room.liveViewModel.AudioViewModel
 import com.vkpapps.thunder.ui.adapter.AudioAdapter
 import com.vkpapps.thunder.ui.adapter.AudioAdapter.OnAudioSelectedListener
+import com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment
+import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_music.*
 import kotlinx.coroutines.CoroutineScope
@@ -198,6 +200,21 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
         } else
             super.onOptionsItemSelected(item)
 
+    }
+
+    override fun onAudioLongClickListener(audioInfo: AudioInfo) {
+        controller?.navigate(object : NavDirections {
+            override fun getArguments(): Bundle {
+                return Bundle().apply {
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, audioInfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, audioInfo.uri.toString())
+                }
+            }
+
+            override fun getActionId(): Int {
+                return R.id.filePropertyDialogFragment
+            }
+        })
     }
 
     override fun onAudioSelected(audioMode: AudioInfo) {

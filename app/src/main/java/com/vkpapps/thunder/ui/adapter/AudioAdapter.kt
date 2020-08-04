@@ -42,27 +42,30 @@ class AudioAdapter(private val audioInfos: MutableList<AudioInfo>, private val o
                 onAudioSelectedListener.onAudioSelected(audioinfo)
             } else {
                 onAudioSelectedListener.onAudioDeselected(audioinfo)
-                }
             }
-            holder.audioIcon.setOnClickListener {
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    MediaScannerConnection.scanFile(it.context, arrayOf(audioinfo.uri.path), null) { _, uri ->
-                        run {
-                            val type = it.context.contentResolver.getType(uri)
-                            Logger.d("file $uri type = $type")
-                            intent.setDataAndType(uri, type)
-                            it.context.startActivity(intent)
-                        }
+        }
+        holder.audioIcon.setOnClickListener {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW)
+                MediaScannerConnection.scanFile(it.context, arrayOf(audioinfo.uri.path), null) { _, uri ->
+                    run {
+                        val type = it.context.contentResolver.getType(uri)
+                        Logger.d("file $uri type = $type")
+                        intent.setDataAndType(uri, type)
+                        it.context.startActivity(intent)
                     }
-                } catch (e: Exception) {
-                    Toast.makeText(it.context, "error occurred", Toast.LENGTH_SHORT).show()
-                    e.printStackTrace()
                 }
+            } catch (e: Exception) {
+                Toast.makeText(it.context, "error occurred", Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
             }
-            myThumbnailUtils.loadAudioThumbnail(audioinfo.id, audioinfo.uri, holder.audioIcon)
-            holder.audioIcon.adjustViewBounds = true
-
+        }
+        holder.itemView.setOnLongClickListener {
+            onAudioSelectedListener.onAudioLongClickListener(audioinfo)
+            true
+        }
+        myThumbnailUtils.loadAudioThumbnail(audioinfo.id, audioinfo.uri, holder.audioIcon)
+        holder.audioIcon.adjustViewBounds = true
     }
 
     override fun getItemCount(): Int {
@@ -76,6 +79,7 @@ class AudioAdapter(private val audioInfos: MutableList<AudioInfo>, private val o
     }
 
     interface OnAudioSelectedListener {
+        fun onAudioLongClickListener(audioinfo: AudioInfo)
         fun onAudioSelected(audioMode: AudioInfo)
         fun onAudioDeselected(audioinfo: AudioInfo)
     }

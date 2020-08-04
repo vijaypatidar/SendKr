@@ -26,6 +26,8 @@ import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.room.liveViewModel.PhotoViewModel
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter.OnPhotoSelectListener
+import com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment
+import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_photo.*
 import kotlinx.coroutines.CoroutineScope
@@ -231,6 +233,21 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
     private fun hideShowSendButton() {
         onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
         selectionView.changeVisibility(selectedCount)
+    }
+
+    override fun onPhotoLongClickListener(photoInfo: PhotoInfo) {
+        controller?.navigate(object : NavDirections {
+            override fun getArguments(): Bundle {
+                return Bundle().apply {
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, photoInfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, photoInfo.uri.toString())
+                }
+            }
+
+            override fun getActionId(): Int {
+                return R.id.filePropertyDialogFragment
+            }
+        })
     }
 
     override fun onPhotoSelected(photoInfo: PhotoInfo) {

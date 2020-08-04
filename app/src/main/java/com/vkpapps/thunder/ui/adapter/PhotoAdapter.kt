@@ -37,6 +37,10 @@ class PhotoAdapter(private val photoInfos: List<PhotoInfo>?, private val onPhoto
                 onPhotoSelectListener.onPhotoDeselected(photoInfo)
             }
         }
+        holder.itemView.setOnLongClickListener {
+            onPhotoSelectListener.onPhotoLongClickListener(photoInfo)
+            true
+        }
         myThumbnailUtils.loadPhotoThumbnail(photoInfo.id, photoInfo.uri, holder.picture)
         holder.btnFullscreen.setOnClickListener {
             controller.navigate(object : NavDirections {
@@ -64,6 +68,7 @@ class PhotoAdapter(private val photoInfos: List<PhotoInfo>?, private val onPhoto
     }
 
     interface OnPhotoSelectListener {
+        fun onPhotoLongClickListener(photoInfo: PhotoInfo)
         fun onPhotoSelected(photoInfo: PhotoInfo)
         fun onPhotoDeselected(photoInfo: PhotoInfo)
     }

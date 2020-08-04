@@ -214,6 +214,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
+                                android:textColor="@color/black"
                                 android:text="@string/photo"
                                 android:textSize="14sp" />
                         </LinearLayout>
@@ -253,6 +254,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/audio"
+                                android:textColor="@color/black"
                                 android:textSize="14sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -298,6 +300,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
+                                android:textColor="@color/black"
                                 android:text="@string/video"
                                 android:textSize="14sp" />
                         </LinearLayout>

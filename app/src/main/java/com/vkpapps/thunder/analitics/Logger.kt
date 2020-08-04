@@ -20,7 +20,6 @@ object Logger {
 
     /***
      * @param message text to be logged as information on logcat
-     * @code vijay patidar
      */
     @JvmStatic
     fun i(message: String) {
