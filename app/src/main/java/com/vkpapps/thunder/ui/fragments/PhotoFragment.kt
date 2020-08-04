@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
@@ -108,7 +107,6 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                 withContext(Dispatchers.Main) {
                     photoAdapter?.notifyDataSetChanged()
                     hideShowSendButton()
-                    Toast.makeText(requireContext(), "${selected.size} images added to send queue", Toast.LENGTH_SHORT).show()
                 }
                 onFileRequestPrepareListener?.sendFiles(selected)
             }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.net.toFile
@@ -139,7 +138,6 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                     withContext(Main) {
                         adapter?.notifyDataSetChanged()
                         hideShowSendButton()
-                        Toast.makeText(requireContext(), "${selected.size} files added to send queue", Toast.LENGTH_SHORT).show()
                     }
                     onFileRequestPrepareListener?.sendFiles(selected)
                 }
@@ -175,7 +173,6 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
         }
         model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
             if (it.target == 4) {
-                Logger.d("sort by files ${it.sortBy}")
                 sortBy = it.sortBy
                 sort()
             }

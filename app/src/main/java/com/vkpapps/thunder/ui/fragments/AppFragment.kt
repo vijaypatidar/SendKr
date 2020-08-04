@@ -3,7 +3,6 @@ package com.vkpapps.thunder.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
@@ -92,8 +91,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                 withContext(Main) {
                     adapter.notifyDataSetChanged()
                     hideShowSendButton()
-                    Toast.makeText(requireContext(), "${selected.size} apps added to send queue", Toast.LENGTH_SHORT).show()
-                }
+                    }
                 onFileRequestPrepareListener?.sendFiles(selected)
             }
         }

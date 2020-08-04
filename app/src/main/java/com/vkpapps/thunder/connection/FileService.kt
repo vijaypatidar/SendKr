@@ -6,6 +6,7 @@ import com.vkpapps.thunder.App
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestReceiverListener
 import com.vkpapps.thunder.model.FileRequest
+import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.ui.activity.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -24,7 +25,7 @@ import java.net.Socket
  */
 class FileService(private val send: Boolean,
                   private val onFileRequestReceiverListener: OnFileRequestReceiverListener,
-                  private val rid: String,
+                  private val requestInfo: RequestInfo,
                   private val uri: Uri,
                   private val clientHelper: ClientHelper,
                   private val isDirectory: Boolean,
@@ -62,8 +63,8 @@ class FileService(private val send: Boolean,
         try {
             if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
-                clientHelper.write(FileRequest(FileRequest.UPLOAD_REQUEST_CONFIRM, rid))
-                onFileRequestReceiverListener.onRequestAccepted(rid, clientHelper.user.userId, true)
+                clientHelper.write(FileRequest(FileRequest.UPLOAD_REQUEST_CONFIRM, requestInfo.rid))
+                onFileRequestReceiverListener.onRequestAccepted(requestInfo)
             }
             val socket = getSocket()
             val init = System.currentTimeMillis()
@@ -72,10 +73,10 @@ class FileService(private val send: Boolean,
                 val zipUtils = ZipUtils()
                 CoroutineScope(IO).launch {
                     while (!socket.isClosed) {
-                        onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
+                        onFileRequestReceiverListener.onProgressChange(requestInfo, zipUtils.transferred)
                         delay(PROGRESS_UPDATE_TIME)
                     }
-                    onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
+                    onFileRequestReceiverListener.onProgressChange(requestInfo, zipUtils.transferred)
                 }
                 zipUtils.openInputOutStream(socket.getInputStream(), file)
             } else {
@@ -86,10 +87,10 @@ class FileService(private val send: Boolean,
                 var transferredByte: Long = 0
                 CoroutineScope(IO).launch {
                     while (!socket.isClosed) {
-                        onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
+                        onFileRequestReceiverListener.onProgressChange(requestInfo, transferredByte)
                         delay(PROGRESS_UPDATE_TIME)
                     }
-                    onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
+                    onFileRequestReceiverListener.onProgressChange(requestInfo, transferredByte)
                 }
                 while (`in`.read(bytes).also { count = it } > 0) {
                     out.write(bytes, 0, count)
@@ -101,9 +102,9 @@ class FileService(private val send: Boolean,
                 socket.close()
             }
             val timeTaken = System.currentTimeMillis() - init
-            onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken, false)
+            onFileRequestReceiverListener.onRequestSuccess(requestInfo, false)
         } catch (e: Exception) {
-            onFileRequestReceiverListener.onRequestFailed(rid)
+            onFileRequestReceiverListener.onRequestFailed(requestInfo)
             e.printStackTrace()
         }
     }
@@ -113,8 +114,8 @@ class FileService(private val send: Boolean,
         try {
             if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
-                clientHelper.write(FileRequest(FileRequest.DOWNLOAD_REQUEST_CONFIRM, rid))
-                onFileRequestReceiverListener.onRequestAccepted(rid, clientHelper.user.userId, true)
+                clientHelper.write(FileRequest(FileRequest.DOWNLOAD_REQUEST_CONFIRM, requestInfo.rid))
+                onFileRequestReceiverListener.onRequestAccepted(requestInfo)
             }
             val socket = getSocket()
             val init = System.currentTimeMillis()
@@ -122,10 +123,10 @@ class FileService(private val send: Boolean,
                 val zipUtils = ZipUtils()
                 CoroutineScope(IO).launch {
                     while (!socket.isClosed) {
-                        onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
+                        onFileRequestReceiverListener.onProgressChange(requestInfo, zipUtils.transferred)
                         delay(PROGRESS_UPDATE_TIME)
                     }
-                    onFileRequestReceiverListener.onProgressChange(rid, zipUtils.transferred)
+                    onFileRequestReceiverListener.onProgressChange(requestInfo, zipUtils.transferred)
                 }
                 zipUtils.openZipOutStream(socket.getOutputStream(), uri.toFile())
             } else {
@@ -137,10 +138,12 @@ class FileService(private val send: Boolean,
                 var transferredByte: Long = 0
                 CoroutineScope(IO).launch {
                     while (!socket.isClosed) {
-                        onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
+                        requestInfo.transferred = transferredByte
+                        onFileRequestReceiverListener.onProgressChange(requestInfo, transferredByte)
                         delay(PROGRESS_UPDATE_TIME)
                     }
-                    onFileRequestReceiverListener.onProgressChange(rid, transferredByte)
+                    requestInfo.transferred = transferredByte
+                    onFileRequestReceiverListener.onProgressChange(requestInfo, transferredByte)
                 }
                 while (inputStream.read(bytes).also { count = it } > 0) {
                     outputStream.write(bytes, 0, count)
@@ -152,9 +155,9 @@ class FileService(private val send: Boolean,
                 socket.close()
             }
             val timeTaken = (System.currentTimeMillis() - init)
-            onFileRequestReceiverListener.onRequestSuccess(rid, timeTaken, true)
+            onFileRequestReceiverListener.onRequestSuccess(requestInfo, true)
         } catch (e: Exception) {
-            onFileRequestReceiverListener.onRequestFailed(rid)
+            onFileRequestReceiverListener.onRequestFailed(requestInfo)
             e.printStackTrace()
         }
     }
@@ -166,20 +169,20 @@ class FileService(private val send: Boolean,
         private const val MAX_WAIT_TIME = 1500
         private const val PORT = 7511
         const val BUFFER_SIZE = 4096
-        private const val PROGRESS_UPDATE_TIME: Long = 2000
+        private const val PROGRESS_UPDATE_TIME: Long = 1000
 
-        fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, rid: String, uri: Uri, clientHelper: ClientHelper, isDirectory: Boolean) {
+        fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, requestInfo: RequestInfo, uri: Uri, clientHelper: ClientHelper, isDirectory: Boolean) {
             synchronized(App.taskExecutor) {
                 App.taskExecutor.submit(FileService(
-                        true, onFileRequestReceiverListener, rid, uri, clientHelper, isDirectory, 0
+                        true, onFileRequestReceiverListener, requestInfo, uri, clientHelper, isDirectory, 0
                 ))
             }
         }
 
-        fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, uri: Uri, rid: String, clientHelper: ClientHelper, isDirectory: Boolean) {
+        fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, uri: Uri, requestInfo: RequestInfo, clientHelper: ClientHelper, isDirectory: Boolean) {
             synchronized(App.taskExecutor) {
                 App.taskExecutor.submit(FileService(
-                        false, onFileRequestReceiverListener, rid, uri, clientHelper, isDirectory, 0
+                        false, onFileRequestReceiverListener, requestInfo, uri, clientHelper, isDirectory, 0
                 ))
             }
         }

@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
@@ -18,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.RawRequestInfo
@@ -112,8 +110,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
                 withContext(Main) {
                     adapter?.notifyDataSetChanged()
                     hideShowSendButton()
-                    Toast.makeText(requireContext(), "${selected.size} videos added to send queue", Toast.LENGTH_SHORT).show()
-                }
+                  }
                 onFileRequestPrepareListener?.sendFiles(selected)
             }
         }
@@ -152,7 +149,6 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
         }
         model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
             if (it.target == 3) {
-                Logger.d("Dialog result video ${it.sortBy}")
                 sortBy = it.sortBy
                 CoroutineScope(Dispatchers.IO).launch {
                     if (!videoInfos.isNullOrEmpty()) {

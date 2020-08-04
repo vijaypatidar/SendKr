@@ -48,7 +48,7 @@ class TransferringFragment : Fragment() {
         val adapter = RequestAdapter(requireContext())
         recyclerView.adapter = adapter
         val viewModel = ViewModelProvider(requireActivity()).get(RequestViewModel::class.java)
-        viewModel.allRequestInfo.observe(requireActivity(), Observer { requestInfos: List<RequestInfo> ->
+        viewModel.requestInfosLiveData.observe(requireActivity(), Observer { requestInfos: List<RequestInfo> ->
             if (requestInfos.isNotEmpty()) {
                 adapter.setRequestInfos(requestInfos)
                 setTransferringDetail(requestInfos)

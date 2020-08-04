@@ -17,10 +17,9 @@ import com.vkpapps.thunder.model.constaints.StatusType
 import com.vkpapps.thunder.ui.views.HorizontalProgressBar
 import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
-import java.util.*
 
 class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private val requestInfos: MutableList<RequestInfo> = ArrayList()
+    private var requestInfos: List<RequestInfo> = ArrayList()
     private val inflater: LayoutInflater = LayoutInflater.from(context)
 
     private val animation = RotateAnimation(0f, (-360).toFloat(),
@@ -52,11 +51,8 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     fun setRequestInfos(requestInfos: List<RequestInfo>) {
-        synchronized(this.requestInfos) {
-            this.requestInfos.clear()
-            this.requestInfos.addAll(requestInfos)
-            notifyDataSetChanged()
-        }
+        this.requestInfos = requestInfos
+        notifyDataSetChanged()
     }
 
     private fun updateStatus(holder: DefaultRequestHolder, requestInfo: RequestInfo) {

@@ -5,15 +5,20 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.vkpapps.thunder.model.*
+import com.vkpapps.thunder.model.AudioInfo
+import com.vkpapps.thunder.model.HistoryInfo
+import com.vkpapps.thunder.model.PhotoInfo
+import com.vkpapps.thunder.model.VideoInfo
 import com.vkpapps.thunder.room.UriConverter
-import com.vkpapps.thunder.room.dao.*
+import com.vkpapps.thunder.room.dao.AudioDao
+import com.vkpapps.thunder.room.dao.HistoryDao
+import com.vkpapps.thunder.room.dao.PhotoDao
+import com.vkpapps.thunder.room.dao.VideoDao
 
-@Database(entities = [RequestInfo::class, PhotoInfo::class, AudioInfo::class, VideoInfo::class, HistoryInfo::class], version = 1, exportSchema = false)
+@Database(entities = [PhotoInfo::class, AudioInfo::class, VideoInfo::class, HistoryInfo::class], version = 1, exportSchema = false)
 @TypeConverters(UriConverter::class)
 abstract class MyRoomDatabase : RoomDatabase() {
 
-    abstract fun requestDao(): RequestDao
     abstract fun photoDao(): PhotoDao
     abstract fun audioDao(): AudioDao
     abstract fun videoDao(): VideoDao

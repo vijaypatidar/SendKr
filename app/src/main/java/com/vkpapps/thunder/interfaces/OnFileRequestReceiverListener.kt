@@ -1,12 +1,14 @@
 package com.vkpapps.thunder.interfaces
 
+import com.vkpapps.thunder.model.RequestInfo
+
 /***
  * @author VIJAY PATIDAR
  */
 interface OnFileRequestReceiverListener {
-    fun onRequestFailed(rid: String)
-    fun onRequestAccepted(rid: String, cid: String, send: Boolean)
-    fun onRequestSuccess(rid: String, timeTaken: Long, send: Boolean)
-    fun onProgressChange(rid: String, transferred: Long)
+    fun onRequestFailed(requestInfo: RequestInfo)
+    fun onRequestAccepted(requestInfo: RequestInfo)
+    fun onRequestSuccess(requestInfo: RequestInfo, send: Boolean)
+    fun onProgressChange(requestInfo: RequestInfo, transferred: Long)
 }
 

@@ -47,7 +47,6 @@ import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.model.constaints.StatusType
-import com.vkpapps.thunder.room.database.MyRoomDatabase
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
 import com.vkpapps.thunder.ui.fragments.DashboardFragment
@@ -57,7 +56,6 @@ import com.vkpapps.thunder.utils.HashUtils.getRandomId
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -79,8 +77,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
     private var transferringProgressBar: ProgressBar? = null
     private var transferringCountTextView: AppCompatTextView? = null
-    private var database = MyRoomDatabase.getDatabase(App.context)
-    private val requestViewModel: RequestViewModel by lazy { ViewModelProvider(this).get(RequestViewModel::class.java) }
+    val requestViewModel: RequestViewModel by lazy { ViewModelProvider(this).get(RequestViewModel::class.java) }
+    private val historyViewModel: HistoryViewModel by lazy { ViewModelProvider(this).get(HistoryViewModel::class.java) }
     private val downloadPathResolver: DownloadPathResolver by lazy { DownloadPathResolver(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -191,13 +189,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         // this method is only invoked for client
         CoroutineScope(IO).launch {
             val requestInfo = getRequestInfo(rid)
-            d("onDownloadRequest rid = $rid source = ${requestInfo.uri} name = ${requestInfo.name}")
+            requestInfo.status = StatusType.STATUS_ONGOING
             FileService.startActionReceive(this@MainActivity, Uri.parse(requestInfo.uri),
-                    rid,
+                    requestInfo,
                     clientHelper,
                     requestInfo.fileType == FileType.FILE_TYPE_FOLDER
             )
-            updateStatus(rid, StatusType.STATUS_ONGOING)
         }
     }
 
@@ -205,13 +202,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         // this method is only invoked for client
         CoroutineScope(IO).launch {
             val requestInfo = getRequestInfo(rid)
+            requestInfo.status = StatusType.STATUS_ONGOING
             d("onUploadRequest rid = $rid source = ${requestInfo.uri} name = ${requestInfo.name}")
-            FileService.startActionSend(this@MainActivity, rid,
+            FileService.startActionSend(this@MainActivity, requestInfo,
                     Uri.parse(requestInfo.uri),
                     clientHelper,
                     requestInfo.fileType == FileType.FILE_TYPE_FOLDER
             )
-            updateStatus(rid, StatusType.STATUS_ONGOING)
         }
     }
 
@@ -220,13 +217,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             obj.uri = Uri.fromFile(File(downloadPathResolver.getSource(obj))).toString()
             d(" new file request type = ${obj.fileType} ${obj.name}")
             if (isHost) {
-                database.requestDao().insert(obj)
+                requestViewModel.insert(obj)
                 serverHelper.clientHelpers.forEach {
                     if (it.user.userId == obj.cid) {
                         FileService.startActionReceive(
                                 this@MainActivity,
                                 Uri.parse(obj.uri),
-                                obj.rid,
+                                obj,
                                 it,
                                 obj.fileType == FileType.FILE_TYPE_FOLDER)
                     }
@@ -240,11 +237,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         val clone = obj.clone(rid, clientHelper.user.userId)
                         clientHelper.write(clone)
                         //preparing intent for service
-                        database.requestDao().insert(clone)
+                        requestViewModel.insert(clone)
 
                         FileService.startActionSend(
                                 this@MainActivity,
-                                clone.rid,
+                                clone,
                                 Uri.parse(clone.uri),
                                 clientHelper,
                                 obj.fileType == FileType.FILE_TYPE_FOLDER)
@@ -252,41 +249,38 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 }
             } else {
                 d("client new req size of file = ${obj.size}")
-                database.requestDao().insert(obj)
+                requestViewModel.insert(obj)
             }
         }
-        pendingTransferringCount++
-
     }
 
-    override fun onRequestFailed(rid: String) {
-        updateStatus(rid, StatusType.STATUS_FAILED)
-        pendingTransferringCount--
-
+    override fun onRequestFailed(requestInfo: RequestInfo) {
+        requestInfo.status = StatusType.STATUS_FAILED
+        requestViewModel.notifyDataSetChanged()
+        requestViewModel.decrementPendingRequestCount()
     }
 
-    override fun onRequestAccepted(rid: String, cid: String, send: Boolean) {
-        updateStatus(rid, StatusType.STATUS_ONGOING)
+    override fun onProgressChange(requestInfo: RequestInfo, transferred: Long) {
+        requestInfo.transferred = transferred
+        requestViewModel.notifyDataSetChanged()
     }
 
-    override fun onRequestSuccess(rid: String, timeTaken: Long, send: Boolean) {
-        updateStatus(rid, StatusType.STATUS_COMPLETED)
+    override fun onRequestAccepted(requestInfo: RequestInfo) {
+        requestInfo.status = StatusType.STATUS_ONGOING
+        requestViewModel.notifyDataSetChanged()
+    }
+
+    override fun onRequestSuccess(requestInfo: RequestInfo, send: Boolean) {
+        requestInfo.status = StatusType.STATUS_COMPLETED
+        requestViewModel.notifyDataSetChanged()
+        requestViewModel.decrementPendingRequestCount()
         if (!send) {
-            val historyViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
             CoroutineScope(IO).launch {
-                val requestInfo = getRequestInfo(rid)
                 historyViewModel.insert(
                         HistoryInfo(requestInfo.name, Uri.parse(requestInfo.uri), requestInfo.fileType)
                 )
             }
         }
-        pendingTransferringCount--
-
-    }
-
-    override fun onProgressChange(rid: String, transferred: Long) {
-        d("progress change rid = $rid transferred = $transferred")
-        requestViewModel.updateProgress(rid, transferred)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -405,7 +399,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun sendFiles(requests: List<RawRequestInfo>) {
-        pendingTransferringCount += requests.size
         if (connected && (!isHost || serverHelper.clientHelpers.size != 0)) {
             CoroutineScope(IO).launch {
                 for (rawRequestInfo in requests) {
@@ -419,11 +412,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                             val rid = getRandomId()
                             val clone = requestInfo.clone(rid, clientHelper.user.userId)
                             //preparing intent for service
-                            database.requestDao().insert(clone)
+                            requestViewModel.insert(clone)
                             clientHelper.write(clone)
                             FileService.startActionSend(
                                     this@MainActivity,
-                                    clone.rid,
+                                    clone,
                                     Uri.parse(clone.uri),
                                     clientHelper,
                                     rawRequestInfo.type == FileType.FILE_TYPE_FOLDER)
@@ -431,7 +424,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     } else {
                         requestInfo.rid = getRandomId()
                         requestInfo.cid = user.userId
-                        database.requestDao().insert(requestInfo)
+                        requestViewModel.insert(requestInfo)
                         clientHelper.write(requestInfo)
                     }
                 }
@@ -478,22 +471,18 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         }
     }
 
-    private fun updateStatus(rid: String, status: Int) {
-        requestViewModel.updateStatus(rid, status)
-    }
-
     /**
      * this method will return request information
      */
     private suspend fun getRequestInfo(rid: String): RequestInfo {
         d("requested for RequestInfo where rid = $rid to insert")
-        var requestInfos: List<RequestInfo> = database.requestDao().getRequestInfo(rid)
-        while (requestInfos.isEmpty()) {
-            delay(100)
-            requestInfos = database.requestDao().getRequestInfo(rid)
+        var requestInfo = requestViewModel.getRequestInfo(rid)
+        while (requestInfo == null) {
             Logger.e("waiting for rid = $rid to insert")
+            delay(100)
+            requestInfo = requestViewModel.getRequestInfo(rid)
         }
-        return requestInfos[0]
+        return requestInfo
     }
 
     private fun fileToShare() {
@@ -521,19 +510,16 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     private fun updateTransferringProgressBar() {
-        CoroutineScope(Main).launch {
-            while (!isDestroyed) {
-                val visible = if (pendingTransferringCount == 0) View.GONE else View.VISIBLE
-                transferringProgressBar?.visibility = visible
-                transferringCountTextView?.visibility = visible
-                if (pendingTransferringCount > 100) {
-                    transferringCountTextView?.text = "9+"
-                } else {
-                    transferringCountTextView?.text = pendingTransferringCount.toString()
-                }
-                delay(1200)
+        requestViewModel.pendingRequestCountLiveData.observe(this, androidx.lifecycle.Observer {
+            val visible = if (it == 0) View.GONE else View.VISIBLE
+            transferringProgressBar?.visibility = visible
+            transferringCountTextView?.visibility = visible
+            if (it > 100) {
+                transferringCountTextView?.text = "9+"
+            } else {
+                transferringCountTextView?.text = it.toString()
             }
-        }
+        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -560,9 +546,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
         @JvmStatic
         private val pendingRequest = ArrayList<RawRequestInfo>()
-
-        @Volatile
-        private var pendingTransferringCount = 0
 
         @JvmStatic
         var connected: Boolean = false
