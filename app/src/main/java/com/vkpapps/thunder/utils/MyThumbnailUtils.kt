@@ -34,7 +34,9 @@ object MyThumbnailUtils {
                 imageView?.setImageResource(R.drawable.ic_default_audio_icon)
             }
         } else {
-            Picasso.get().load(file).into(imageView)
+            imageView?.run {
+                Picasso.get().load(file).into(imageView)
+            }
         }
     }
 
@@ -53,7 +55,9 @@ object MyThumbnailUtils {
                 imageView?.setImageResource(R.drawable.ic_movie)
             }
         } else {
-            Picasso.get().load(file).into(imageView)
+            imageView?.run {
+                Picasso.get().load(file).into(imageView)
+            }
         }
     }
 

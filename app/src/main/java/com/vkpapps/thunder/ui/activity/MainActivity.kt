@@ -31,6 +31,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
@@ -45,10 +47,13 @@ import com.vkpapps.thunder.loader.PrepareDb
 import com.vkpapps.thunder.model.HistoryInfo
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.RequestInfo
+import com.vkpapps.thunder.model.SerializedMessage
 import com.vkpapps.thunder.model.constaints.FileType
 import com.vkpapps.thunder.model.constaints.StatusType
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
+import com.vkpapps.thunder.ui.dialog.ConnectionDialog
+import com.vkpapps.thunder.ui.dialog.PrivacyDialog
 import com.vkpapps.thunder.ui.fragments.DashboardFragment
 import com.vkpapps.thunder.ui.fragments.destinations.FragmentDestinationListener
 import com.vkpapps.thunder.utils.*
@@ -77,13 +82,14 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
     private var transferringProgressBar: ProgressBar? = null
     private var transferringCountTextView: AppCompatTextView? = null
-    val requestViewModel: RequestViewModel by lazy { ViewModelProvider(this).get(RequestViewModel::class.java) }
+    private val requestViewModel: RequestViewModel by lazy { ViewModelProvider(this).get(RequestViewModel::class.java) }
     private val historyViewModel: HistoryViewModel by lazy { ViewModelProvider(this).get(HistoryViewModel::class.java) }
     private val downloadPathResolver: DownloadPathResolver by lazy { DownloadPathResolver(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        supportActionBar?.elevation = 0f
         user = App.user
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -105,6 +111,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         }
         fileToShare()
         updateTransferringProgressBar()
+        PrivacyDialog(this).isPolicyAccepted
     }
 
     private fun setProfileActionView() {
@@ -132,11 +139,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
-        view.findViewById<View>(R.id.btnCreateParty).setOnClickListener {
+        view.findViewById<View>(R.id.btnCreateGroup).setOnClickListener {
             setup(true)
+            ConnectionDialog(this).createHotspot()
             alertDialog.cancel()
         }
-        view.findViewById<View>(R.id.btnJoinParty).setOnClickListener {
+        view.findViewById<View>(R.id.btnJoinGroup).setOnClickListener {
             setup(false)
             alertDialog.cancel()
         }
@@ -162,13 +170,10 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     connected = true
                 } catch (e: IOException) {
                     runOnUiThread {
-                        val ab = androidx.appcompat.app.AlertDialog.Builder(this)
-                        ab.setTitle("No host found!")
-                        ab.setMessage("There is no host on this wifi")
-                        ab.setCancelable(false)
-                        ab.setPositiveButton("retry") { _: DialogInterface?, _: Int -> setup(false) }
-                        ab.setNegativeButton("Create group") { _: DialogInterface?, _: Int -> choice() }
-                        ab.create().show()
+                        ConnectionDialog(this).joinHotspotFailed(
+                                View.OnClickListener { setup(false) },
+                                View.OnClickListener { choice() }
+                        )
                     }
                     e.printStackTrace()
                 }
@@ -235,7 +240,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     if (clientHelper.user.userId != scid) {
                         val rid = getRandomId()
                         val clone = obj.clone(rid, clientHelper.user.userId)
-                        clientHelper.write(clone)
+                        clientHelper.write(GSON.toJson(SerializedMessage(clone)))
                         //preparing intent for service
                         requestViewModel.insert(clone)
 
@@ -343,7 +348,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             transferringProgressBar = this.findViewById(R.id.transferringProgressBar)
             transferringCountTextView = this.findViewById(R.id.pendingCount)
         }
-
+        requestViewModel.notifyPendingCountChange()
         return true
     }
 
@@ -413,7 +418,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                             val clone = requestInfo.clone(rid, clientHelper.user.userId)
                             //preparing intent for service
                             requestViewModel.insert(clone)
-                            clientHelper.write(clone)
+                            clientHelper.write(GSON.toJson(SerializedMessage(clone)))
                             FileService.startActionSend(
                                     this@MainActivity,
                                     clone,
@@ -425,7 +430,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         requestInfo.rid = getRandomId()
                         requestInfo.cid = user.userId
                         requestViewModel.insert(requestInfo)
-                        clientHelper.write(requestInfo)
+                        clientHelper.write(GSON.toJson(SerializedMessage(requestInfo)))
                     }
                 }
             }
@@ -477,9 +482,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private suspend fun getRequestInfo(rid: String): RequestInfo {
         d("requested for RequestInfo where rid = $rid to insert")
         var requestInfo = requestViewModel.getRequestInfo(rid)
-        while (requestInfo == null) {
+        var tryCount = 0
+        while (requestInfo == null || tryCount != 5) {
             Logger.e("waiting for rid = $rid to insert")
             delay(100)
+            tryCount++
             requestInfo = requestViewModel.getRequestInfo(rid)
         }
         return requestInfo
@@ -526,12 +533,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_UPDATE_PROFILE) {
             if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "Profile Updated", Toast.LENGTH_SHORT).show()
                 setProfileActionView()
                 if (connected) {
                     if (isHost) {
-                        serverHelper.broadcast(user)
+                        serverHelper.broadcast(GSON.toJson(SerializedMessage(user)))
                     } else {
-                        clientHelper.write(user)
+                        clientHelper.write(GSON.toJson(SerializedMessage(user)))
                     }
                 }
             }
@@ -543,6 +551,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         const val ASK_PERMISSION_FROM_GENERIC_FRAGMENT = 1
         const val ASK_PERMISSION_FROM_MAIN_ACTIVITY = 2
         const val REQUEST_UPDATE_PROFILE = 3
+        val GSON: Gson by lazy {
+            GsonBuilder().apply {
+                serializeNulls()
+            }.create()
+        }
 
         @JvmStatic
         private val pendingRequest = ArrayList<RawRequestInfo>()

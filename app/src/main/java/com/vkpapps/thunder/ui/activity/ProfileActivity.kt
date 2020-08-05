@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.R
@@ -51,7 +50,6 @@ class ProfileActivity : AppCompatActivity() {
                     UserUtils(v.context).setUser(user)
                     withContext(Dispatchers.Main) {
                         userName.clearFocus()
-                        Toast.makeText(this@ProfileActivity, "Profile Updated", Toast.LENGTH_SHORT).show()
                         setResult(RESULT_OK)
                         finish()
                     }

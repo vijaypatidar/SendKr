@@ -70,7 +70,7 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
             }
             StatusType.STATUS_COMPLETED -> {
                 holder.status.setImageResource(R.drawable.ic_status_completed)
-                setProgress(holder.progress, requestInfo.size, requestInfo.size)
+                holder.progress.setProgress(100f)
                 try {
                     MyThumbnailUtils.loadThumbnail(requestInfo.rid, Uri.parse(requestInfo.uri), requestInfo.fileType, holder.thumbnail)
                 } catch (e: Exception) {

@@ -43,6 +43,9 @@
         <action
             android:id="@+id/action_navigation_home_to_navigation_files"
             app:destination="@id/navigation_media" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
     </fragment>
 
     <fragment
@@ -74,6 +77,12 @@
         <action
             android:id="@+id/action_navigation_files_to_photoViewFragment"
             app:destination="@id/photoViewFragment" />
+        <action
+            android:id="@+id/action_navigation_media_to_filePropertyDialogFragment"
+            app:destination="@id/filePropertyDialogFragment" />
+        <action
+            android:id="@+id/action_navigation_media_to_filterDialogFragment"
+            app:destination="@id/filterDialogFragment" />
     </fragment>
 
 
@@ -100,11 +109,13 @@
     <fragment
         android:id="@+id/navigation_setting"
         android:name="com.vkpapps.thunder.ui.fragments.SettingsFragment"
-        android:label="Setting" />
+        android:label="Setting"
+        tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/fileFragment"
         android:name="com.vkpapps.thunder.ui.fragments.FileFragment"
-        android:label="File">
+        android:label="File"
+        tools:layout="@layout/fragment_file">
         <action
             android:id="@+id/action_navigation_files_to_files"
             app:destination="@id/fileFragment"
@@ -120,6 +131,12 @@
             app:exitAnim="@anim/slide_out_to_bottom"
             app:popEnterAnim="@anim/slide_in_from_bottom"
             app:popExitAnim="@anim/slide_out_to_bottom" />
+        <action
+            android:id="@+id/action_fileFragment_to_filePropertyDialogFragment"
+            app:destination="@id/filePropertyDialogFragment" />
+        <action
+            android:id="@+id/action_fileFragment_to_filterDialogFragment"
+            app:destination="@id/filterDialogFragment" />
     </fragment>
     <fragment
         android:id="@+id/transferringFragment"
@@ -128,7 +145,7 @@
     <fragment
         android:id="@+id/photoViewFragment"
         android:name="com.vkpapps.thunder.ui.fragments.PhotoViewFragment"
-        android:label="Image"
+        android:label=""
         tools:layout="@layout/fragment_photo_view" />
 
     <dialog

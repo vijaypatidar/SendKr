@@ -2,7 +2,7 @@
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24.0"
-    android:tint="@color/unselected_menu_item"
+    android:tint="@color/darker_gray"
     android:viewportHeight="24.0">
     <path
         android:fillColor="#FF000000"

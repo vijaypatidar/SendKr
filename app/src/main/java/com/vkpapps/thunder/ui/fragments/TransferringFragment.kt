@@ -1,6 +1,5 @@
 package com.vkpapps.thunder.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -9,10 +8,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.google.android.gms.ads.AdView
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.constaints.StatusType
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
@@ -23,7 +20,6 @@ import com.vkpapps.thunder.utils.AdsUtils.getAdRequest
  * @author VIJAY PATIDAR
  */
 class TransferringFragment : Fragment() {
-    private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -36,14 +32,7 @@ class TransferringFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.requestList)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.onFlingListener = object : OnFlingListener() {
-            override fun onFling(velocityX: Int, velocityY: Int): Boolean {
-                if (onNavigationVisibilityListener != null) {
-                    onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
-                }
-                return false
-            }
-        }
+
         //adapter
         val adapter = RequestAdapter(requireContext())
         recyclerView.adapter = adapter
@@ -65,19 +54,6 @@ class TransferringFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         menu.findItem(R.id.menu_transferring).isVisible = false
         menu.findItem(R.id.menu_sorting).isVisible = false
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        onNavigationVisibilityListener = null
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnNavigationVisibilityListener) {
-            onNavigationVisibilityListener = context
-            onNavigationVisibilityListener!!.onNavVisibilityChange(false)
-        }
     }
 
     private fun setTransferringDetail(requestInfos: List<RequestInfo>) {

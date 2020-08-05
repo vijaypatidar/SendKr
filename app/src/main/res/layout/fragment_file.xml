@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     app:cardCornerRadius="@dimen/top_corner_radius">
 
     <RelativeLayout
@@ -13,7 +14,8 @@
             android:id="@+id/fileList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            tools:listitem="@layout/file_list_item_file" />
 
         <ProgressBar
             android:id="@+id/loadingFile"

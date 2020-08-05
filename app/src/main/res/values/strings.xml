@@ -11,10 +11,10 @@
     <string name="about">about</string>
     <string name="about_cap">About</string>
     <string name="developer">Developer Profile</string>
-    <string name="app_description">A modern and easy to use app for sharing file without internet.</string>
+    <string name="app_description">An app for sending and receiving files with other without internet.</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="privacy_policy_url">https://vijaypatidar.me</string>
-    <string name="accept_policy">By using the app you agree to the Sender <a href="https://vijaypatidar.me">Privacy Policy</a></string>
+    <string name="accept_policy">By using the app you agree to the Thunder <a href="https://vijaypatidar.me">Privacy Policy</a></string>
     <string name="cancel">Cancel</string>
     <string name="i_agree">I Agree</string>
     <string name="github_url">https://github.com/vijaypatidar</string>
@@ -25,7 +25,7 @@
     <string name="made_in_india">Made with ❤ in India</string>
     <string name="files">Files</string>
     <string name="title_audio">Audio</string>
-    <string name="empty_photo">"No picture found "</string>
+    <string name="empty_photo">No picture found</string>
     <string name="empty_video">no video found</string>
     <string name="Setting">Settings</string>
     <string name="send">send</string>
@@ -42,8 +42,6 @@
     <string name="download_location">Download location</string>
     <string name="history_cleared_message">History deleted</string>
     <string name="About">About</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="filtering"><![CDATA[Sort&Filter by]]></string>
     <string name="sort_by">SORT BY</string>
     <string name="a_z">A-Z</string>
@@ -54,4 +52,11 @@
     <string name="size_increasing">Size(increasing)</string>
     <string name="size_decreasing">Size(decreasing)</string>
     <string name="media">Media</string>
+    <string name="clear_history">Clear history</string>
+    <string name="privacy">Privacy</string>
+    <string name="create_hotspot">Create Hotspot</string>
+    <string name="dialog_create_hotspot_detail"><![CDATA[Please turn on your Mobile Hotspot, So that other device can connect to your device and join group for sending and receiving file.\nHow to turn on Mobile Hotspot?\nOpen Settings > Connections > Mobile Hotspot and Tethering > Mobile Hotspot]]></string>
+    <string name="retry">Retry</string>
+    <string name="create_group">Create Group</string>
+    <string name="alert_dialog_connection_failed_detail"><![CDATA[Make sure your device WI-Fi is connected to Hotspot created by group owner device.\nHow to connect your device to WI-FI?\nOpen Settings > Connections > WI-Fi > Select and connect to specific Hotspot.]]></string>
 </resources>

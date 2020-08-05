@@ -3,7 +3,6 @@ package com.vkpapps.thunder.loader
 import android.net.Uri
 import android.provider.MediaStore
 import com.vkpapps.thunder.App
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.utils.HashUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
@@ -26,7 +25,6 @@ class PrepareAudioList {
                 val audioModel = AudioInfo(Uri.fromFile(File(path)), File(path).name, size, lastModified)
                 audioModel.id = HashUtils.getHashValue(path.toByteArray())
                 audioInfos.add(audioModel)
-                Logger.d("size audio $size")
             }
             c.close()
             audioInfos.sortBy { it.name }

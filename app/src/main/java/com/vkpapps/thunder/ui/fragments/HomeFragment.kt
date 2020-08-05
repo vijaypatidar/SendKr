@@ -187,7 +187,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         })
 
         selectionView.btnSendFiles.setOnClickListener {
-
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()

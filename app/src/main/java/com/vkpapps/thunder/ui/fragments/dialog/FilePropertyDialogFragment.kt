@@ -25,11 +25,13 @@ class FilePropertyDialogFragment : BottomSheetDialogFragment() {
 
     private var uri: Uri? = null
     private var id: String? = null
+    private var size: String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requireArguments().run {
             uri = Uri.parse(this.getString(PARAM_FILE_URI))
             id = getString(PARAM_FILE_ID)
+            size = getString(PARAM_FILE_SIZE)
         }
     }
 
@@ -59,7 +61,7 @@ class FilePropertyDialogFragment : BottomSheetDialogFragment() {
             val file = DocumentFile.fromFile(uri!!.toFile())
             fileTitle.text = file.name ?: ""
             filePath.text = uri!!.toFile().path
-            fileSize.text = MathUtils.getFileDisplaySize(file)
+            fileSize.text = size ?: MathUtils.getFileDisplaySize(file)
             fileLastModified.text = Date(file.lastModified()).toString()
             fileMimeType.text = file.type ?: "Folder"
             val type = file.type
@@ -82,8 +84,8 @@ class FilePropertyDialogFragment : BottomSheetDialogFragment() {
                 if (res) thumbnail.scaleType = ImageView.ScaleType.CENTER_CROP
             } else {
                 val fileCount = file.listFiles().size
-                val text = if (fileCount > 0) "$fileCount files " else "empty folder"
-                fileSize.text = "${fileSize.text} | $text"
+                val text = "${fileSize.text} | " + if (fileCount > 0) "$fileCount files " else "empty folder"
+                fileSize.text = text
                 thumbnail.setImageResource(R.drawable.ic_folder)
             }
         } catch (e: Exception) {
@@ -97,5 +99,6 @@ class FilePropertyDialogFragment : BottomSheetDialogFragment() {
     companion object {
         const val PARAM_FILE_URI = "PARAM_TARGET_FRAGMENT"
         const val PARAM_FILE_ID = "PARAM_FILE_ID"
+        const val PARAM_FILE_SIZE = "PARAM_FILE_SIZE"
     }
 }

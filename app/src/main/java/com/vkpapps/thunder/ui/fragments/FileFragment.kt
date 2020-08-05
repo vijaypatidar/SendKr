@@ -262,6 +262,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                 return Bundle().apply {
                     putString(FilePropertyDialogFragment.PARAM_FILE_ID, fileInfo.id)
                     putString(FilePropertyDialogFragment.PARAM_FILE_URI, fileInfo.uri.toString())
+                    putString(FilePropertyDialogFragment.PARAM_FILE_SIZE, fileInfo.displaySize)
                 }
             }
 

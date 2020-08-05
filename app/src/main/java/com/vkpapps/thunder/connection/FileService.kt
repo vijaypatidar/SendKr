@@ -7,9 +7,11 @@ import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestReceiverListener
 import com.vkpapps.thunder.model.FileRequest
 import com.vkpapps.thunder.model.RequestInfo
+import com.vkpapps.thunder.model.SerializedMessage
 import com.vkpapps.thunder.ui.activity.MainActivity
+import com.vkpapps.thunder.ui.activity.MainActivity.Companion.GSON
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.FileOutputStream
@@ -63,7 +65,7 @@ class FileService(private val send: Boolean,
         try {
             if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
-                clientHelper.write(FileRequest(FileRequest.UPLOAD_REQUEST_CONFIRM, requestInfo.rid))
+                clientHelper.write(GSON.toJson(SerializedMessage(FileRequest(FileRequest.UPLOAD_REQUEST_CONFIRM, requestInfo.rid))))
                 onFileRequestReceiverListener.onRequestAccepted(requestInfo)
             }
             val socket = getSocket()
@@ -71,7 +73,7 @@ class FileService(private val send: Boolean,
             val file = uri.toFile()
             if (isDirectory) {
                 val zipUtils = ZipUtils()
-                CoroutineScope(IO).launch {
+                CoroutineScope(Default).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(requestInfo, zipUtils.transferred)
                         delay(PROGRESS_UPDATE_TIME)
@@ -82,18 +84,17 @@ class FileService(private val send: Boolean,
             } else {
                 val `in` = socket.getInputStream()
                 val out: OutputStream = FileOutputStream(file, true)
-                val bytes = ByteArray(BUFFER_SIZE)
                 var count: Int
                 var transferredByte: Long = 0
-                CoroutineScope(IO).launch {
+                CoroutineScope(Default).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(requestInfo, transferredByte)
                         delay(PROGRESS_UPDATE_TIME)
                     }
                     onFileRequestReceiverListener.onProgressChange(requestInfo, transferredByte)
                 }
-                while (`in`.read(bytes).also { count = it } > 0) {
-                    out.write(bytes, 0, count)
+                while (`in`.read(BUFFER).also { count = it } > 0) {
+                    out.write(BUFFER, 0, count)
                     transferredByte += count
                 }
                 `in`.close()
@@ -114,14 +115,14 @@ class FileService(private val send: Boolean,
         try {
             if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
-                clientHelper.write(FileRequest(FileRequest.DOWNLOAD_REQUEST_CONFIRM, requestInfo.rid))
+                clientHelper.write(GSON.toJson(SerializedMessage(FileRequest(FileRequest.DOWNLOAD_REQUEST_CONFIRM, requestInfo.rid))))
                 onFileRequestReceiverListener.onRequestAccepted(requestInfo)
             }
             val socket = getSocket()
             val init = System.currentTimeMillis()
             if (isDirectory) {
                 val zipUtils = ZipUtils()
-                CoroutineScope(IO).launch {
+                CoroutineScope(Default).launch {
                     while (!socket.isClosed) {
                         onFileRequestReceiverListener.onProgressChange(requestInfo, zipUtils.transferred)
                         delay(PROGRESS_UPDATE_TIME)
@@ -133,10 +134,9 @@ class FileService(private val send: Boolean,
                 val inputStream: InputStream = App.context.contentResolver.openInputStream(uri)!!
                 inputStream.skip(skip)
                 val outputStream = socket.getOutputStream()
-                val bytes = ByteArray(BUFFER_SIZE)
                 var count: Int = 0
                 var transferredByte: Long = 0
-                CoroutineScope(IO).launch {
+                CoroutineScope(Default).launch {
                     while (!socket.isClosed) {
                         requestInfo.transferred = transferredByte
                         onFileRequestReceiverListener.onProgressChange(requestInfo, transferredByte)
@@ -145,8 +145,8 @@ class FileService(private val send: Boolean,
                     requestInfo.transferred = transferredByte
                     onFileRequestReceiverListener.onProgressChange(requestInfo, transferredByte)
                 }
-                while (inputStream.read(bytes).also { count = it } > 0) {
-                    outputStream.write(bytes, 0, count)
+                while (inputStream.read(BUFFER).also { count = it } > 0) {
+                    outputStream.write(BUFFER, 0, count)
                     transferredByte += count
                 }
                 outputStream.flush()
@@ -168,7 +168,8 @@ class FileService(private val send: Boolean,
         var HOST_ADDRESS: String? = null
         private const val MAX_WAIT_TIME = 1500
         private const val PORT = 7511
-        const val BUFFER_SIZE = 4096
+        private const val BUFFER_SIZE = 4096
+        val BUFFER = ByteArray(BUFFER_SIZE)
         private const val PROGRESS_UPDATE_TIME: Long = 1000
 
         fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, requestInfo: RequestInfo, uri: Uri, clientHelper: ClientHelper, isDirectory: Boolean) {

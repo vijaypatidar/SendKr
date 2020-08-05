@@ -13,7 +13,6 @@ import com.vkpapps.thunder.ui.activity.MainActivity
 class FragmentDestinationListener(private val activity: MainActivity) : OnDestinationChangedListener {
     private var previous = R.id.navigation_home
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        activity.requestViewModel.notifyPendingCountChange()
         when (destination.id) {
             R.id.navigation_home -> {
                 activity.onNavVisibilityChange(true)
@@ -25,6 +24,9 @@ class FragmentDestinationListener(private val activity: MainActivity) : OnDestin
                 activity.onNavVisibilityChange(false)
             }
             R.id.navigation_setting -> {
+                activity.onNavVisibilityChange(false)
+            }
+            R.id.transferringFragment -> {
                 activity.onNavVisibilityChange(false)
             }
         }
