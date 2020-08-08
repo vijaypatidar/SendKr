@@ -1,6 +1,6 @@
 package com.vkpapps.thunder.utils
 
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 
 object DownloadDestinationFolderResolver {
     fun getFileType(mimeType: String?): Int {

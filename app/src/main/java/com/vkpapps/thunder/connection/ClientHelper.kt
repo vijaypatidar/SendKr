@@ -4,9 +4,8 @@ import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnClientConnectionStateListener
 import com.vkpapps.thunder.interfaces.OnFileRequestListener
 import com.vkpapps.thunder.model.FileRequest
-import com.vkpapps.thunder.model.SerializedMessage
+import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.User
-import com.vkpapps.thunder.ui.activity.MainActivity.Companion.GSON
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -19,7 +18,6 @@ import java.util.concurrent.Executors
 class ClientHelper(private val socket: Socket, private val onFileRequestListener: OnFileRequestListener, var user: User, private val onClientConnectionStateListener: OnClientConnectionStateListener?) : Thread() {
     companion object {
         private val signalExecutors = Executors.newSingleThreadExecutor()
-
     }
 
     private var outputStream: ObjectOutputStream? = null
@@ -29,44 +27,46 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
         try {
             outputStream = ObjectOutputStream(socket.getOutputStream())
             // send identity to connected device
-            outputStream!!.writeObject(GSON.toJson(user))
+            outputStream!!.writeObject(user)
             outputStream!!.flush()
             val inputStream = ObjectInputStream(socket.getInputStream())
             var obj = inputStream.readObject()
-            Logger.d("connection handshake ${obj as String}")
-            user = GSON.fromJson(obj, User::class.java)
-            //notify user added
-            onClientConnectionStateListener?.onClientConnected(this)
-            var retry = 0
-            while (!socket.isClosed) {
-                try {
-                    obj = inputStream.readObject()
-                    if (obj is String) {
-                        Logger.d("object received $obj")
-                        val serializedMessage = GSON.fromJson(obj, SerializedMessage::class.java)
-
-                        serializedMessage.fileRequest?.run {
-                            handleFileControl(this)
-                        }
-                        serializedMessage.requestInfo?.run {
-                            // update user information
-                            this.cid = user.userId
-                            onFileRequestListener.onNewRequestInfo(this)
-                        }
-                        serializedMessage.user?.run {
-                            // update user information
-                            if (this.userId == user.userId) {
-                                user.copyFrom(this)
+            if (obj is User) {
+                user = obj
+                //notify user added
+                onClientConnectionStateListener?.onClientConnected(this)
+                var retry = 0
+                while (!socket.isClosed) {
+                    try {
+                        obj = inputStream.readObject()
+                        when (obj) {
+                            is FileRequest -> {
+                                handleFileControl(obj)
+                            }
+                            is RequestInfo -> {
+                                onFileRequestListener.onNewRequestInfo(obj)
+                            }
+                            is User -> {
+                                // update user information
+                                if (obj.userId == user.userId) {
+                                    user.name = obj.name
+                                    user.profileByteArray = obj.profileByteArray
+                                    onClientConnectionStateListener?.onClientInformationChanged(this@ClientHelper)
+                                }
+                            }
+                            else -> {
+                                Logger.e("invalid object received $obj")
                             }
                         }
-                    } else {
-                        Logger.e("invalid object received $obj")
+                    } catch (e: Exception) {
+                        retry++
+                        if (retry == 10) break
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    retry++
-                    if (retry == 10) break
-                    e.printStackTrace()
                 }
+            } else {
+                socket.close()
+                return
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -76,7 +76,7 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
         onClientConnectionStateListener?.onClientDisconnected(this)
     }
 
-    fun write(command: String) {
+    fun write(command: Any) {
         signalExecutors.submit {
             outputStream?.let {
                 synchronized(it) {
@@ -92,11 +92,12 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
     }
 
     private fun handleFileControl(request: FileRequest) {
+        Logger.d("handleFileControl request = ${request.rid} ${request.send}")
         try {
-            when (request.action) {
-                FileRequest.DOWNLOAD_REQUEST_CONFIRM -> onFileRequestListener.onDownloadRequest(request.rid)
-                FileRequest.UPLOAD_REQUEST_CONFIRM -> onFileRequestListener.onUploadRequest(request.rid)
-                else -> Logger.d("handleFileControl: invalid req " + request.action)
+            if (request.send) {
+                onFileRequestListener.onUploadRequest(request.rid)
+            } else {
+                onFileRequestListener.onDownloadRequest(request.rid)
             }
         } catch (e: NullPointerException) {
             e.printStackTrace()

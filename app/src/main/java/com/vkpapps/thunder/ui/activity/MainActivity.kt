@@ -1,11 +1,7 @@
 package com.vkpapps.thunder.ui.activity
 
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -31,8 +27,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
@@ -47,12 +41,11 @@ import com.vkpapps.thunder.loader.PrepareDb
 import com.vkpapps.thunder.model.HistoryInfo
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.RequestInfo
-import com.vkpapps.thunder.model.SerializedMessage
-import com.vkpapps.thunder.model.constaints.FileType
-import com.vkpapps.thunder.model.constaints.StatusType
+import com.vkpapps.thunder.model.constant.FileType
+import com.vkpapps.thunder.model.constant.StatusType
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
-import com.vkpapps.thunder.ui.dialog.ConnectionDialog
+import com.vkpapps.thunder.ui.dialog.DialogsUtils
 import com.vkpapps.thunder.ui.dialog.PrivacyDialog
 import com.vkpapps.thunder.ui.fragments.DashboardFragment
 import com.vkpapps.thunder.ui.fragments.destinations.FragmentDestinationListener
@@ -61,9 +54,8 @@ import com.vkpapps.thunder.utils.HashUtils.getRandomId
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
-import java.io.File
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -84,7 +76,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private var transferringCountTextView: AppCompatTextView? = null
     private val requestViewModel: RequestViewModel by lazy { ViewModelProvider(this).get(RequestViewModel::class.java) }
     private val historyViewModel: HistoryViewModel by lazy { ViewModelProvider(this).get(HistoryViewModel::class.java) }
-    private val downloadPathResolver: DownloadPathResolver by lazy { DownloadPathResolver(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -122,7 +113,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         if (user.profileByteArray.isNotEmpty()) {
             val profilePic = profileActionView.findViewById<AppCompatImageView>(R.id.myProfilePic)
             profilePic.scaleType = ImageView.ScaleType.CENTER_CROP
-            profilePic.setImageBitmap(BitmapUtils().byteArrayToBitmap(user.profileByteArray))
+            profilePic.setImageBitmap(BitmapUtils.byteArrayToBitmap(user.profileByteArray))
         }
         //create activity for updating profile
         profileActionView.setOnClickListener {
@@ -132,22 +123,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     private fun choice() {
-        val ab = AlertDialog.Builder(this)
-        val view = LayoutInflater.from(this).inflate(R.layout.choice_alert_dialog, null)
-        ab.setView(view)
-        ab.setCancelable(false)
-        val alertDialog = ab.create()
-        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        alertDialog.show()
-        view.findViewById<View>(R.id.btnCreateGroup).setOnClickListener {
+        DialogsUtils(this).choice(View.OnClickListener {
             setup(true)
-            ConnectionDialog(this).createHotspot()
-            alertDialog.cancel()
-        }
-        view.findViewById<View>(R.id.btnJoinGroup).setOnClickListener {
+            DialogsUtils(this@MainActivity).createHotspot()
+        }, View.OnClickListener {
             setup(false)
-            alertDialog.cancel()
-        }
+        })
     }
 
     private fun setup(host: Boolean) {
@@ -164,13 +145,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     val address = ipManager.hostIp()
                     d("setup: connection address $address")
                     FileService.HOST_ADDRESS = address
-                    socket.connect(InetSocketAddress(FileService.HOST_ADDRESS, 1203), 5000)
+                    socket.connect(InetSocketAddress(FileService.HOST_ADDRESS, ServerHelper.PORT), 5000)
                     clientHelper = ClientHelper(socket, this, user, this)
                     clientHelper.start()
                     connected = true
                 } catch (e: IOException) {
                     runOnUiThread {
-                        ConnectionDialog(this).joinHotspotFailed(
+                        DialogsUtils(this).joinHotspotFailed(
                                 View.OnClickListener { setup(false) },
                                 View.OnClickListener { choice() }
                         )
@@ -192,72 +173,77 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onDownloadRequest(rid: String) {
         // this method is only invoked for client
-        CoroutineScope(IO).launch {
-            val requestInfo = getRequestInfo(rid)
-            requestInfo.status = StatusType.STATUS_ONGOING
-            FileService.startActionReceive(this@MainActivity, Uri.parse(requestInfo.uri),
-                    requestInfo,
-                    clientHelper,
-                    requestInfo.fileType == FileType.FILE_TYPE_FOLDER
-            )
-        }
+        val requestInfo = getRequestInfo(rid)
+        FileService.startActionReceive(this@MainActivity,
+                requestInfo,
+                clientHelper
+        )
     }
 
     override fun onUploadRequest(rid: String) {
         // this method is only invoked for client
-        CoroutineScope(IO).launch {
-            val requestInfo = getRequestInfo(rid)
-            requestInfo.status = StatusType.STATUS_ONGOING
-            d("onUploadRequest rid = $rid source = ${requestInfo.uri} name = ${requestInfo.name}")
-            FileService.startActionSend(this@MainActivity, requestInfo,
-                    Uri.parse(requestInfo.uri),
-                    clientHelper,
-                    requestInfo.fileType == FileType.FILE_TYPE_FOLDER
-            )
-        }
+        val requestInfo = getRequestInfo(rid)
+        requestInfo.status = StatusType.STATUS_ONGOING
+        d("onUploadRequest rid = $rid source = ${requestInfo.uri} name = ${requestInfo.name}")
+        FileService.startActionSend(this@MainActivity, requestInfo,
+                clientHelper
+        )
     }
 
-    override fun onNewRequestInfo(obj: RequestInfo) {
-        CoroutineScope(IO).launch {
-            obj.uri = Uri.fromFile(File(downloadPathResolver.getSource(obj))).toString()
-            d(" new file request type = ${obj.fileType} ${obj.name}")
-            if (isHost) {
-                requestViewModel.insert(obj)
+    override fun onNewRequestInfo(requestInfo: RequestInfo) {
+        d(" new file request type = ${requestInfo.displaySize} ${requestInfo.name}")
+        Logger.d("size=================${requestInfo.size}")
+        if (isHost) {
+            //new file request
+            if (requestInfo.transferred == 0L) {
+                requestViewModel.insert(requestInfo)
                 serverHelper.clientHelpers.forEach {
-                    if (it.user.userId == obj.cid) {
+                    if (it.user.userId == requestInfo.sid) {
                         FileService.startActionReceive(
                                 this@MainActivity,
-                                Uri.parse(obj.uri),
-                                obj,
-                                it,
-                                obj.fileType == FileType.FILE_TYPE_FOLDER)
+                                requestInfo,
+                                it)
                     }
                 }
 
-                //sender cid
-                val scid = obj.cid
                 for (clientHelper in serverHelper.clientHelpers) {
-                    if (clientHelper.user.userId != scid) {
-                        val rid = getRandomId()
-                        val clone = obj.clone(rid, clientHelper.user.userId)
-                        clientHelper.write(GSON.toJson(SerializedMessage(clone)))
+                    if (clientHelper.user.userId != requestInfo.sid) {
+                        val clone = requestInfo.clone()
+                        clone.rid = getRandomId()
+                        clone.cid = clientHelper.user.userId
+                        clientHelper.write(clone)
                         //preparing intent for service
                         requestViewModel.insert(clone)
 
                         FileService.startActionSend(
                                 this@MainActivity,
                                 clone,
-                                Uri.parse(clone.uri),
-                                clientHelper,
-                                obj.fileType == FileType.FILE_TYPE_FOLDER)
+                                clientHelper)
                     }
                 }
             } else {
-                d("client new req size of file = ${obj.size}")
-                requestViewModel.insert(obj)
+                try {
+                    val requestInfo1 = requestViewModel.getRequestInfo(requestInfo.rid)
+                    requestInfo1?.status = requestInfo.status
+                } catch (e: Exception) {
+
+                }
+            }
+        } else {
+            d("client new req size of file = ${requestInfo.size}")
+            if (requestInfo.transferred == 0L) {
+                requestViewModel.insert(requestInfo)
+            } else {
+                try {
+                    val requestInfo1 = requestViewModel.getRequestInfo(requestInfo.rid)
+                    requestInfo1?.status = requestInfo.status
+                } catch (e: Exception) {
+
+                }
             }
         }
     }
+
 
     override fun onRequestFailed(requestInfo: RequestInfo) {
         requestInfo.status = StatusType.STATUS_FAILED
@@ -265,8 +251,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         requestViewModel.decrementPendingRequestCount()
     }
 
-    override fun onProgressChange(requestInfo: RequestInfo, transferred: Long) {
-        requestInfo.transferred = transferred
+    override fun onProgressChange(requestInfo: RequestInfo) {
         requestViewModel.notifyDataSetChanged()
     }
 
@@ -276,28 +261,34 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onRequestSuccess(requestInfo: RequestInfo, send: Boolean) {
-        requestInfo.status = StatusType.STATUS_COMPLETED
-        requestViewModel.notifyDataSetChanged()
-        requestViewModel.decrementPendingRequestCount()
-        if (!send) {
-            CoroutineScope(IO).launch {
-                historyViewModel.insert(
-                        HistoryInfo(requestInfo.name, Uri.parse(requestInfo.uri), requestInfo.fileType)
-                )
+        CoroutineScope(IO).launch {
+            if (requestInfo.transferred == requestInfo.size) {
+                requestInfo.status = StatusType.STATUS_COMPLETED
+                requestViewModel.decrementPendingRequestCount()
+                if (!send) {
+                    historyViewModel.insert(
+                            HistoryInfo(requestInfo.rid, requestInfo.name, Uri.parse(requestInfo.uri), requestInfo.fileType)
+                    )
+                    // notify media store to scan files
+                    sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(requestInfo.uri)))
+
+                }
+            } else {
+                requestInfo.status = StatusType.STATUS_PAUSE
             }
+            requestViewModel.notifyDataSetChanged()
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when {
-            item.itemId == android.R.id.home -> {
+        when (item.itemId) {
+            android.R.id.home -> {
                 onBackPressed()
             }
-
-            R.id.menu_transferring == item.itemId -> {
+            R.id.menu_transferring -> {
                 navController.navigate(R.id.transferringFragment)
             }
-            item.itemId == R.id.menu_about -> {
+            R.id.menu_about -> {
                 navController.navigate(object : NavDirections {
                     override fun getActionId(): Int {
                         return R.id.action_navigation_home_to_aboutFragment
@@ -308,7 +299,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     }
                 })
             }
-            item.itemId == R.id.navigation_setting -> {
+            R.id.navigation_setting -> {
                 navController.navigate(object : NavDirections {
                     override fun getActionId(): Int {
                         return R.id.action_navigation_home_to_navigation_setting
@@ -388,18 +379,15 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onBackPressed() {
         val currentDestination = navController.currentDestination
         if (currentDestination != null && currentDestination.id == R.id.navigation_home) {
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("Are you want to exit?")
-            builder.setPositiveButton("Yes") { _: DialogInterface?, _: Int ->
+            DialogsUtils(this).exitAppAlert(View.OnClickListener {
                 if (isHost) {
                     serverHelper.shutDown()
                 } else {
                     clientHelper.shutDown()
                 }
                 finish()
-            }
-            builder.setNegativeButton("No", null)
-            builder.create().show()
+            }, null
+            )
         } else super.onBackPressed()
     }
 
@@ -407,35 +395,42 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         if (connected && (!isHost || serverHelper.clientHelpers.size != 0)) {
             CoroutineScope(IO).launch {
                 for (rawRequestInfo in requests) {
-                    val requestInfo = RequestInfo()
-                    requestInfo.name = rawRequestInfo.name
-                    requestInfo.uri = rawRequestInfo.uri.toString()
-                    requestInfo.fileType = rawRequestInfo.type
-                    requestInfo.size = rawRequestInfo.size
-                    if (isHost) {
-                        for (clientHelper in serverHelper.clientHelpers) {
-                            val rid = getRandomId()
-                            val clone = requestInfo.clone(rid, clientHelper.user.userId)
-                            //preparing intent for service
-                            requestViewModel.insert(clone)
-                            clientHelper.write(GSON.toJson(SerializedMessage(clone)))
-                            FileService.startActionSend(
-                                    this@MainActivity,
-                                    clone,
-                                    Uri.parse(clone.uri),
-                                    clientHelper,
-                                    rawRequestInfo.type == FileType.FILE_TYPE_FOLDER)
+                    if (rawRequestInfo.size != 0L) {
+                        val requestInfo = RequestInfo()
+                        requestInfo.name = rawRequestInfo.name
+                        requestInfo.uri = rawRequestInfo.uri.toString()
+                        requestInfo.fileType = rawRequestInfo.type
+                        requestInfo.sid = App.user.userId
+                        requestInfo.size = rawRequestInfo.size
+                        requestInfo.displaySize = MathUtils.longToStringSize(rawRequestInfo.size.toDouble())
+                        if (isHost) {
+                            for (clientHelper in serverHelper.clientHelpers) {
+                                val clone = requestInfo.clone()
+                                clone.rid = getRandomId()
+                                clone.cid = clientHelper.user.userId
+                                //preparing intent for service
+                                requestViewModel.insert(clone)
+                                clientHelper.write(clone)
+                                FileService.startActionSend(
+                                        this@MainActivity,
+                                        clone,
+                                        clientHelper)
+                            }
+                        } else {
+                            requestInfo.rid = getRandomId()
+                            requestInfo.cid = user.userId
+                            requestViewModel.insert(requestInfo)
+                            clientHelper.write(requestInfo)
                         }
-                    } else {
-                        requestInfo.rid = getRandomId()
-                        requestInfo.cid = user.userId
-                        requestViewModel.insert(requestInfo)
-                        clientHelper.write(GSON.toJson(SerializedMessage(requestInfo)))
                     }
                 }
             }
         } else {
             pendingRequest.addAll(requests)
+            if (requests.isNotEmpty())
+                CoroutineScope(Main).launch {
+                    DialogsUtils(this@MainActivity).waitingForReceiver(pendingRequest.size)
+                }
         }
     }
 
@@ -448,7 +443,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             try {
                 PrepareAppList.thunder?.run {
                     val uri = this.uri
-                    Logger.d("i have new version $uri")
                     sendFiles(Collections.singletonList(RawRequestInfo(this.name,
                             uri,
                             FileType.FILE_TYPE_APP,
@@ -469,23 +463,29 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onClientDisconnected(clientHelper: ClientHelper) {
         runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
+
         //prompt client when disconnect
         if (!isHost) {
             connected = false
+            requestViewModel.clearRequestList()
             runOnUiThread { choice() }
         }
+    }
+
+    override fun onClientInformationChanged(clientHelper: ClientHelper) {
+        runOnUiThread { onUsersUpdateListener?.onUserUpdated() }
     }
 
     /**
      * this method will return request information
      */
-    private suspend fun getRequestInfo(rid: String): RequestInfo {
+    private fun getRequestInfo(rid: String): RequestInfo {
         d("requested for RequestInfo where rid = $rid to insert")
         var requestInfo = requestViewModel.getRequestInfo(rid)
         var tryCount = 0
-        while (requestInfo == null || tryCount != 5) {
+        while (requestInfo == null || tryCount != 10) {
             Logger.e("waiting for rid = $rid to insert")
-            delay(100)
+            Thread.sleep(90)
             tryCount++
             requestInfo = requestViewModel.getRequestInfo(rid)
         }
@@ -537,9 +537,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 setProfileActionView()
                 if (connected) {
                     if (isHost) {
-                        serverHelper.broadcast(GSON.toJson(SerializedMessage(user)))
+                        serverHelper.broadcast(user)
                     } else {
-                        clientHelper.write(GSON.toJson(SerializedMessage(user)))
+                        clientHelper.write(user)
                     }
                 }
             }
@@ -550,12 +550,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         const val ASK_PERMISSION_FROM_SHARED_INTENT = 0
         const val ASK_PERMISSION_FROM_GENERIC_FRAGMENT = 1
         const val ASK_PERMISSION_FROM_MAIN_ACTIVITY = 2
+        const val ASK_LOCATION_PERMISSION = 3
         const val REQUEST_UPDATE_PROFILE = 3
-        val GSON: Gson by lazy {
-            GsonBuilder().apply {
-                serializeNulls()
-            }.create()
-        }
 
         @JvmStatic
         private val pendingRequest = ArrayList<RawRequestInfo>()

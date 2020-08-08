@@ -18,7 +18,7 @@ import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.loader.PrepareAppList
 import com.vkpapps.thunder.model.AppInfo
 import com.vkpapps.thunder.model.RawRequestInfo
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.ui.adapter.AppAdapter
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_app.*
@@ -82,7 +82,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                     if (it.obbUri != null && it.isObbSelected) {
                         it.isObbSelected = false
                         selected.add(RawRequestInfo(
-                                it.obbName!!, it.obbUri!!, FileType.FILE_TYPE_ANY, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile())
+                                it.obbName!!, it.obbUri!!, FileType.FILE_TYPE_ANY, MathUtils.getFileSize(DocumentFile.fromFile(it.obbUri!!.toFile())
                         )))
                     }
 

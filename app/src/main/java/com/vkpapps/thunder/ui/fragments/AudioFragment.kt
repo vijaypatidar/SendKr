@@ -23,7 +23,7 @@ import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.model.RawRequestInfo
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.room.liveViewModel.AudioViewModel
 import com.vkpapps.thunder.ui.adapter.AudioAdapter
 import com.vkpapps.thunder.ui.adapter.AudioAdapter.OnAudioSelectedListener

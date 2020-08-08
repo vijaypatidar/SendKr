@@ -42,6 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatButton
@@ -50,16 +51,14 @@
                 android:layout_height="40dp"
                 android:layout_margin="5dp"
                 android:background="@drawable/round"
-                android:backgroundTint="@color/colorAccent"
                 android:elevation="0dp"
-                android:foreground="?android:attr/selectableItemBackground"
                 android:gravity="center"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
                 android:text="@string/create_group"
                 android:textAlignment="gravity"
                 android:textAllCaps="false"
-                android:textColor="@color/white" />
+                android:textColor="@color/colorAccent" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnRetry"
@@ -69,7 +68,6 @@
                 android:background="@drawable/round"
                 android:backgroundTint="@color/colorAccent"
                 android:elevation="0dp"
-                android:foreground="?android:attr/selectableItemBackground"
                 android:gravity="center"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"

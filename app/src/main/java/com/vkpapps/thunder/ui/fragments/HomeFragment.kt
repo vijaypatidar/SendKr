@@ -42,6 +42,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var navController: NavController? = null
+    private val historyViewModel: HistoryViewModel by lazy { ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -102,6 +103,8 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         setupHistory()
 
         AdsUtils.getAdRequest(adView)
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -174,7 +177,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                 return false
             }
         }
-        val historyViewModel = ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java)
         val historyInfos = ArrayList<HistoryInfo>()
         historyViewModel.historyInfos.observe(requireActivity(), androidx.lifecycle.Observer {
             CoroutineScope(IO).launch {
@@ -240,6 +242,10 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     override fun onHistorySelected(historyInfo: HistoryInfo) {
         selectedCount++
         hideShowSendButton()
+    }
+
+    override fun onHistoryDeleteRequestSelected(historyInfo: HistoryInfo) {
+        historyViewModel.delete(historyInfo.id)
     }
 
     override fun onHistoryDeselected(historyInfo: HistoryInfo) {

@@ -2,7 +2,7 @@ package com.vkpapps.thunder.model
 
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.utils.DownloadDestinationFolderResolver
 import com.vkpapps.thunder.utils.HashUtils
 import com.vkpapps.thunder.utils.MathUtils

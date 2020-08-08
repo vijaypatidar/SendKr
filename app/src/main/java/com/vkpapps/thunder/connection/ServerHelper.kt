@@ -1,6 +1,5 @@
 package com.vkpapps.thunder.connection
 
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnClientConnectionStateListener
 import com.vkpapps.thunder.interfaces.OnFileRequestListener
 import com.vkpapps.thunder.model.User
@@ -14,21 +13,20 @@ class ServerHelper(private val onFileRequestListener: OnFileRequestListener,
                    private val user: User,
                    private val onClientConnectionStateListener: OnClientConnectionStateListener?) : Thread(), OnClientConnectionStateListener {
 
+    companion object {
+        const val PORT = 3110
+    }
+
     val clientHelpers: ArrayList<ClientHelper> = ArrayList()
     private var live = true
     override fun run() {
         try {
-            val serverSocket = ServerSocket(1203)
+            val serverSocket = ServerSocket(PORT)
             while (live) {
                 try {
                     val socket = serverSocket.accept()
                     val commandHelper = ClientHelper(socket, onFileRequestListener, user, this)
                     commandHelper.start()
-                    try {
-                        sleep(2000)
-                    } catch (e: InterruptedException) {
-                        e.printStackTrace()
-                    }
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
@@ -38,8 +36,7 @@ class ServerHelper(private val onFileRequestListener: OnFileRequestListener,
         }
     }
 
-    fun broadcast(command: String) {
-        Logger.d("broadcast $command")
+    fun broadcast(command: Any) {
         for (c in clientHelpers) {
             c.write(command)
         }
@@ -53,6 +50,10 @@ class ServerHelper(private val onFileRequestListener: OnFileRequestListener,
     override fun onClientDisconnected(clientHelper: ClientHelper) {
         clientHelpers.remove(clientHelper)
         onClientConnectionStateListener?.onClientDisconnected(clientHelper)
+    }
+
+    override fun onClientInformationChanged(clientHelper: ClientHelper) {
+        onClientConnectionStateListener?.onClientInformationChanged(clientHelper)
     }
 
     fun shutDown() {

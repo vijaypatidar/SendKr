@@ -23,7 +23,6 @@ object PrepareAppList {
                 val appInfo = AppInfo(
                         it.applicationInfo.loadLabel(packageManager).toString() + ".apk",
                         Uri.fromFile(File(it.applicationInfo.sourceDir)),
-                        it.applicationInfo.loadIcon(packageManager),
                         it.packageName)
 
                 appInfo.size = MathUtils.longToStringSize(appInfo.uri.toFile().length().toDouble())

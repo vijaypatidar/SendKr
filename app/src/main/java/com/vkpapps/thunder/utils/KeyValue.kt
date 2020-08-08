@@ -11,28 +11,25 @@ class KeyValue(context: Context) {
     var isDarkMode: Boolean
         get() = sharedPreferences.getBoolean("mode", false)
         set(darkMode) {
-            val editor = sharedPreferences.edit()
-            editor.putBoolean("mode", darkMode).apply()
+            sharedPreferences.edit().putBoolean("mode", darkMode).apply()
         }
 
     var token: String?
         get() = sharedPreferences.getString("token", null)
         set(token) {
-            val editor = sharedPreferences.edit()
-            editor.putString("token", token).apply()
+            sharedPreferences.edit().putString("token", token).apply()
         }
 
     var policy: Boolean
         get() = sharedPreferences.getBoolean("policy", false)
         set(policy) {
-            val editor = sharedPreferences.edit()
-            editor.putBoolean("policy", policy).apply()
+            sharedPreferences.edit().putBoolean("policy", policy).apply()
+
         }
 
     var externalStoragePath: String?
         get() = sharedPreferences.getString("externalStoragePath", null)
         set(policy) {
-            val editor = sharedPreferences.edit()
-            editor.putString("externalStoragePath", policy).apply()
+            sharedPreferences.edit().putString("externalStoragePath", policy).apply()
         }
 }

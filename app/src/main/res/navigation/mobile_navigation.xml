@@ -110,7 +110,16 @@
         android:id="@+id/navigation_setting"
         android:name="com.vkpapps.thunder.ui.fragments.SettingsFragment"
         android:label="Setting"
-        tools:layout="@layout/fragment_settings" />
+        tools:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_navigation_setting_to_navigation_about"
+            app:destination="@id/navigation_about"
+            app:enterAnim="@anim/slide_in_from_left"
+            app:exitAnim="@android:anim/slide_out_right"
+            app:launchSingleTop="false"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
     <fragment
         android:id="@+id/fileFragment"
         android:name="com.vkpapps.thunder.ui.fragments.FileFragment"

@@ -14,8 +14,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.FileInfo
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.ui.adapter.FileAdapter.MyViewHolder
 import com.vkpapps.thunder.ui.fragments.FileFragment
 import com.vkpapps.thunder.utils.MyThumbnailUtils
@@ -78,14 +78,23 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
                     fileInfo.type,
                     holder.icon
             )
+
             holder.itemView.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW)
                 MediaScannerConnection.scanFile(it.context, arrayOf(fileInfo.uri.toFile().absolutePath), null) { _, uri ->
                     run {
-                        val type = it.context.contentResolver.getType(uri)
-                        Logger.d("file $uri type = $type")
-                        intent.setDataAndType(uri, type)
-                        it.context.startActivity(intent)
+
+                        it.context.startActivity(
+                                if (fileInfo.type == FileType.FILE_TYPE_APP) {
+                                    Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                                        setDataAndType(uri, "application/vnd.android.package-archive")
+                                    }
+                                } else {
+                                    val type = it.context.contentResolver.getType(uri)
+                                    Intent(Intent.ACTION_VIEW).apply {
+                                        setDataAndType(uri, type)
+                                    }
+                                })
+
                     }
                 }
             }

@@ -9,6 +9,6 @@ interface OnFileRequestReceiverListener {
     fun onRequestFailed(requestInfo: RequestInfo)
     fun onRequestAccepted(requestInfo: RequestInfo)
     fun onRequestSuccess(requestInfo: RequestInfo, send: Boolean)
-    fun onProgressChange(requestInfo: RequestInfo, transferred: Long)
+    fun onProgressChange(requestInfo: RequestInfo)
 }
 

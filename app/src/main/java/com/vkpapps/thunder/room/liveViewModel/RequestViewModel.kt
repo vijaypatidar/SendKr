@@ -53,4 +53,11 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
         pendingRequestCountLiveData.postValue(pendingRequestCount)
     }
 
+    fun clearRequestList() {
+        pendingRequestCount = 0
+        requestInfos.clear()
+        notifyPendingCountChange()
+        notifyDataSetChanged()
+    }
+
 }

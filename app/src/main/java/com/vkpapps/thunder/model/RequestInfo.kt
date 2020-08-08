@@ -1,52 +1,38 @@
 package com.vkpapps.thunder.model
 
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
-import com.vkpapps.thunder.utils.MathUtils
+import java.io.Serializable
 
-class RequestInfo {
-
-    @SerializedName("rid")
+class RequestInfo : Serializable {
     var rid: String = ""
-
-    @SerializedName("cid")
+    var sid: String = ""
     var cid: String = ""
-
-    @SerializedName("fileName")
     var name: String = ""
 
-    @SerializedName("fileType")
+    //used to decide destination folder
     var fileType = 0
-
-    @SerializedName("size")
     var size: Long = 0
-        set(value) {
-            displaySize = MathUtils.longToStringSize(value.toDouble())
-            field = value
-        }
-
-    @SerializedName("displaySize")
     var displaySize: String = ""
 
-    @Expose(serialize = false, deserialize = false)
-    lateinit var uri: String
-
-    @Expose(serialize = false, deserialize = false)
+    // generated at receiver side after checking file exists status is false
+    var uri: String? = null
     var status = 0//pending
+
+    //
     var transferred: Long = 0
 
-    constructor()
 
-    constructor(rid: String, cid: String, name: String, uri: String, type: Int, size: Long) {
-        this.rid = rid
-        this.cid = cid
-        this.name = name
-        this.uri = uri
-        this.fileType = type
-        this.size = size
-    }
-
-    fun clone(rid: String, cid: String): RequestInfo {
-        return RequestInfo(rid, cid, name, uri, fileType, size)
+    fun clone(): RequestInfo {
+        val clone = RequestInfo()
+        clone.rid = rid
+        clone.sid = sid
+        clone.cid = cid
+        clone.name = name
+        clone.fileType = fileType
+        clone.size = size
+        clone.displaySize = displaySize
+        clone.uri = uri
+        clone.status = status
+        clone.transferred = transferred
+        return clone
     }
 }

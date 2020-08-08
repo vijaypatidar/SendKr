@@ -9,11 +9,11 @@ import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.model.HistoryInfo
 import com.vkpapps.thunder.model.PhotoInfo
 import com.vkpapps.thunder.model.VideoInfo
-import com.vkpapps.thunder.room.UriConverter
 import com.vkpapps.thunder.room.dao.AudioDao
 import com.vkpapps.thunder.room.dao.HistoryDao
 import com.vkpapps.thunder.room.dao.PhotoDao
 import com.vkpapps.thunder.room.dao.VideoDao
+import com.vkpapps.thunder.room.typeConverter.UriConverter
 
 @Database(entities = [PhotoInfo::class, AudioInfo::class, VideoInfo::class, HistoryInfo::class], version = 1, exportSchema = false)
 @TypeConverters(UriConverter::class)

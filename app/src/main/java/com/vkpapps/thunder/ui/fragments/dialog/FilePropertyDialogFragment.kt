@@ -16,6 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.picasso.Picasso
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
 import kotlinx.android.synthetic.main.fragment_file_property_dialog.*
@@ -77,6 +78,10 @@ class FilePropertyDialogFragment : BottomSheetDialogFragment() {
                     }
                     type.startsWith("audio") -> {
                         MyThumbnailUtils.loadAudioThumbnail(id!!, uri!!, thumbnail)
+                        true
+                    }
+                    type == "application/vnd.android.package-archive" -> {
+                        MyThumbnailUtils.loadThumbnail(id!!, uri!!, FileType.FILE_TYPE_APP, thumbnail)
                         true
                     }
                     else -> false

@@ -3,7 +3,7 @@ package com.vkpapps.thunder.utils
 import android.content.Context
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.RequestInfo
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 import java.io.File
 
 

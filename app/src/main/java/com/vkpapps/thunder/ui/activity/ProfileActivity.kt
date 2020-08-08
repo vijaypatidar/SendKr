@@ -30,7 +30,7 @@ class ProfileActivity : AppCompatActivity() {
 
         userName.setText(user.name)
         if (user.profileByteArray.isNotEmpty()) {
-            userPic.setImageBitmap(BitmapUtils().byteArrayToBitmap(user.profileByteArray))
+            userPic.setImageBitmap(BitmapUtils.byteArrayToBitmap(user.profileByteArray))
         }
 
         userPic.setOnClickListener {
@@ -45,7 +45,7 @@ class ProfileActivity : AppCompatActivity() {
                 CoroutineScope(Dispatchers.IO).launch {
                     user.name = name
                     if (picChange) {
-                        user.profileByteArray = BitmapUtils().viewToByteArray(userPic)
+                        user.profileByteArray = BitmapUtils.viewToByteArray(userPic)
                     }
                     UserUtils(v.context).setUser(user)
                     withContext(Dispatchers.Main) {

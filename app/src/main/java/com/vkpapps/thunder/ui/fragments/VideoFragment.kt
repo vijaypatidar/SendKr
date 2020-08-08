@@ -21,7 +21,7 @@ import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.VideoInfo
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.room.liveViewModel.VideoViewModel
 import com.vkpapps.thunder.ui.adapter.VideoAdapter
 import com.vkpapps.thunder.ui.adapter.VideoAdapter.OnVideoSelectListener
@@ -60,6 +60,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
         controller = Navigation.findNavController(view)
         val recyclerView: RecyclerView = view.findViewById(R.id.videoList)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
         adapter = VideoAdapter(videoInfos, this)
         recyclerView.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
@@ -71,7 +72,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
         recyclerView.adapter = adapter
 
         val videoViewModel = ViewModelProvider(requireActivity()).get(VideoViewModel::class.java)
-        videoViewModel.videoInfos.observe(requireActivity(), androidx.lifecycle.Observer { it ->
+        videoViewModel.videoInfos.observe(requireActivity(), androidx.lifecycle.Observer {
             if (it.isNotEmpty()) {
                 CoroutineScope(IO).launch {
                     it.forEach { item ->

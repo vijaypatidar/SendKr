@@ -59,4 +59,14 @@
     <string name="retry">Retry</string>
     <string name="create_group">Create Group</string>
     <string name="alert_dialog_connection_failed_detail"><![CDATA[Make sure your device WI-Fi is connected to Hotspot created by group owner device.\nHow to connect your device to WI-FI?\nOpen Settings > Connections > WI-Fi > Select and connect to specific Hotspot.]]></string>
+    <string name="clear_transferring_history">Clear transferring history</string>
+    <string name="clear_transferring_history_detail">"This will not delete the  file from storage. "</string>
+    <string name="exit_app_message">Ongoing transferring of files will get cancel.</string>
+    <string name="exit_app">Exit app</string>
+    <string name="exit">Exit</string>
+    <string name="clear">Clear</string>
+    <string name="waiting_for_receiver_detail">%S files are in send queue and waiting for receiver.</string>
+    <string name="join_group">Join Group</string>
+    <string name="waiting_for_receiver">Waiting for receiver...</string>
+    <string name="ok">OK</string>
 </resources>

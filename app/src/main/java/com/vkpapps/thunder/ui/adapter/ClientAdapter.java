@@ -46,7 +46,7 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.MyHolder> 
         holder.userName.setText(user.getName());
         byte[] profileByteArray = user.getProfileByteArray();
         if (profileByteArray.length > 0) {
-            holder.profilePic.setImageBitmap(new BitmapUtils().byteArrayToBitmap(user.getProfileByteArray()));
+            holder.profilePic.setImageBitmap(BitmapUtils.INSTANCE.byteArrayToBitmap(user.getProfileByteArray()));
         }
         holder.btnDisconnect.setOnClickListener(v -> clientHelper.shutDown());
     }

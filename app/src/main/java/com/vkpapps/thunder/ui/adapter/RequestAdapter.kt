@@ -12,8 +12,8 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.model.RequestInfo
-import com.vkpapps.thunder.model.constaints.FileType
-import com.vkpapps.thunder.model.constaints.StatusType
+import com.vkpapps.thunder.model.constant.FileType
+import com.vkpapps.thunder.model.constant.StatusType
 import com.vkpapps.thunder.ui.views.HorizontalProgressBar
 import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
@@ -21,6 +21,7 @@ import com.vkpapps.thunder.utils.MyThumbnailUtils
 class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var requestInfos: List<RequestInfo> = ArrayList()
     private val inflater: LayoutInflater = LayoutInflater.from(context)
+
 
     private val animation = RotateAnimation(0f, (-360).toFloat(),
             Animation.RELATIVE_TO_SELF, .5f,
@@ -67,6 +68,7 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
                 setIconType(holder.thumbnail, requestInfo.fileType)
                 holder.status.animation = animation
                 setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
+
             }
             StatusType.STATUS_COMPLETED -> {
                 holder.status.setImageResource(R.drawable.ic_status_completed)
@@ -81,6 +83,11 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
                 setIconType(holder.thumbnail, requestInfo.fileType)
                 setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
                 holder.status.setImageResource(R.drawable.ic_status_failed)
+            }
+            StatusType.STATUS_PAUSE -> {
+                setIconType(holder.thumbnail, requestInfo.fileType)
+                holder.status.setImageResource(R.drawable.ic_resume)
+                setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
             }
         }
     }
@@ -109,7 +116,8 @@ class RequestAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewH
             val progress = MathUtils.roundTo((transferred * 100 / size).toDouble())
             progressBar.setProgress(progress.toFloat())
         } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
+
+
 }
