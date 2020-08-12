@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.model.AppInfo;
+import com.vkpapps.thunder.utils.MyThumbnailUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +41,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.AppHolder> {
     public void onBindViewHolder(@NonNull final AppAdapter.AppHolder appHolder, int position) {
         final AppInfo appInfo = appInfos.get(position);
         appHolder.appTitle.setText(appInfo.getName());
-        appHolder.appIcon.setImageDrawable(appInfo.getIcon());
+        MyThumbnailUtils.INSTANCE.loadApkThumbnail(appInfo.getId(), appInfo.getUri(), appHolder.appIcon);
         appHolder.btnSelected.setChecked(appInfo.isSelected());
         appHolder.packageName.setText(appInfo.getSize());
         appHolder.btnSelected.setOnClickListener((v) -> {

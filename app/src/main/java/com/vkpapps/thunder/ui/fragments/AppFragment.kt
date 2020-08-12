@@ -3,7 +3,6 @@ package com.vkpapps.thunder.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
@@ -19,7 +18,7 @@ import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.loader.PrepareAppList
 import com.vkpapps.thunder.model.AppInfo
 import com.vkpapps.thunder.model.RawRequestInfo
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.ui.adapter.AppAdapter
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_app.*
@@ -36,7 +35,7 @@ import kotlinx.coroutines.withContext
 class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
 
     private val appInfos = ArrayList<AppInfo>()
-    private var adapter: AppAdapter? = null
+    private var adapter: AppAdapter = AppAdapter(appInfos, this)
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     var selectedCount = 0
@@ -51,7 +50,6 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
         navController = Navigation.findNavController(view)
-        adapter = AppAdapter(appInfos, this)
         appList.adapter = adapter
         appList.layoutManager = LinearLayoutManager(requireContext())
         appList.onFlingListener = object : OnFlingListener() {
@@ -65,7 +63,8 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
             val list = PrepareAppList.appList
             appInfos.addAll(list)
             withContext(Main) {
-                adapter?.notifyDataSetChanged()
+                adapter.notifyDataSetChanged()
+                loadingApps.visibility = View.GONE
             }
         }
 
@@ -83,17 +82,16 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                     if (it.obbUri != null && it.isObbSelected) {
                         it.isObbSelected = false
                         selected.add(RawRequestInfo(
-                                it.obbName!!, it.obbUri!!, FileType.FILE_TYPE_ANY, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile())
+                                it.obbName!!, it.obbUri!!, FileType.FILE_TYPE_ANY, MathUtils.getFileSize(DocumentFile.fromFile(it.obbUri!!.toFile())
                         )))
                     }
 
                 }
                 selectedCount = 0
                 withContext(Main) {
-                    adapter?.notifyDataSetChanged()
+                    adapter.notifyDataSetChanged()
                     hideShowSendButton()
-                    Toast.makeText(requireContext(), "${selected.size} apps added to send queue", Toast.LENGTH_SHORT).show()
-                }
+                    }
                 onFileRequestPrepareListener?.sendFiles(selected)
             }
         }
@@ -109,7 +107,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                 }
                 selectedCount = 0
                 withContext(Dispatchers.Main) {
-                    adapter?.notifyDataSetChanged()
+                    adapter.notifyDataSetChanged()
                     hideShowSendButton()
                 }
             }
@@ -127,7 +125,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    adapter?.notifyDataSetChanged()
+                    adapter.notifyDataSetChanged()
                     hideShowSendButton()
                 }
             }
@@ -149,9 +147,9 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
 
             })
         }
+        menu.findItem(R.id.menu_sorting).isVisible = false
 
     }
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -183,4 +181,5 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
         onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
         selectionView.changeVisibility(selectedCount)
     }
+
 }

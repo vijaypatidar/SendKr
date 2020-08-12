@@ -16,9 +16,21 @@ object PermissionUtils {
     }
 
     @JvmStatic
+    fun checkLocationPermission(context: Context?): Boolean {
+        return ActivityCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
+
+    @JvmStatic
     fun askStoragePermission(activity: Activity?, code: Int) {
         ActivityCompat.requestPermissions(activity!!, arrayOf(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ), code)
+    }
+
+    @JvmStatic
+    fun askLocationPermission(activity: Activity?, code: Int) {
+        ActivityCompat.requestPermissions(activity!!, arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION
         ), code)
     }
 }

@@ -1,6 +1,5 @@
 package com.vkpapps.thunder.ui.adapter
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.media.MediaScannerConnection
@@ -19,8 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.HistoryInfo
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.ui.adapter.HistoryAdapter.HistoryViewHolder
+import com.vkpapps.thunder.ui.dialog.DialogsUtils
 import com.vkpapps.thunder.ui.fragments.FileFragment
 import com.vkpapps.thunder.utils.MyThumbnailUtils
 import java.util.*
@@ -52,42 +52,64 @@ class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHi
             }
         }
         holder.itemView.setOnLongClickListener { v: View ->
-            val ab = AlertDialog.Builder(v.context)
-            ab.setTitle("Delete history")
-            ab.setMessage("Remove " + historyInfo.name + " from history.")
-            ab.create().show()
+            DialogsUtils(v.context).clearSelectedHistoryDialog("Remove " + historyInfo.name + " from history.", View.OnClickListener {
+                onHistorySelectListener.onHistoryDeleteRequestSelected(historyInfo)
+            })
             true
         }
-        if (historyInfo.type == FileType.FILE_TYPE_FOLDER) {
-            holder.itemView.setOnClickListener { v: View? ->
-                Navigation.findNavController(v!!).navigate(object : NavDirections {
-                    override fun getActionId(): Int {
-                        return R.id.fileFragment
-                    }
-
-                    override fun getArguments(): Bundle {
-                        val bundle = Bundle()
-                        bundle.putString(FileFragment.FRAGMENT_TITLE, historyInfo.name)
-                        bundle.putString(FileFragment.FILE_ROOT, historyInfo.uri.toString())
-                        return bundle
-                    }
-                })
-            }
-        } else {
-            holder.itemView.setOnClickListener {
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    MediaScannerConnection.scanFile(it.context, arrayOf(historyInfo.uri.toFile().absolutePath), null) { _, uri ->
-                        run {
-                            val type = it.context.contentResolver.getType(uri)
-                            Logger.d("file $uri type = $type")
-                            intent.setDataAndType(uri, type)
-                            it.context.startActivity(intent)
+        when (historyInfo.type) {
+            FileType.FILE_TYPE_FOLDER -> {
+                holder.itemView.setOnClickListener { v: View? ->
+                    Navigation.findNavController(v!!).navigate(object : NavDirections {
+                        override fun getActionId(): Int {
+                            return R.id.fileFragment
                         }
+
+                        override fun getArguments(): Bundle {
+                            val bundle = Bundle()
+                            bundle.putString(FileFragment.FRAGMENT_TITLE, historyInfo.name)
+                            bundle.putString(FileFragment.FILE_ROOT, historyInfo.uri.toString())
+                            return bundle
+                        }
+                    })
+                }
+            }
+            FileType.FILE_TYPE_APP -> {
+                holder.itemView.setOnClickListener {
+                    try {
+                        MediaScannerConnection.scanFile(it.context, arrayOf(historyInfo.uri.toFile().absolutePath), null) { _, uri ->
+                            run {
+                                val type = it.context.contentResolver.getType(uri)
+                                Logger.d("file $uri type = $type")
+                                val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                                    setDataAndType(uri, "application/vnd.android.package-archive")
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                it.context.startActivity(intent)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(it.context, "file not found", Toast.LENGTH_SHORT).show()
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    Toast.makeText(it.context, "file not found", Toast.LENGTH_SHORT).show()
-                    e.printStackTrace()
+                }
+            }
+            else -> {
+                holder.itemView.setOnClickListener {
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW)
+                        MediaScannerConnection.scanFile(it.context, arrayOf(historyInfo.uri.toFile().absolutePath), null) { _, uri ->
+                            run {
+                                val type = it.context.contentResolver.getType(uri)
+                                Logger.d("file $uri type = $type")
+                                intent.setDataAndType(uri, type)
+                                it.context.startActivity(intent)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(it.context, "file not found", Toast.LENGTH_SHORT).show()
+                        e.printStackTrace()
+                    }
                 }
             }
         }
@@ -119,6 +141,7 @@ class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHi
 
     interface OnHistorySelectListener {
         fun onHistorySelected(historyInfo: HistoryInfo)
+        fun onHistoryDeleteRequestSelected(historyInfo: HistoryInfo)
         fun onHistoryDeselected(historyInfo: HistoryInfo)
     }
 

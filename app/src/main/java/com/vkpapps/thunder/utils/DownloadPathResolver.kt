@@ -3,8 +3,9 @@ package com.vkpapps.thunder.utils
 import android.content.Context
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.RequestInfo
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 import java.io.File
+
 
 /**
  * @author VIJAY PATIDAR
@@ -29,19 +30,24 @@ class DownloadPathResolver(private val context: Context) {
     }
 
     fun getSource(obj: RequestInfo): String {
-        var file = File(getDirectory(obj.fileType), obj.name)
-        // in case of folder request make dir for it
-        if (file.exists()) {
-            //todo check file if exist
+        val directory = getDirectory(obj.fileType)
+        var file = File(directory, obj.name)
+        var i = 1
+        while (file.exists()) {
             if (obj.fileType == FileType.FILE_TYPE_FOLDER) {
-                var i = 0
-//                while (!file.exists()) {
-//                    obj.uri = obj.uri + "(${i++})"
-//                    file = File(obj.uri)
-//                }
+                file = File(directory, obj.name + "(${i++})")
             } else {
+                val lastIndex: Int = obj.name.lastIndexOf(".")
+                if (lastIndex < 0) {
+                    obj.name += "(1)"
+                } else {
+                    val ext: String = obj.name.substring(lastIndex)
+                    val nameWithoutExt: String = obj.name.substring(0, lastIndex)
+                    file = File(directory, "$nameWithoutExt(${i++})$ext")
+                }
             }
         }
+        obj.name = file.name
         if (obj.fileType == FileType.FILE_TYPE_FOLDER) {
             file.mkdirs()
             Logger.d("New dir created ${obj.uri}")

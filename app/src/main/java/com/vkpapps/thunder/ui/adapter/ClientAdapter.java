@@ -10,28 +10,25 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
 import com.vkpapps.thunder.R;
 import com.vkpapps.thunder.connection.ClientHelper;
 import com.vkpapps.thunder.model.User;
-import com.vkpapps.thunder.utils.StorageManager;
+import com.vkpapps.thunder.utils.BitmapUtils;
 
-import java.io.File;
 import java.util.List;
 
 /**
  * @author VIJAY PATIDAR
  */
+
 public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.MyHolder> {
 
     private List<ClientHelper> users;
-    private File profiles;
     private View view;
 
     public ClientAdapter(List<ClientHelper> users, View view) {
         this.users = users;
         this.view = view;
-        profiles = new StorageManager(view.getContext()).getProfiles();
     }
 
     @NonNull
@@ -47,9 +44,11 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.MyHolder> 
         final ClientHelper clientHelper = users.get(position);
         final User user = clientHelper.getUser();
         holder.userName.setText(user.getName());
-        File file = new File(profiles, user.getUserId());
+        byte[] profileByteArray = user.getProfileByteArray();
+        if (profileByteArray.length > 0) {
+            holder.profilePic.setImageBitmap(BitmapUtils.INSTANCE.byteArrayToBitmap(user.getProfileByteArray()));
+        }
         holder.btnDisconnect.setOnClickListener(v -> clientHelper.shutDown());
-        Picasso.get().load(file).into(holder.profilePic);
     }
 
     @Override

@@ -8,7 +8,7 @@ import android.util.Log
 
 object Logger {
     var logger = true
-    private const val TAG = "SoundBoosterLogger"
+    private const val TAG = "ThunderLogger"
 
     /***
      * @param message text to be logged as debug on logcat
@@ -20,7 +20,6 @@ object Logger {
 
     /***
      * @param message text to be logged as information on logcat
-     * @code vijay patidar
      */
     @JvmStatic
     fun i(message: String) {

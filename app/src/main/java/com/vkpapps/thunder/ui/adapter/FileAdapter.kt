@@ -10,12 +10,12 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.net.toFile
+import androidx.navigation.NavController
 import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.FileInfo
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.ui.adapter.FileAdapter.MyViewHolder
 import com.vkpapps.thunder.ui.fragments.FileFragment
 import com.vkpapps.thunder.utils.MyThumbnailUtils
@@ -24,13 +24,11 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 /***
  * @author VIJAY PATIDAR
  */
-class FileAdapter(private val onFileSelectListener: OnFileSelectListener, private val view: View) : RecyclerView.Adapter<MyViewHolder>() {
-    private val fileInfos: MutableList<FileInfo> = ArrayList()
+class FileAdapter(private val onFileSelectListener: OnFileSelectListener, private val controller: NavController, private val fileInfos: MutableList<FileInfo>) : RecyclerView.Adapter<MyViewHolder>() {
     private val thumbnailUtils: MyThumbnailUtils = MyThumbnailUtils
     override fun getItemViewType(position: Int): Int {
         return if (fileInfos[position].file.isDirectory) {
@@ -60,7 +58,7 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
                 }
             }
             holder.itemView.setOnClickListener {
-                Navigation.findNavController(view).navigate(object : NavDirections {
+                controller.navigate(object : NavDirections {
                     override fun getActionId(): Int {
                         return R.id.action_navigation_files_to_files
                     }
@@ -80,14 +78,23 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
                     fileInfo.type,
                     holder.icon
             )
+
             holder.itemView.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW)
                 MediaScannerConnection.scanFile(it.context, arrayOf(fileInfo.uri.toFile().absolutePath), null) { _, uri ->
                     run {
-                        val type = it.context.contentResolver.getType(uri)
-                        Logger.d("file $uri type = $type")
-                        intent.setDataAndType(uri, type)
-                        it.context.startActivity(Intent.createChooser(intent, "Open with"))
+
+                        it.context.startActivity(
+                                if (fileInfo.type == FileType.FILE_TYPE_APP) {
+                                    Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                                        setDataAndType(uri, "application/vnd.android.package-archive")
+                                    }
+                                } else {
+                                    val type = it.context.contentResolver.getType(uri)
+                                    Intent(Intent.ACTION_VIEW).apply {
+                                        setDataAndType(uri, type)
+                                    }
+                                })
+
                     }
                 }
             }
@@ -102,18 +109,14 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
             }
             holder.btnSelected.isChecked = fileInfo.isSelected
         }
+        holder.itemView.setOnLongClickListener {
+            onFileSelectListener.onFileLongClickListener(fileInfo)
+            true
+        }
     }
 
     override fun getItemCount(): Int {
         return fileInfos.size
-    }
-
-    fun setFileInfos(fileInfos: List<FileInfo>) {
-        synchronized(this.fileInfos) {
-            this.fileInfos.clear()
-            this.fileInfos.addAll(fileInfos)
-            notifyDataSetChanged()
-        }
     }
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -124,6 +127,7 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
     }
 
     interface OnFileSelectListener {
+        fun onFileLongClickListener(fileInfo: FileInfo)
         fun onFileSelected(fileInfo: FileInfo)
         fun onFileDeselected(fileInfo: FileInfo)
     }

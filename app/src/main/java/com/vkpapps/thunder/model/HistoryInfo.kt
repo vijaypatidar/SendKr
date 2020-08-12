@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import com.vkpapps.thunder.utils.HashUtils
 import java.io.Serializable
 import java.util.*
 
@@ -23,9 +22,9 @@ class HistoryInfo : Serializable {
     constructor()
 
     @Ignore
-    constructor(name: String, uri: Uri, type: Int) {
+    constructor(id: String, name: String, uri: Uri, type: Int) {
         this.name = name
-        this.id = HashUtils.getHashValue(uri.toString().toByteArray())
+        this.id = id
         this.uri = uri
         this.type = type
         this.date = Date().time

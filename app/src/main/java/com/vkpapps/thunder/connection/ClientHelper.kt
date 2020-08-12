@@ -3,7 +3,6 @@ package com.vkpapps.thunder.connection
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnClientConnectionStateListener
 import com.vkpapps.thunder.interfaces.OnFileRequestListener
-import com.vkpapps.thunder.interfaces.OnObjectReceiveListener
 import com.vkpapps.thunder.model.FileRequest
 import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.User
@@ -11,13 +10,17 @@ import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.Socket
+import java.util.concurrent.Executors
 
 /***
  * @author VIJAY PATIDAR
  */
 class ClientHelper(private val socket: Socket, private val onFileRequestListener: OnFileRequestListener, var user: User, private val onClientConnectionStateListener: OnClientConnectionStateListener?) : Thread() {
+    companion object {
+        private val signalExecutors = Executors.newSingleThreadExecutor()
+    }
+
     private var outputStream: ObjectOutputStream? = null
-    private var onObjectReceiveListener: OnObjectReceiveListener? = null
     var connected: Boolean = true
 
     override fun run() {
@@ -36,19 +39,24 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
                 while (!socket.isClosed) {
                     try {
                         obj = inputStream.readObject()
-                        if (obj is FileRequest) {
-                            handleFileControl(obj)
-                        } else if (obj is RequestInfo) {
-                            // update user information
-                            obj.cid = user.userId
-                            onFileRequestListener.onNewRequestInfo(obj)
-                        } else if (obj is User) {
-                            // update user information
-                            if (obj.userId == user.userId) {
-                                user.name = obj.name
+                        when (obj) {
+                            is FileRequest -> {
+                                handleFileControl(obj)
                             }
-                        } else {
-                            Logger.e("invalid object received $obj")
+                            is RequestInfo -> {
+                                onFileRequestListener.onNewRequestInfo(obj)
+                            }
+                            is User -> {
+                                // update user information
+                                if (obj.userId == user.userId) {
+                                    user.name = obj.name
+                                    user.profileByteArray = obj.profileByteArray
+                                    onClientConnectionStateListener?.onClientInformationChanged(this@ClientHelper)
+                                }
+                            }
+                            else -> {
+                                Logger.e("invalid object received $obj")
+                            }
                         }
                     } catch (e: Exception) {
                         retry++
@@ -57,6 +65,7 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
                     }
                 }
             } else {
+                socket.close()
                 return
             }
         } catch (e: Exception) {
@@ -68,7 +77,7 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
     }
 
     fun write(command: Any) {
-        Thread(Runnable {
+        signalExecutors.submit {
             outputStream?.let {
                 synchronized(it) {
                     try {
@@ -79,15 +88,16 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
                     }
                 }
             }
-        }).start()
+        }
     }
 
     private fun handleFileControl(request: FileRequest) {
+        Logger.d("handleFileControl request = ${request.rid} ${request.send}")
         try {
-            when (request.action) {
-                FileRequest.DOWNLOAD_REQUEST_CONFIRM -> onFileRequestListener.onDownloadRequest(request.rid)
-                FileRequest.UPLOAD_REQUEST_CONFIRM -> onFileRequestListener.onUploadRequest(request.rid)
-                else -> Logger.d("handleFileControl: invalid req " + request.action)
+            if (request.send) {
+                onFileRequestListener.onUploadRequest(request.rid)
+            } else {
+                onFileRequestListener.onDownloadRequest(request.rid)
             }
         } catch (e: NullPointerException) {
             e.printStackTrace()
@@ -95,11 +105,6 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
             e.printStackTrace()
         }
     }
-
-    fun setOnObjectReceiveListener(onObjectReceiveListener: OnObjectReceiveListener) {
-        this.onObjectReceiveListener = onObjectReceiveListener
-    }
-
 
     fun shutDown() {
         try {

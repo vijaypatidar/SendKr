@@ -10,9 +10,9 @@
         android:icon="@drawable/ic_apps"
         android:title="@string/title_apps" />
     <item
-        android:id="@+id/navigation_files"
+        android:id="@+id/navigation_media"
         android:icon="@drawable/ic_folder"
-        android:title="@string/title_file" />
+        android:title="@string/media" />
     <item
         android:id="@+id/navigation_dashboard"
         android:icon="@drawable/ic_dashboard"
@@ -20,5 +20,6 @@
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_profile"
+        android:checkable="false"
         android:title="@string/title_profile" />
 </menu>

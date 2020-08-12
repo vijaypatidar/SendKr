@@ -1,21 +1,23 @@
 package com.vkpapps.thunder.connection
 
 import androidx.documentfile.provider.DocumentFile
+import com.vkpapps.thunder.model.RequestInfo
 import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-class ZipUtils {
-    private val buffer = ByteArray(3000)
+class ZipUtils(private val requestInfo: RequestInfo) {
+    private val buffer = FileService.BUFFER
     private var bi = 0
-    var transferred: Long = 0
 
     @Throws(IOException::class)
     fun openZipOutStream(outputStream: OutputStream, path: File) {
         bi = path.absolutePath.length + 1
         val zos = ZipOutputStream(outputStream)
+        zos.setLevel(ZipOutputStream.STORED)
         addEntry(zos, path)
+        zos.flush()
         zos.close()
     }
 
@@ -32,14 +34,15 @@ class ZipUtils {
             var read: Int
             while (`in`.read(buffer).also { read = it } > 0) {
                 zos.write(buffer, 0, read)
-                transferred += read
+                requestInfo.transferred += read
             }
+            zos.closeEntry()
             `in`.close()
         }
     }
 
     @Throws(IOException::class)
-    fun openInputOutStream(inputStream: InputStream, path: File) {
+    fun openInputStream(inputStream: InputStream, path: File) {
         val zis = ZipInputStream(inputStream)
         var entry: ZipEntry? = zis.nextEntry
         while (entry != null) {
@@ -50,8 +53,9 @@ class ZipUtils {
             var read: Int
             while (zis.read(buffer).also { read = it } > 0) {
                 fos.write(buffer, 0, read)
-                transferred += read
+                requestInfo.transferred += read
             }
+            fos.flush()
             fos.close()
             zis.closeEntry()
             entry = zis.nextEntry

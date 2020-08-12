@@ -10,4 +10,5 @@ import com.vkpapps.thunder.connection.ClientHelper
 interface OnClientConnectionStateListener {
     fun onClientConnected(clientHelper: ClientHelper)
     fun onClientDisconnected(clientHelper: ClientHelper)
+    fun onClientInformationChanged(clientHelper: ClientHelper)
 }

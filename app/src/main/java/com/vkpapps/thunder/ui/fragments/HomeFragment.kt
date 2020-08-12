@@ -42,6 +42,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var navController: NavController? = null
+    private val historyViewModel: HistoryViewModel by lazy { ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -102,6 +103,8 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         setupHistory()
 
         AdsUtils.getAdRequest(adView)
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -120,6 +123,8 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
             })
         }
+        //hide filter button
+        menu.findItem(R.id.menu_sorting).isVisible = false
     }
 
 
@@ -151,7 +156,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         return object : NavDirections {
             override fun getArguments(): Bundle {
                 val bundle = Bundle()
-                bundle.putInt(GenericFragment.PARAM_DESTINATION, des)
+                bundle.putInt(MediaFragment.PARAM_DESTINATION, des)
                 return bundle
             }
 
@@ -172,7 +177,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                 return false
             }
         }
-        val historyViewModel = ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java)
         val historyInfos = ArrayList<HistoryInfo>()
         historyViewModel.historyInfos.observe(requireActivity(), androidx.lifecycle.Observer {
             CoroutineScope(IO).launch {
@@ -185,7 +189,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         })
 
         selectionView.btnSendFiles.setOnClickListener {
-
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
@@ -239,6 +242,10 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     override fun onHistorySelected(historyInfo: HistoryInfo) {
         selectedCount++
         hideShowSendButton()
+    }
+
+    override fun onHistoryDeleteRequestSelected(historyInfo: HistoryInfo) {
+        historyViewModel.delete(historyInfo.id)
     }
 
     override fun onHistoryDeselected(historyInfo: HistoryInfo) {

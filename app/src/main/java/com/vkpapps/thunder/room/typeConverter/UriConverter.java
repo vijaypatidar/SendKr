@@ -1,4 +1,4 @@
-package com.vkpapps.thunder.room;
+package com.vkpapps.thunder.room.typeConverter;
 
 import android.net.Uri;
 

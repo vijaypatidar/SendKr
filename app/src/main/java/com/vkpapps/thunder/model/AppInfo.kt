@@ -1,12 +1,13 @@
 package com.vkpapps.thunder.model
 
-import android.graphics.drawable.Drawable
 import android.net.Uri
+import com.vkpapps.thunder.utils.HashUtils
 
 /***
  * @author VIJAY PATIDAR
  */
-class AppInfo(var name: String, var uri: Uri, var icon: Drawable, var packageName: String) {
+class AppInfo(var name: String, var uri: Uri, var packageName: String) {
+    var id = HashUtils.getHashValue(uri.toString().toByteArray())
     var isSelected = false
     var isObbSelected = false
     var obbName: String? = null

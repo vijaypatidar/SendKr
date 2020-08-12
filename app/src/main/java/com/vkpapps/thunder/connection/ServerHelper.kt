@@ -2,10 +2,8 @@ package com.vkpapps.thunder.connection
 
 import com.vkpapps.thunder.interfaces.OnClientConnectionStateListener
 import com.vkpapps.thunder.interfaces.OnFileRequestListener
-import com.vkpapps.thunder.interfaces.OnObjectReceiveListener
 import com.vkpapps.thunder.model.User
 import java.io.IOException
-import java.io.Serializable
 import java.net.ServerSocket
 
 /**
@@ -13,24 +11,22 @@ import java.net.ServerSocket
  */
 class ServerHelper(private val onFileRequestListener: OnFileRequestListener,
                    private val user: User,
-                   private val onClientConnectionStateListener: OnClientConnectionStateListener?) : Thread(), OnClientConnectionStateListener, OnObjectReceiveListener {
+                   private val onClientConnectionStateListener: OnClientConnectionStateListener?) : Thread(), OnClientConnectionStateListener {
+
+    companion object {
+        const val PORT = 3110
+    }
 
     val clientHelpers: ArrayList<ClientHelper> = ArrayList()
     private var live = true
     override fun run() {
         try {
-            val serverSocket = ServerSocket(1203)
+            val serverSocket = ServerSocket(PORT)
             while (live) {
                 try {
                     val socket = serverSocket.accept()
                     val commandHelper = ClientHelper(socket, onFileRequestListener, user, this)
-                    commandHelper.setOnObjectReceiveListener(this)
                     commandHelper.start()
-                    try {
-                        sleep(2000)
-                    } catch (e: InterruptedException) {
-                        e.printStackTrace()
-                    }
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
@@ -46,22 +42,7 @@ class ServerHelper(private val onFileRequestListener: OnFileRequestListener,
         }
     }
 
-    fun sendCommandToOnly(command: Any, clientId: String) {
-        for (c in clientHelpers) {
-            if (c.user.userId == clientId) {
-                c.write(command)
-            }
-        }
-    }
-
     override fun onClientConnected(clientHelper: ClientHelper) {
-        var i = 0
-        while (i < clientHelpers.size) {
-            if (clientHelpers[i].user.userId == clientHelper.user.userId) {
-                clientHelpers.removeAt(i--)
-            }
-            i++
-        }
         clientHelpers.add(clientHelper)
         onClientConnectionStateListener?.onClientConnected(clientHelper)
     }
@@ -71,8 +52,8 @@ class ServerHelper(private val onFileRequestListener: OnFileRequestListener,
         onClientConnectionStateListener?.onClientDisconnected(clientHelper)
     }
 
-    override fun onObjectReceive(obj: Serializable) {
-        broadcast(obj)
+    override fun onClientInformationChanged(clientHelper: ClientHelper) {
+        onClientConnectionStateListener?.onClientInformationChanged(clientHelper)
     }
 
     fun shutDown() {

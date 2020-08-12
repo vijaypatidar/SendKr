@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
  * @author VIJAY PATIDAR
  */
 @Entity
-class PhotoInfo(var name: String, var uri: Uri) {
+class PhotoInfo(var name: String, var uri: Uri, val size: Long, val lastModified: Long) {
     @PrimaryKey
     @NonNull
     lateinit var id: String

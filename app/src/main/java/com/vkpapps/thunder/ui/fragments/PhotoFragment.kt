@@ -3,27 +3,32 @@ package com.vkpapps.thunder.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.PhotoInfo
 import com.vkpapps.thunder.model.RawRequestInfo
-import com.vkpapps.thunder.model.constaints.FileType
+import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.room.liveViewModel.PhotoViewModel
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter
 import com.vkpapps.thunder.ui.adapter.PhotoAdapter.OnPhotoSelectListener
+import com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment
+import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_photo.*
-import kotlinx.android.synthetic.main.selection_options.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,11 +39,17 @@ import java.util.*
  * @author VIJAY PATIDAR
  */
 class PhotoFragment : Fragment(), OnPhotoSelectListener {
+    companion object {
+        private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
+    }
+
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private val photoInfos: MutableList<PhotoInfo> = ArrayList()
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var photoAdapter: PhotoAdapter? = null
     private var selectedCount = 0
+    private var controller: NavController? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_photo, container, false)
@@ -46,7 +57,8 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        setHasOptionsMenu(true)
+        controller = Navigation.findNavController(view)
         photoList.layoutManager = GridLayoutManager(requireContext(), 3)
         photoAdapter = PhotoAdapter(photoInfos, this, view)
         photoList.adapter = photoAdapter
@@ -95,7 +107,6 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                 withContext(Dispatchers.Main) {
                     photoAdapter?.notifyDataSetChanged()
                     hideShowSendButton()
-                    Toast.makeText(requireContext(), "${selected.size} images added to send queue", Toast.LENGTH_SHORT).show()
                 }
                 onFileRequestPrepareListener?.sendFiles(selected)
             }
@@ -128,8 +139,74 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                 }
             }
         }
+        val model = activity?.run {
+            ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
+        }
+        model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
+            if (it.target == 1) {
+                Logger.d("Dialog result ${it.target} ${it.sortBy}")
+                sortBy = it.sortBy
+                CoroutineScope(Dispatchers.IO).launch {
+                    if (!photoInfos.isNullOrEmpty()) {
+                        sort()
+                        withContext(Dispatchers.Main) {
+                            photoAdapter?.notifyDataSetChanged()
+                            emptyPhoto.visibility = View.GONE
+                        }
+
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            emptyPhoto.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+        })
     }
 
+    private fun sort() {
+        when (sortBy) {
+            FilterDialogFragment.SORT_BY_NAME -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.name }
+            }
+            FilterDialogFragment.SORT_BY_NAME_Z_TO_A -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.name }
+                photoInfos.reverse()
+            }
+            FilterDialogFragment.SORT_BY_OLDEST_FIRST -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.lastModified }
+            }
+            FilterDialogFragment.SORT_BY_LATEST_FIRST -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.lastModified * -1 }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_ASC -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.size }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_DSC -> {
+                photoInfos.sortBy { photoInfo -> photoInfo.size * -1 }
+            }
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.menu_sorting) {
+            controller?.navigate(object : NavDirections {
+                override fun getArguments(): Bundle {
+                    return Bundle().apply {
+                        putInt(FilterDialogFragment.PARAM_TARGET, 1)
+                        putInt(FilterDialogFragment.PARAM_CURRENT_SORT_BY, sortBy)
+                    }
+                }
+
+                override fun getActionId(): Int {
+                    return R.id.filterDialogFragment
+                }
+            })
+            true
+        } else
+            super.onOptionsItemSelected(item)
+
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -152,13 +229,23 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
     }
 
     private fun hideShowSendButton() {
-        if (selectionSection.visibility == View.VISIBLE && selectedCount > 0) {
-            onNavigationVisibilityListener?.onNavVisibilityChange(false)
-            return
-        }
-        selectionView.changeVisibility(selectedCount)
         onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
+        selectionView.changeVisibility(selectedCount)
+    }
 
+    override fun onPhotoLongClickListener(photoInfo: PhotoInfo) {
+        controller?.navigate(object : NavDirections {
+            override fun getArguments(): Bundle {
+                return Bundle().apply {
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, photoInfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, photoInfo.uri.toString())
+                }
+            }
+
+            override fun getActionId(): Int {
+                return R.id.filePropertyDialogFragment
+            }
+        })
     }
 
     override fun onPhotoSelected(photoInfo: PhotoInfo) {

@@ -20,7 +20,6 @@
         android:layout_height="40dp"
         android:padding="3dp"
         android:layout_gravity="center_vertical"
-        android:tint="@color/gray"
         app:srcCompat="@drawable/ic_folder" />
 
     <LinearLayout

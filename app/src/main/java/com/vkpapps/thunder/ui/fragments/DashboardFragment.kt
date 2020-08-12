@@ -40,7 +40,7 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
         //Nothing to display when user is client
         setHasOptionsMenu(true)
         navController = Navigation.findNavController(view)
-        if (users == null) return
+        users = onUserListRequestListener?.onRequestUsers()
         clientAdapter = ClientAdapter(users, view)
         val recyclerView: RecyclerView = view.findViewById(R.id.clientList)
         recyclerView.itemAnimator = DefaultItemAnimator()
@@ -70,6 +70,7 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
 
             })
         }
+        menu.findItem(R.id.menu_sorting).isVisible = false
     }
 
     override fun onAttach(context: Context) {
@@ -78,7 +79,6 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
         onUserListRequestListener = context as OnUserListRequestListener
         onFragmentAttachStatusListener = context as OnFragmentAttachStatusListener
         onFragmentAttachStatusListener?.onFragmentAttached(this)
-        users = onUserListRequestListener?.onRequestUsers()
     }
 
     override fun onDetach() {

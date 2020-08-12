@@ -7,7 +7,6 @@ import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatImageButton
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 
 class SelectionView(context: Context, attrs: AttributeSet?) : FrameLayout(context, attrs) {
     val btnSelectAll: AppCompatImageButton
@@ -23,7 +22,6 @@ class SelectionView(context: Context, attrs: AttributeSet?) : FrameLayout(contex
     }
 
     fun changeVisibility(selectedCount: Int) {
-        Logger.d("changeVisibility selectedCount = $selectedCount")
         val show = selectedCount != 0
         if (show && visibility == View.VISIBLE) return
         if (selectedCount == 0) {

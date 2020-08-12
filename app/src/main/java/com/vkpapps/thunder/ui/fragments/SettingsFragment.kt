@@ -5,10 +5,14 @@ import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
+import com.vkpapps.thunder.ui.dialog.DialogsUtils
 import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_settings.*
+
 
 /***
  * @author VIJAY PATIDAR
@@ -26,14 +30,34 @@ class SettingsFragment : Fragment() {
         customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
 
         btnClearHistory.setOnClickListener {
-            ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java).deleteAll()
-            Toast.makeText(requireContext(), getString(R.string.history_cleared_message), Toast.LENGTH_LONG).show()
+            DialogsUtils(requireContext()).clearHistoryDialog(View.OnClickListener {
+                ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java).deleteAll()
+                Toast.makeText(requireContext(), getString(R.string.history_cleared_message), Toast.LENGTH_LONG).show()
+            }, null)
+        }
+
+        btnChangeCustomPath.setOnClickListener {
+
+        }
+
+        btnAbout.setOnClickListener {
+            Navigation.findNavController(view).navigate(object : NavDirections {
+                override fun getArguments(): Bundle {
+                    return Bundle().apply {
+                    }
+                }
+
+                override fun getActionId(): Int {
+                    return R.id.action_navigation_setting_to_navigation_about
+                }
+            })
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         menu.findItem(R.id.menu_transferring).isVisible = false
+        menu.findItem(R.id.menu_sorting).isVisible = false
     }
 
 

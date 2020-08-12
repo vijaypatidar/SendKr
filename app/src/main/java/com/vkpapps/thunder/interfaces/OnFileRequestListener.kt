@@ -8,5 +8,5 @@ import com.vkpapps.thunder.model.RequestInfo
 interface OnFileRequestListener {
     fun onDownloadRequest(rid: String)
     fun onUploadRequest(rid: String)
-    fun onNewRequestInfo(obj: RequestInfo)
+    fun onNewRequestInfo(requestInfo: RequestInfo)
 }

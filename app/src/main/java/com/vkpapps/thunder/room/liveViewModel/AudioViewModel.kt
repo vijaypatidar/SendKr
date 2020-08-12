@@ -14,7 +14,7 @@ class AudioViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: AudioRepository = AudioRepository(MyRoomDatabase.getDatabase(application).audioDao())
 
-    public val audioInfos: LiveData<List<AudioInfo>>
+    val audioInfos: LiveData<List<AudioInfo>>
 
     init {
         audioInfos = repository.allAudioInfo

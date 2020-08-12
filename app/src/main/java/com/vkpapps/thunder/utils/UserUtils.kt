@@ -22,7 +22,7 @@ class UserUtils(val context: Context) {
             val obj = objectInputStream.readObject()
             objectInputStream.close()
             //return user
-            if (obj is User){
+            if (obj is User) {
                 obj.appVersion = BuildConfig.VERSION_CODE
                 return obj
             }

@@ -10,6 +10,7 @@ import androidx.navigation.Navigation
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.ui.activity.MainActivity
 import com.vkpapps.thunder.ui.fragments.viewpager.MyPagerAdapter
 import com.vkpapps.thunder.utils.PermissionUtils.askStoragePermission
 import com.vkpapps.thunder.utils.PermissionUtils.checkStoragePermission
@@ -17,7 +18,7 @@ import com.vkpapps.thunder.utils.PermissionUtils.checkStoragePermission
 /***
  * @author VIJAY PATIDAR
  */
-class GenericFragment : Fragment() {
+class MediaFragment : Fragment() {
     private var destination = 0
     private var navController: NavController? = null
 
@@ -31,12 +32,13 @@ class GenericFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_generic, container, false)
+        return inflater.inflate(R.layout.fragment_media, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+
         navController = Navigation.findNavController(view)
         if (checkStoragePermission(view.context)) {
             val tabLayout: TabLayout = view.findViewById(R.id.tabLayout)
@@ -53,7 +55,7 @@ class GenericFragment : Fragment() {
             viewPager.currentItem = destination
         } else {
             Navigation.findNavController(view).popBackStack()
-            askStoragePermission(activity, 101)
+            askStoragePermission(activity, MainActivity.ASK_PERMISSION_FROM_GENERIC_FRAGMENT)
         }
     }
 
@@ -67,7 +69,7 @@ class GenericFragment : Fragment() {
                 }
 
                 override fun getActionId(): Int {
-                    return R.id.action_navigation_files_to_transferringFragment
+                    return R.id.action_navigation_media_to_transferringFragment
                 }
 
             })

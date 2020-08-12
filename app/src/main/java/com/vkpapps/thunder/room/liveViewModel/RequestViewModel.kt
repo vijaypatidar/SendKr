@@ -2,42 +2,62 @@ package com.vkpapps.thunder.room.liveViewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.MutableLiveData
 import com.vkpapps.thunder.model.RequestInfo
-import com.vkpapps.thunder.room.database.MyRoomDatabase
-import com.vkpapps.thunder.room.repository.RequestRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class RequestViewModel(application: Application) : AndroidViewModel(application) {
+    companion object {
+        val requestInfos = ArrayList<RequestInfo>()
 
-    private val repository: RequestRepository
-
-    val allRequestInfo: LiveData<List<RequestInfo>>
-
-    init {
-        val requestDao = MyRoomDatabase.getDatabase(application).requestDao()
-        repository = RequestRepository(requestDao)
-        allRequestInfo = repository.allRequestInfo
+        @Volatile
+        @JvmStatic
+        private var pendingRequestCount = 0
     }
 
-    /**
-     * Launching a new coroutine to insert the data in a non-blocking way
-     */
-    fun insert(requestInfo: RequestInfo) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insert(requestInfo)
+    val requestInfosLiveData = MutableLiveData<ArrayList<RequestInfo>>(requestInfos)
+    val pendingRequestCountLiveData = MutableLiveData<Int>(pendingRequestCount)
+
+    fun insert(obj: RequestInfo) {
+        requestInfos.add(obj)
+        requestInfosLiveData.postValue(requestInfos)
+        incrementPendingRequestCount()
     }
 
-    fun insertAll(requestInfos: List<RequestInfo>) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insertAll(requestInfos)
+    fun getRequestInfo(rid: String): RequestInfo? {
+        try {
+            for (i in requestInfos.indices) {
+                if (requestInfos[i].rid == rid) return requestInfos[i]
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
     }
 
-    fun updateStatus(rid: String, status: Int) = viewModelScope.launch(Dispatchers.IO) {
-        repository.updateStatus(rid, status)
+    fun notifyDataSetChanged() {
+        requestInfosLiveData.postValue(requestInfos)
     }
 
-    fun updateProgress(rid: String, transferred: Long) = viewModelScope.launch(Dispatchers.IO) {
-        repository.updateProgress(rid, transferred)
+    fun notifyPendingCountChange() {
+        pendingRequestCountLiveData.postValue(pendingRequestCount)
     }
+
+
+    private fun incrementPendingRequestCount() {
+        pendingRequestCount++
+        pendingRequestCountLiveData.postValue(pendingRequestCount)
+    }
+
+    fun decrementPendingRequestCount() {
+        pendingRequestCount--
+        pendingRequestCountLiveData.postValue(pendingRequestCount)
+    }
+
+    fun clearRequestList() {
+        pendingRequestCount = 0
+        requestInfos.clear()
+        notifyPendingCountChange()
+        notifyDataSetChanged()
+    }
+
 }

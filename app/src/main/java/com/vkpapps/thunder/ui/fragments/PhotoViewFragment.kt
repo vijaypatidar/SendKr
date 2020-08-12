@@ -21,7 +21,7 @@ class PhotoViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setHasOptionsMenu(false)
+        setHasOptionsMenu(true)
         imageView = view.findViewById(R.id.imageView)
         imageView?.adjustViewBounds = true
         val arguments = arguments
@@ -41,9 +41,8 @@ class PhotoViewFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        val findItem = menu.findItem(R.id.menu_transferring)
-        findItem?.isVisible = false
-
+        menu.findItem(R.id.menu_transferring)?.isVisible = false
+        menu.findItem(R.id.menu_sorting)?.isVisible = false
     }
 
 

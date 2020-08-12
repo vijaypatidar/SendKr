@@ -1,4 +1,4 @@
-package com.vkpapps.thunder.model.constaints
+package com.vkpapps.thunder.model.constant
 
 object FileType {
     const val FILE_TYPE_MUSIC = 0

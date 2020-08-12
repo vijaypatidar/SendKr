@@ -11,9 +11,10 @@ class HorizontalProgressBar : View {
     private var progress: Float = 0f
 
     private val paint: Paint by lazy {
-        val paint = Paint()
-        paint.color = Color.parseColor("#ffe0b2")
-        paint.style = Paint.Style.FILL
+        val paint = Paint().apply {
+            color = Color.parseColor("#ffe0b2")
+            style = Paint.Style.FILL
+        }
         paint
     }
 

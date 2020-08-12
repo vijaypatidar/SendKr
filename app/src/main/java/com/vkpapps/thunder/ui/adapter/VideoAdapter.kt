@@ -19,7 +19,7 @@ import com.vkpapps.thunder.utils.MyThumbnailUtils
 /**
  * @author VIJAY PATIDAR
  */
-class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private val onVideoSelectListener: OnVideoSelectListener) : RecyclerView.Adapter<VideoAdapter.MyHolder>() {
+class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideoSelectListener: OnVideoSelectListener) : RecyclerView.Adapter<VideoAdapter.MyHolder>() {
     private val myThumbnailUtils = MyThumbnailUtils
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.video_list_item, parent, false)
@@ -29,7 +29,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
         val videoInfo = videoInfos!![position]
         holder.title.text = videoInfo.name
-        holder.size.text = videoInfo.size
+        holder.size.text = videoInfo.displaySize
         holder.btnSelected.isChecked = videoInfo.isSelected
         holder.btnSelected.setOnClickListener {
             videoInfo.isSelected = !videoInfo.isSelected
@@ -56,6 +56,10 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private
                 e.printStackTrace()
             }
         }
+        holder.itemView.setOnLongClickListener {
+            onVideoSelectListener.onVideoLongClickListener(videoInfo)
+            true
+        }
         myThumbnailUtils.loadVideoThumbnail(videoInfo.id, videoInfo.uri, holder.picture)
     }
 
@@ -72,6 +76,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, view: View, private
     }
 
     interface OnVideoSelectListener {
+        fun onVideoLongClickListener(videoInfo: VideoInfo)
         fun onVideoSelected(videoInfo: VideoInfo)
         fun onVideoDeselected(videoInfo: VideoInfo)
     }
