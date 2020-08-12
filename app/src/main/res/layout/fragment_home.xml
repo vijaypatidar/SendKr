@@ -36,6 +36,15 @@
                 app:tabSelectedTextColor="@color/colorAccent"
                 app:tabTextColor="@android:color/white">
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:text="@string/storage_devices"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="14sp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -177,6 +186,15 @@
                     android:layout_marginBottom="5dp"
                     android:background="?android:attr/listDivider" />
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:text="@string/quick_access"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="14sp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -195,7 +213,7 @@
                         android:focusable="true"
                         android:foreground="?android:attr/selectableItemBackground"
                         app:cardCornerRadius="@dimen/home_card_radius"
-                        app:cardElevation="3dp">
+                        app:cardElevation="2dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -214,8 +232,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
-                                android:textColor="@color/black"
                                 android:text="@string/photo"
+                                android:textColor="@color/black"
                                 android:textSize="14sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -234,7 +252,7 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:padding="5dp"
                         app:cardCornerRadius="@dimen/home_card_radius"
-                        app:cardElevation="3dp">
+                        app:cardElevation="2dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -281,7 +299,7 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:padding="5dp"
                         app:cardCornerRadius="@dimen/home_card_radius"
-                        app:cardElevation="3dp">
+                        app:cardElevation="2dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -300,8 +318,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
-                                android:textColor="@color/black"
                                 android:text="@string/video"
+                                android:textColor="@color/black"
                                 android:textSize="14sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -332,19 +350,49 @@
                     android:layout_marginEnd="10dp"
                     android:text="@string/history"
                     android:textColor="@color/colorAccent"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
         </com.google.android.material.appbar.AppBarLayout>
 
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/history"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/tabLayout"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/history_list_item" />
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/history"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/history_list_item" />
+
+            <RelativeLayout
+                android:id="@+id/noHistory"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/bi"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_centerInParent="true"
+                    android:scaleType="fitCenter"
+                    ads:srcCompat="@drawable/ic_empty_history" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/bi"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/history_is_clear_message" />
+            </RelativeLayout>
+
+        </RelativeLayout>
 
         <com.vkpapps.thunder.ui.views.SelectionView
             android:id="@+id/selectionView"

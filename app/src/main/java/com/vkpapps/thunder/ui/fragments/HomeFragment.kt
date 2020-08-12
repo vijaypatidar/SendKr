@@ -55,9 +55,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         setHasOptionsMenu(true)
         navController = Navigation.findNavController(view)
         val controller = Navigation.findNavController(view)
-        progressBarInternal.max = 100
-        val storage = StorageManager(requireContext())
-        progressBarInternal.progress = (storage.internal.freeSpace * 100 / storage.internal.totalSpace).toInt()
+
 
         photo.setOnClickListener {
             controller.navigate(getDestination(0))
@@ -184,6 +182,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                 historyInfos.addAll(it)
                 withContext(Main) {
                     adapter.setHistoryInfos(it)
+                    noHistory.visibility = if (it.isNotEmpty()) View.GONE else View.VISIBLE
                 }
             }
         })

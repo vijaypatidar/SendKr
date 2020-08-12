@@ -54,7 +54,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:19.3.0'
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.google.zxing:core:3.4.0'
+    implementation 'me.dm7.barcodescanner:zxing:1.9.13'
     implementation 'com.squareup.picasso:picasso:2.71828'
     // Room components
     implementation "androidx.room:room-runtime:$rootProject.roomVersion"

@@ -21,6 +21,11 @@ object PermissionUtils {
     }
 
     @JvmStatic
+    fun checkLCameraPermission(context: Context?): Boolean {
+        return ActivityCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    }
+
+    @JvmStatic
     fun askStoragePermission(activity: Activity?, code: Int) {
         ActivityCompat.requestPermissions(activity!!, arrayOf(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -31,6 +36,13 @@ object PermissionUtils {
     fun askLocationPermission(activity: Activity?, code: Int) {
         ActivityCompat.requestPermissions(activity!!, arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION
+        ), code)
+    }
+
+    @JvmStatic
+    fun askCameraPermission(activity: Activity?, code: Int) {
+        ActivityCompat.requestPermissions(activity!!, arrayOf(
+                Manifest.permission.CAMERA
         ), code)
     }
 }

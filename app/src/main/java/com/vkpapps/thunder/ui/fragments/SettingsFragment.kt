@@ -10,6 +10,7 @@ import androidx.navigation.Navigation
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.room.liveViewModel.HistoryViewModel
 import com.vkpapps.thunder.ui.dialog.DialogsUtils
+import com.vkpapps.thunder.utils.KeyValue
 import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_settings.*
 
@@ -27,6 +28,8 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+
+        val keyValue = KeyValue(requireContext())
         customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
 
         btnClearHistory.setOnClickListener {
@@ -51,6 +54,11 @@ class SettingsFragment : Fragment() {
                     return R.id.action_navigation_setting_to_navigation_about
                 }
             })
+        }
+        checkboxShowHiddenFile.isChecked = keyValue.showHiddenFile
+        btnShowHiddenFile.setOnClickListener {
+            keyValue.showHiddenFile = !keyValue.showHiddenFile
+            checkboxShowHiddenFile.isChecked = keyValue.showHiddenFile
         }
     }
 

@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.utils.KeyValue
+
 /***
  * @author VIJAY PATIDAR
  */

@@ -92,7 +92,6 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
     }
 
     private fun handleFileControl(request: FileRequest) {
-        Logger.d("handleFileControl request = ${request.rid} ${request.send}")
         try {
             if (request.send) {
                 onFileRequestListener.onUploadRequest(request.rid)

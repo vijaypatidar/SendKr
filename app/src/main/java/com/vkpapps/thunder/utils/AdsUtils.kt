@@ -12,14 +12,15 @@ object AdsUtils {
     fun getAdRequest(adView: AdView?) {
         if (!BuildConfig.DEBUG)
             adView?.loadAd(AdRequest.Builder().build())
-        else
-            adView?.loadAd(AdRequest.Builder().addTestDevice("").build())
+        else {
+            adView?.loadAd(AdRequest.Builder().addTestDevice("1FB5455B3DFB99F776E444EB03250A40").build())
+        }
     }
 
     fun getAdRequest(adView: InterstitialAd?) {
         if (!BuildConfig.DEBUG)
             adView?.loadAd(AdRequest.Builder().build())
         else
-            adView?.loadAd(AdRequest.Builder().addTestDevice("").build())
+            adView?.loadAd(AdRequest.Builder().addTestDevice("1FB5455B3DFB99F776E444EB03250A40").build())
     }
 }

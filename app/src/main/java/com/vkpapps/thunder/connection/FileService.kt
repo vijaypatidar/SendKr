@@ -10,10 +10,6 @@ import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.model.constant.StatusType
 import com.vkpapps.thunder.ui.activity.MainActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.*
 import java.net.InetSocketAddress
 import java.net.ServerSocket
@@ -67,25 +63,10 @@ class FileService(private val send: Boolean,
             val file = Uri.parse(requestInfo.uri).toFile()
             if (requestInfo.fileType == FileType.FILE_TYPE_FOLDER) {
                 val zipUtils = ZipUtils(requestInfo)
-                CoroutineScope(Default).launch {
-                    while (!socket.isClosed) {
-                        onFileRequestReceiverListener.onProgressChange(requestInfo)
-                        delay(PROGRESS_UPDATE_TIME)
-                    }
-                    onFileRequestReceiverListener.onProgressChange(requestInfo)
-                }
                 zipUtils.openInputStream(socket.getInputStream(), file)
             } else {
                 val inputStream = BufferedInputStream(socket.getInputStream())
                 val outputStream: OutputStream = FileOutputStream(file, true)
-
-                CoroutineScope(Default).launch {
-                    while (!socket.isClosed) {
-                        onFileRequestReceiverListener.onProgressChange(requestInfo)
-                        delay(PROGRESS_UPDATE_TIME)
-                    }
-                    onFileRequestReceiverListener.onProgressChange(requestInfo)
-                }
                 var read: Int
                 while (inputStream.read(BUFFER).apply { read = this } > 0) {
                     outputStream.write(BUFFER, 0, read)
@@ -114,25 +95,12 @@ class FileService(private val send: Boolean,
             val socket = getSocket()
             if (requestInfo.fileType == FileType.FILE_TYPE_FOLDER) {
                 val zipUtils = ZipUtils(requestInfo)
-                CoroutineScope(Default).launch {
-                    while (!socket.isClosed) {
-                        onFileRequestReceiverListener.onProgressChange(requestInfo)
-                        delay(PROGRESS_UPDATE_TIME)
-                    }
-                    onFileRequestReceiverListener.onProgressChange(requestInfo)
-                }
                 zipUtils.openZipOutStream(socket.getOutputStream(), uri.toFile())
             } else {
                 val inputStream = App.context.contentResolver.openInputStream(uri)!!
                 //skip previous sent bytes
                 inputStream.skip(requestInfo.transferred)
                 val outputStream = socket.getOutputStream()
-                CoroutineScope(Default).launch {
-                    while (!socket.isClosed) {
-                        onFileRequestReceiverListener.onProgressChange(requestInfo)
-                        delay(PROGRESS_UPDATE_TIME)
-                    }
-                }
                 var read: Int
                 while (inputStream.read(BUFFER).apply { read = this } > 0 && requestInfo.status == StatusType.STATUS_ONGOING) {
                     outputStream.write(BUFFER, 0, read)
@@ -158,7 +126,6 @@ class FileService(private val send: Boolean,
         private const val PORT = 7511
         private const val BUFFER_SIZE = 3500
         val BUFFER = ByteArray(BUFFER_SIZE)
-        private const val PROGRESS_UPDATE_TIME: Long = 1000
 
         fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, requestInfo: RequestInfo, clientHelper: ClientHelper) {
             synchronized(App.taskExecutor) {

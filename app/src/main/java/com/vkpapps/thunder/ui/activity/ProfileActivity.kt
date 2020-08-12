@@ -1,14 +1,18 @@
 package com.vkpapps.thunder.ui.activity
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView.ScaleType
 import androidx.appcompat.app.AppCompatActivity
-import com.vkpapps.thunder.App
+import androidx.documentfile.provider.DocumentFile
+import com.vkpapps.thunder.App.Companion.user
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.model.User
 import com.vkpapps.thunder.utils.BitmapUtils
 import com.vkpapps.thunder.utils.UserUtils
 import kotlinx.android.synthetic.main.activity_profile.*
@@ -17,8 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+
 class ProfileActivity : AppCompatActivity() {
-    private var user: User = App.user
     private var picChange = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +38,9 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         userPic.setOnClickListener {
-            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
+
+            }
             intent.type = "image/*"
             startActivityForResult(Intent.createChooser(intent, "Select Profile Picture"), 1)
         }
@@ -75,8 +81,40 @@ class ProfileActivity : AppCompatActivity() {
                 if (null != selectedImageUri) {
                     userPic.setImageURI(selectedImageUri)
                     picChange = true
+
+                    //crop if possible
+                    crop(selectedImageUri)
                 }
             }
+        } else if (requestCode == 2) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                try {
+                    val selectedBitmap: Bitmap = data.extras?.getParcelable("data")!!
+                    userPic.setImageBitmap(selectedBitmap)
+                    userPic.scaleType = ScaleType.FIT_XY
+                    picChange = true
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+            }
+        }
+    }
+
+    private fun crop(selectedImageUri: Uri) {
+        try {
+            val cropIntent = Intent("com.android.camera.action.CROP")
+            val contentUri: Uri = DocumentFile.fromSingleUri(this, selectedImageUri)!!.uri
+            cropIntent.setDataAndType(contentUri, "image/*")
+            cropIntent.putExtra("crop", "true")
+            cropIntent.putExtra("aspectX", 1)
+            cropIntent.putExtra("aspectY", 1)
+            cropIntent.putExtra("outputX", 280)
+            cropIntent.putExtra("outputY", 280)
+            cropIntent.putExtra("return-data", true)
+            startActivityForResult(Intent.createChooser(cropIntent, "crop with"), 2)
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
         }
     }
 }

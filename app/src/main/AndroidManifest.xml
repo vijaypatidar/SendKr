@@ -8,7 +8,10 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.wifi" />
 
     <application
         android:name=".App"
@@ -22,7 +25,6 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="q">
 
-
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-4043007075380826~7990289716" />
@@ -35,31 +37,33 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
-
+        <activity
+            android:name=".ui.activity.ConnectionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoAction" />
         <activity
             android:name=".ui.activity.ProfileActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="false"
             android:label="Profile"
             android:screenOrientation="portrait"
             android:theme="@style/ProfileActivityTheme" />
-
         <activity
             android:name=".ui.activity.SplashActivity"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:theme="@style/SplashScreen"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>

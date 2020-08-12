@@ -111,7 +111,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
                 withContext(Main) {
                     adapter?.notifyDataSetChanged()
                     hideShowSendButton()
-                  }
+                }
                 onFileRequestPrepareListener?.sendFiles(selected)
             }
         }

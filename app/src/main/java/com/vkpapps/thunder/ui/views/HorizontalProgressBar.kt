@@ -12,7 +12,7 @@ class HorizontalProgressBar : View {
 
     private val paint: Paint by lazy {
         val paint = Paint().apply {
-            color = Color.parseColor("#ffe0b2")
+            color = Color.parseColor("#3AFC820F")
             style = Paint.Style.FILL
         }
         paint

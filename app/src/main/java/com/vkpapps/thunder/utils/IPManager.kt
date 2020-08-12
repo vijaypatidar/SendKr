@@ -2,7 +2,6 @@ package com.vkpapps.thunder.utils
 
 import android.content.Context
 import android.net.wifi.WifiManager
-import com.vkpapps.thunder.analitics.Logger
 
 /**
  * @author VIJAY PATIDAR
@@ -20,7 +19,6 @@ class IPManager(context: Context) {
     }
 
     fun hostIp(): String {
-        Logger.d("gateway address = ${intToIp(manager.dhcpInfo.gateway)}")
         return intToIp(manager.dhcpInfo.gateway)
     }
 }

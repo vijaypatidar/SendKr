@@ -15,6 +15,7 @@ import com.vkpapps.thunder.connection.ClientHelper;
 import com.vkpapps.thunder.model.User;
 import com.vkpapps.thunder.utils.BitmapUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,19 +24,15 @@ import java.util.List;
 
 public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.MyHolder> {
 
-    private List<ClientHelper> users;
-    private View view;
+    private List<ClientHelper> users = new ArrayList<>();
 
-    public ClientAdapter(List<ClientHelper> users, View view) {
-        this.users = users;
-        this.view = view;
-    }
 
     @NonNull
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.client_list_item, parent, false);
         return new MyHolder(view);
+
 
     }
 
@@ -56,24 +53,21 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.MyHolder> 
         return (users == null) ? 0 : users.size();
     }
 
+    public void setUsers(List<ClientHelper> users) {
+        this.users = users;
+        notifyDataSetChanged();
+    }
+
     static class MyHolder extends RecyclerView.ViewHolder {
         private TextView userName;
         private ImageView profilePic;
         private ImageButton btnDisconnect;
+
         MyHolder(@NonNull View itemView) {
             super(itemView);
             userName = itemView.findViewById(R.id.userName);
             profilePic = itemView.findViewById(R.id.profilePic);
             btnDisconnect = itemView.findViewById(R.id.btnDisconnect);
-        }
-    }
-
-    public void notifyDataSetChangedAndHideIfNull() {
-        if (users.size() == 0) {
-            view.findViewById(R.id.emptyClient).setVisibility(View.VISIBLE);
-        } else {
-            view.findViewById(R.id.emptyClient).setVisibility(View.GONE);
-            notifyDataSetChanged();
         }
     }
 }

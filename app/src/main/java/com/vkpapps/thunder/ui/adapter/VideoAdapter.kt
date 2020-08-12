@@ -1,19 +1,15 @@
 package com.vkpapps.thunder.ui.adapter
 
-import android.content.Intent
-import android.media.MediaScannerConnection
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
-import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.net.toFile
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.VideoInfo
+import com.vkpapps.thunder.utils.IntentUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
 
 /**
@@ -41,20 +37,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideo
             }
         }
         holder.picture.setOnClickListener {
-            try {
-                val intent = Intent(Intent.ACTION_VIEW)
-                MediaScannerConnection.scanFile(it.context, arrayOf(videoInfo.uri.toFile().absolutePath), null) { _, uri ->
-                    run {
-                        val type = it.context.contentResolver.getType(uri)
-                        Logger.d("file $uri type = $type")
-                        intent.setDataAndType(uri, type)
-                        it.context.startActivity(intent)
-                    }
-                }
-            } catch (e: Exception) {
-                Toast.makeText(it.context, "error occurred", Toast.LENGTH_SHORT).show()
-                e.printStackTrace()
-            }
+            IntentUtils.startIntentToPlayVideo(it.context, videoInfo.uri)
         }
         holder.itemView.setOnLongClickListener {
             onVideoSelectListener.onVideoLongClickListener(videoInfo)

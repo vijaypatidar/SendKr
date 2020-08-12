@@ -25,9 +25,12 @@ import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
+import com.google.android.play.core.tasks.OnSuccessListener
 import com.vkpapps.thunder.App
+import com.vkpapps.thunder.App.Companion.user
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
@@ -69,7 +72,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         OnFragmentAttachStatusListener, OnFileRequestListener, OnFileRequestPrepareListener,
         OnFileRequestReceiverListener, OnClientConnectionStateListener {
 
-    private var user = App.user
     private lateinit var navController: NavController
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
     private var transferringProgressBar: ProgressBar? = null
@@ -81,7 +83,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportActionBar?.elevation = 0f
-        user = App.user
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration.Builder(
@@ -103,6 +104,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         fileToShare()
         updateTransferringProgressBar()
         PrivacyDialog(this).isPolicyAccepted
+
+
     }
 
     private fun setProfileActionView() {
@@ -123,12 +126,20 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     private fun choice() {
-        DialogsUtils(this).choice(View.OnClickListener {
-            setup(true)
-            DialogsUtils(this@MainActivity).createHotspot()
-        }, View.OnClickListener {
-            setup(false)
-        })
+        if (PermissionUtils.checkStoragePermission(this)) {
+            DialogsUtils(this).choice(View.OnClickListener {
+                WifiApUtils.turnOnHotspot(this, OnSuccessListener {
+                    navController.navigate(R.id.navigation_dashboard)
+                    setup(true)
+                }, OnFailureListener {
+                    choice()
+                })
+            }, View.OnClickListener {
+                startActivityForResult(Intent(this, ConnectionActivity::class.java), CONNECTION_ACTIVITY_RESULT)
+            })
+        } else {
+            PermissionUtils.askStoragePermission(this, ASK_PERMISSION_FROM_MAIN_ACTIVITY)
+        }
     }
 
     private fun setup(host: Boolean) {
@@ -138,7 +149,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             serverHelper.start()
             connected = true
         } else {
-            Thread(Runnable {
+            Thread {
                 val socket = Socket()
                 try {
                     val ipManager = IPManager(this)
@@ -158,7 +169,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     }
                     e.printStackTrace()
                 }
-            }).start()
+            }.start()
         }
     }
 
@@ -271,7 +282,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     )
                     // notify media store to scan files
                     sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(requestInfo.uri)))
-
                 }
             } else {
                 requestInfo.status = StatusType.STATUS_PAUSE
@@ -385,9 +395,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 } else {
                     clientHelper.shutDown()
                 }
+                connected = false
+                App.taskExecutor.shutdownNow()
+                App.databasePrepared = false
                 finish()
-            }, null
-            )
+            }, null)
         } else super.onBackPressed()
     }
 
@@ -400,7 +412,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         requestInfo.name = rawRequestInfo.name
                         requestInfo.uri = rawRequestInfo.uri.toString()
                         requestInfo.fileType = rawRequestInfo.type
-                        requestInfo.sid = App.user.userId
+                        requestInfo.sid = user.userId
                         requestInfo.size = rawRequestInfo.size
                         requestInfo.displaySize = MathUtils.longToStringSize(rawRequestInfo.size.toDouble())
                         if (isHost) {
@@ -543,6 +555,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     }
                 }
             }
+        } else if (requestCode == CONNECTION_ACTIVITY_RESULT) {
+            if (resultCode == RESULT_OK) {
+                setup(false)
+            } else {
+                choice()
+            }
         }
     }
 
@@ -551,7 +569,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         const val ASK_PERMISSION_FROM_GENERIC_FRAGMENT = 1
         const val ASK_PERMISSION_FROM_MAIN_ACTIVITY = 2
         const val ASK_LOCATION_PERMISSION = 3
-        const val REQUEST_UPDATE_PROFILE = 3
+        const val REQUEST_UPDATE_PROFILE = 4
+        const val CONNECTION_ACTIVITY_RESULT = 5
 
         @JvmStatic
         private val pendingRequest = ArrayList<RawRequestInfo>()

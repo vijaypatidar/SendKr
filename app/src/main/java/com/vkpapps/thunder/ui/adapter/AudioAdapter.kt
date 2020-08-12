@@ -15,6 +15,7 @@ import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.ui.adapter.AudioAdapter.AudioViewHolder
+import com.vkpapps.thunder.utils.IntentUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
 
 
@@ -45,6 +46,7 @@ class AudioAdapter(private val audioInfos: MutableList<AudioInfo>, private val o
             }
         }
         holder.audioIcon.setOnClickListener {
+            IntentUtils.startIntentToPlayAudio(it.context, audioinfo.uri)
             try {
                 val intent = Intent(Intent.ACTION_VIEW)
                 MediaScannerConnection.scanFile(it.context, arrayOf(audioinfo.uri.path), null) { _, uri ->

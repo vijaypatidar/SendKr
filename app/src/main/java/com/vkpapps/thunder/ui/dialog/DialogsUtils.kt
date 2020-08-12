@@ -2,12 +2,15 @@ package com.vkpapps.thunder.ui.dialog
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 import com.vkpapps.thunder.R
+
 
 class DialogsUtils(private val context: Context) {
     fun choice(createGroup: View.OnClickListener, joinGroup: View.OnClickListener) {
@@ -125,6 +128,36 @@ class DialogsUtils(private val context: Context) {
         view.findViewById<View>(R.id.btnOk).setOnClickListener {
             alertDialog.cancel()
         }
+    }
+
+    fun alertCameraPermissionRequire(ask: View.OnClickListener, cancel: View.OnClickListener?) {
+        val ab = AlertDialog.Builder(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_camera_permission_need, null)
+        ab.setView(view)
+        ab.setCancelable(false)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+        view.findViewById<View>(R.id.btnAsk).setOnClickListener {
+            alertDialog.cancel()
+            ask.onClick(it)
+        }
+        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+            alertDialog.cancel()
+            cancel?.onClick(it)
+        }
+    }
+
+    fun alertGpsProviderRequire() {
+        AlertDialog.Builder(context).apply {
+            setTitle("GPS Requires")
+            setMessage("GPS provider is disabled,please enable it to continue.")
+            setPositiveButton("Settings") { _, _ ->
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                context.startActivity(intent)
+            }
+            setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+        }.show()
     }
 
 

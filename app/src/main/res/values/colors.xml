@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#00324C</color>
     <color name="colorPrimaryDark">#002335</color>
-    <color name="colorAccent">#fc8210</color>
+    <color name="colorAccent">#FC820F</color>
     <color name="white">#ffffff</color>
     <color name="ic_launcher_background">#00324C</color>
     <color name="black">#000000</color>
@@ -13,4 +13,5 @@
     <color name="darker_gray">#aaa</color>
     <color name="white_alpha">#80FFFFFF</color>
     <color name="red">#FF1100</color>
+    <color name="black_overlay">#66000000</color>
 </resources>

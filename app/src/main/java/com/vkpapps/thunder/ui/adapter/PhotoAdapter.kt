@@ -1,17 +1,16 @@
 package com.vkpapps.thunder.ui.adapter
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.navigation.NavController
-import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.model.PhotoInfo
+import com.vkpapps.thunder.utils.IntentUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
 
 /**
@@ -43,17 +42,7 @@ class PhotoAdapter(private val photoInfos: List<PhotoInfo>?, private val onPhoto
         }
         myThumbnailUtils.loadPhotoThumbnail(photoInfo.uri, holder.picture)
         holder.btnFullscreen.setOnClickListener {
-            controller.navigate(object : NavDirections {
-                override fun getArguments(): Bundle {
-                    return Bundle().apply {
-                        putString("Uri", photoInfo.uri.toString())
-                    }
-                }
-
-                override fun getActionId(): Int {
-                    return R.id.action_navigation_files_to_photoViewFragment
-                }
-            })
+            IntentUtils.startIntentToViewImage(it.context, photoInfo.uri)
         }
     }
 

@@ -25,6 +25,7 @@ import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.ui.adapter.FileAdapter
 import com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
+import com.vkpapps.thunder.utils.KeyValue
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_file.*
 import kotlinx.coroutines.CoroutineScope
@@ -105,13 +106,16 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                 }
             }
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            val showHiddenFile = KeyValue(requireContext()).showHiddenFile
             CoroutineScope(IO).launch {
                 val listFiles = DocumentFile.fromFile(Uri.parse(rootDir).toFile()).listFiles()
                 listFiles.forEach {
-                    if (it.isDirectory) {
-                        folders.add(FileInfo(it, MathUtils.getFileSize(it)))
-                    } else {
-                        files.add(FileInfo(it, MathUtils.getFileSize(it)))
+                    if (showHiddenFile || it.name?.startsWith(".") == false) {
+                        if (it.isDirectory) {
+                            folders.add(FileInfo(it, MathUtils.getFileSize(it)))
+                        } else {
+                            files.add(FileInfo(it, MathUtils.getFileSize(it)))
+                        }
                     }
                 }
                 sort()

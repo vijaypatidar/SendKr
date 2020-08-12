@@ -75,9 +75,6 @@
             app:popEnterAnim="@anim/slide_in_from_bottom"
             app:popExitAnim="@anim/slide_out_to_bottom" />
         <action
-            android:id="@+id/action_navigation_files_to_photoViewFragment"
-            app:destination="@id/photoViewFragment" />
-        <action
             android:id="@+id/action_navigation_media_to_filePropertyDialogFragment"
             app:destination="@id/filePropertyDialogFragment" />
         <action
@@ -151,11 +148,6 @@
         android:id="@+id/transferringFragment"
         android:name="com.vkpapps.thunder.ui.fragments.TransferringFragment"
         android:label="@string/transferring" />
-    <fragment
-        android:id="@+id/photoViewFragment"
-        android:name="com.vkpapps.thunder.ui.fragments.PhotoViewFragment"
-        android:label=""
-        tools:layout="@layout/fragment_photo_view" />
 
     <dialog
         android:id="@+id/filterDialogFragment"

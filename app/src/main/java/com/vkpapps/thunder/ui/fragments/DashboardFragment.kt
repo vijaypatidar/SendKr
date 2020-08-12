@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
+import com.squareup.picasso.Picasso
+import com.vkpapps.thunder.App
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.connection.ClientHelper
 import com.vkpapps.thunder.interfaces.OnFragmentAttachStatusListener
@@ -19,6 +21,11 @@ import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.interfaces.OnUserListRequestListener
 import com.vkpapps.thunder.interfaces.OnUsersUpdateListener
 import com.vkpapps.thunder.ui.adapter.ClientAdapter
+import com.vkpapps.thunder.utils.AdsUtils
+import com.vkpapps.thunder.utils.StorageManager
+import com.vkpapps.thunder.utils.WifiApUtils
+import kotlinx.android.synthetic.main.fragment_dashboard.*
+import java.io.File
 
 /**
  * @author VIJAY PATIDAR
@@ -41,7 +48,7 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
         setHasOptionsMenu(true)
         navController = Navigation.findNavController(view)
         users = onUserListRequestListener?.onRequestUsers()
-        clientAdapter = ClientAdapter(users, view)
+        clientAdapter = ClientAdapter()
         val recyclerView: RecyclerView = view.findViewById(R.id.clientList)
         recyclerView.itemAnimator = DefaultItemAnimator()
         recyclerView.layoutManager = LinearLayoutManager(view.context)
@@ -52,7 +59,15 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
             }
         }
         recyclerView.adapter = clientAdapter
-        clientAdapter?.notifyDataSetChangedAndHideIfNull()
+        updateList()
+
+        Picasso.get().load(File(StorageManager(App.context).userDir, "code.png")).fit().into(barCodeImage)
+
+        AdsUtils.getAdRequest(adView)
+
+        btnShutDown.setOnClickListener {
+            WifiApUtils.disableWifiAp()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -90,6 +105,17 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
     }
 
     override fun onUserUpdated() {
-        clientAdapter?.notifyDataSetChangedAndHideIfNull()
+        updateList()
+    }
+
+    private fun updateList() {
+        onUserListRequestListener?.onRequestUsers()?.run {
+            if (!this.isNullOrEmpty()) {
+                clientAdapter?.setUsers(this)
+                emptyClient.visibility = View.GONE
+            } else {
+                emptyClient.visibility = View.VISIBLE
+            }
+        }
     }
 }

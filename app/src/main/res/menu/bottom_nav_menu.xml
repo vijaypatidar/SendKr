@@ -19,7 +19,7 @@
         android:title="@string/title_dashboard" />
     <item
         android:id="@+id/navigation_profile"
-        android:icon="@drawable/ic_profile"
         android:checkable="false"
+        android:icon="@drawable/ic_profile"
         android:title="@string/title_profile" />
 </menu>

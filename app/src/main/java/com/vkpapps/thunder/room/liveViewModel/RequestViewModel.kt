@@ -7,8 +7,8 @@ import com.vkpapps.thunder.model.RequestInfo
 
 class RequestViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
+        @JvmStatic
         val requestInfos = ArrayList<RequestInfo>()
-
         @Volatile
         @JvmStatic
         private var pendingRequestCount = 0

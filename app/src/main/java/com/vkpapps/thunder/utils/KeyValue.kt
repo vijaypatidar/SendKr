@@ -24,12 +24,17 @@ class KeyValue(context: Context) {
         get() = sharedPreferences.getBoolean("policy", false)
         set(policy) {
             sharedPreferences.edit().putBoolean("policy", policy).apply()
-
         }
 
     var externalStoragePath: String?
         get() = sharedPreferences.getString("externalStoragePath", null)
         set(policy) {
             sharedPreferences.edit().putString("externalStoragePath", policy).apply()
+        }
+
+    var showHiddenFile: Boolean
+        get() = sharedPreferences.getBoolean("showHiddenFile", true)
+        set(policy) {
+            sharedPreferences.edit().putBoolean("showHiddenFile", policy).apply()
         }
 }

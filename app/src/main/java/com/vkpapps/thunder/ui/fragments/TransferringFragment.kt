@@ -58,6 +58,8 @@ class TransferringFragment : Fragment() {
         })
         val adView: AdView = view.findViewById(R.id.adView)
         getAdRequest(adView)
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

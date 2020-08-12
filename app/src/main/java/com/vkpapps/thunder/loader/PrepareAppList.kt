@@ -7,6 +7,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.model.AppInfo
 import com.vkpapps.thunder.utils.MathUtils
+import com.vkpapps.thunder.utils.MyThumbnailUtils
 import java.io.File
 
 /***
@@ -45,6 +46,12 @@ object PrepareAppList {
                 appInfos.add(appInfo)
             }
         }
+
+        Thread(Runnable {
+            appInfos.forEach {
+                MyThumbnailUtils.loadApkThumbnail(it.id, it.uri, null)
+            }
+        }).start()
 
         appInfos.sortBy { appInfo -> appInfo.name }
         appInfos

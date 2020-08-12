@@ -17,7 +17,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
-            android:scaleType="center"
-            android:src="@drawable/ic_profile" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_profile_pic" />
     </androidx.cardview.widget.CardView>
 </FrameLayout>

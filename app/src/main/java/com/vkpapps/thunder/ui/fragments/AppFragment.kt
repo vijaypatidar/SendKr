@@ -91,7 +91,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                 withContext(Main) {
                     adapter.notifyDataSetChanged()
                     hideShowSendButton()
-                    }
+                }
                 onFileRequestPrepareListener?.sendFiles(selected)
             }
         }
