@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="wrap_content"
     android:layout_margin="2dp"
     android:orientation="vertical"
     app:cardCornerRadius="5dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.vkpapps.thunder.ui.views.SquareImageView
             android:id="@+id/picture"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -22,7 +22,7 @@
             android:src="@color/colorPrimary"
             tools:ignore="UnusedAttribute" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.vkpapps.thunder.ui.views.SquareImageView
             android:id="@+id/btnSelect"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

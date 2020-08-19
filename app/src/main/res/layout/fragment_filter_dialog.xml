@@ -15,7 +15,7 @@
         android:layout_height="2dp"
         android:layout_gravity="center"
         android:background="@drawable/round"
-        android:backgroundTint="@color/colorPrimary" />
+        android:backgroundTint="@color/darker_gray" />
 
     <TextView
         android:layout_width="wrap_content"

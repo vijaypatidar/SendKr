@@ -7,10 +7,11 @@ import android.view.View
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 object BitmapUtils {
-    val executors = Executors.newSingleThreadExecutor()
+    private val executors: ExecutorService = Executors.newSingleThreadExecutor()
 
     fun viewToByteArray(view: View): ByteArray {
         val picBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.RGB_565)

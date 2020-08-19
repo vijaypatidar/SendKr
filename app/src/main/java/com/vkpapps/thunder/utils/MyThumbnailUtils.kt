@@ -23,10 +23,10 @@ object MyThumbnailUtils {
                 val mmr = MediaMetadataRetriever().apply { setDataSource(App.context, uri) }
                 val data = mmr.embeddedPicture
                 val bitmap = BitmapFactory.decodeByteArray(data, 0, data!!.size)
-                BitmapUtils.bitmapToFile(bitmap, file)
                 imageView?.run {
                     Picasso.get().load(file).centerCrop().into(imageView)
                 }
+                BitmapUtils.bitmapToFile(bitmap, file)
                 mmr.close()
             } else {
                 imageView?.run {
@@ -75,10 +75,8 @@ object MyThumbnailUtils {
                     applicationInfo.sourceDir = absolutePath
                 }
                 val loadIcon = packageArchiveInfo.applicationInfo.loadIcon(App.context.packageManager)
+                imageView?.setImageDrawable(loadIcon)
                 BitmapUtils.bitmapToFile(loadIcon.toBitmap(), file)
-                imageView?.run {
-                    Picasso.get().load(file).into(imageView)
-                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 imageView?.setImageResource(R.drawable.ic_android)

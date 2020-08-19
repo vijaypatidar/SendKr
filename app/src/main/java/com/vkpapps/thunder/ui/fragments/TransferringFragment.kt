@@ -15,6 +15,11 @@ import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.room.liveViewModel.RequestViewModel
 import com.vkpapps.thunder.ui.adapter.RequestAdapter
 import com.vkpapps.thunder.utils.AdsUtils.getAdRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /***
  * @author VIJAY PATIDAR
@@ -22,6 +27,7 @@ import com.vkpapps.thunder.utils.AdsUtils.getAdRequest
 class TransferringFragment : Fragment() {
     var pendingTransferringCount: AppCompatTextView? = null
     var pendingTransferringCountProgress: View? = null
+    var job: Job? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -59,7 +65,17 @@ class TransferringFragment : Fragment() {
         val adView: AdView = view.findViewById(R.id.adView)
         getAdRequest(adView)
 
+        job = CoroutineScope(Main).launch {
+            while (!isDetached) {
+                adapter.notifyDataSetChanged()
+                delay(1000)
+            }
+        }
+    }
 
+    override fun onDetach() {
+        super.onDetach()
+        job?.cancel()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

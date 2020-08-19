@@ -2,6 +2,7 @@ package com.vkpapps.thunder.ui.activity
 
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.ConnectivityManager
@@ -13,18 +14,27 @@ import android.net.wifi.WifiManager
 import android.net.wifi.WifiNetworkSpecifier
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.vkpapps.thunder.App
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.model.constant.Constants
 import com.vkpapps.thunder.ui.dialog.DialogsUtils
+import com.vkpapps.thunder.utils.BarCodeUtils
 import com.vkpapps.thunder.utils.PermissionUtils
+import com.vkpapps.thunder.utils.StorageManager
 import kotlinx.android.synthetic.main.activity_connection.*
+import java.io.File
 
 class ConnectionActivity : AppCompatActivity() {
+    companion object {
+        var network: Network? = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connection)
@@ -32,6 +42,11 @@ class ConnectionActivity : AppCompatActivity() {
         initUI()
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (!wifiManager.isWifiEnabled) {
+            DialogsUtils(this).alertEnableWifi()
+            startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
+        }
 
         if (PermissionUtils.checkLCameraPermission(this)) {
             scanner.startCamera()
@@ -41,6 +56,7 @@ class ConnectionActivity : AppCompatActivity() {
 
         scanner.setResultHandler {
             try {
+                BarCodeUtils().createQR(it.text, File(StorageManager(App.context).userDir, "code.png").absolutePath)
                 Logger.d("scan result" + it.text)
                 val split = it.text.split("\n")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -48,13 +64,15 @@ class ConnectionActivity : AppCompatActivity() {
                             .setSsid(split[0])
                             .setWpa2Passphrase(split[1])
                             .build()
-                    val networkRequest = NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    val networkRequest = NetworkRequest.Builder()
+                            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                             .removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                             .setNetworkSpecifier(networkSpecifier)
                             .build()
                     connectivityManager.requestNetwork(networkRequest, object : ConnectivityManager.NetworkCallback() {
                         override fun onAvailable(network: Network) {
                             super.onAvailable(network)
+                            ConnectionActivity.network = network
                             Logger.d("onAvailable")
                             setResult(RESULT_OK)
                             finish()
@@ -76,6 +94,11 @@ class ConnectionActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+        btnUseExisting.setOnClickListener {
+            setResult(RESULT_OK)
+            finish()
         }
     }
 

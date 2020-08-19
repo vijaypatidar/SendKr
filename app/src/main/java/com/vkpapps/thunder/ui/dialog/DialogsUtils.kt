@@ -160,5 +160,10 @@ class DialogsUtils(private val context: Context) {
         }.show()
     }
 
+    fun alertEnableWifi() {
+
+
+    }
+
 
 }

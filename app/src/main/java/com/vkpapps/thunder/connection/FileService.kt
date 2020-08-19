@@ -9,6 +9,7 @@ import com.vkpapps.thunder.model.FileRequest
 import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.model.constant.StatusType
+import com.vkpapps.thunder.ui.activity.ConnectionActivity
 import com.vkpapps.thunder.ui.activity.MainActivity
 import java.io.*
 import java.net.InetSocketAddress
@@ -33,6 +34,7 @@ class FileService(private val send: Boolean,
             }
         } else {
             socket = Socket()
+            ConnectionActivity.network?.bindSocket(socket)
             socket.connect(InetSocketAddress(HOST_ADDRESS, PORT))
         }
         return socket

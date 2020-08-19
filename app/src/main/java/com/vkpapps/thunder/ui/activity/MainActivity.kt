@@ -156,6 +156,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     val address = ipManager.hostIp()
                     d("setup: connection address $address")
                     FileService.HOST_ADDRESS = address
+                    ConnectionActivity.network?.bindSocket(socket)
                     socket.connect(InetSocketAddress(FileService.HOST_ADDRESS, ServerHelper.PORT), 5000)
                     clientHelper = ClientHelper(socket, this, user, this)
                     clientHelper.start()

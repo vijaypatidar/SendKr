@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
+import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
@@ -15,6 +16,8 @@ import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.ui.activity.MainActivity
 import com.vkpapps.thunder.ui.dialog.DialogsUtils
 import java.io.File
+import java.lang.reflect.Method
+
 
 object WifiApUtils {
     private val wifiManager = App.context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -79,12 +82,19 @@ object WifiApUtils {
                 PermissionUtils.askLocationPermission(activity, MainActivity.ASK_LOCATION_PERMISSION)
             }
         } else {
-            wifiManager.isWifiEnabled = false
-            if (!isWifiApEnabled()) {
-                DialogsUtils(activity).createHotspot()
+            try {
+                val ssid = "Android_share214"
+                val password = "hjkashfyasiasghg"
+                val wifiConfiguration: WifiConfiguration = WifiConfiguration()
+                wifiConfiguration.SSID = ssid
+                wifiConfiguration.preSharedKey = password
+                val method: Method = WifiManager::class.java.getMethod("setWifiApEnabled", WifiConfiguration::class.java, Boolean::class.javaPrimitiveType)
+                method.invoke(wifiManager, wifiConfiguration, true)
+                BarCodeUtils().createQR("${ssid}\n${password}", File(StorageManager(App.context).userDir, "code.png").absolutePath)
                 onSuccessListener.onSuccess("s")
-            } else if (wifiManager.isWifiEnabled) {
-                onFailureListener.onFailure(Exception("Ap is already created by another process"))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onFailureListener.onFailure(Exception(e))
             }
         }
     }

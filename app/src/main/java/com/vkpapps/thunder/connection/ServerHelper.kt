@@ -21,7 +21,7 @@ class ServerHelper(private val onFileRequestListener: OnFileRequestListener,
     private var live = true
     override fun run() {
         try {
-            val serverSocket = ServerSocket(PORT)
+            val serverSocket = ServerSocket(PORT, 0)
             while (live) {
                 try {
                     val socket = serverSocket.accept()
