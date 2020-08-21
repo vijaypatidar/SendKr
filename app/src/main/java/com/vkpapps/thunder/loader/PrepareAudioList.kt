@@ -29,11 +29,11 @@ class PrepareAudioList {
             c.close()
             audioInfos.sortBy { it.name }
         }
-        Thread(Runnable {
+        Thread {
             audioInfos.forEach {
                 MyThumbnailUtils.loadAudioThumbnail(it.id, it.uri, null)
             }
-        }).start()
+        }.start()
         return audioInfos
     }
 }

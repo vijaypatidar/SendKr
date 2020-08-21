@@ -8,18 +8,31 @@ import com.vkpapps.thunder.room.repository.VideoRepository
 
 class PrepareDb {
     suspend fun prepareAll() {
+        prepareAudio()
+        prepareVideo()
+        preparePhoto()
+        PrepareAppList.appList
+    }
+
+    suspend fun prepareAudio() {
         val database = MyRoomDatabase.getDatabase(App.context)
         val audioDao = database.audioDao()
         audioDao.deleteAll()
         AudioRepository(audioDao).insertAll(PrepareAudioList().getList())
 
-        val videoDao = database.videoDao()
-        videoDao.deleteAll()
-        VideoRepository(videoDao).insertAll(PrepareVideoList().getList())
+    }
 
+    suspend fun preparePhoto() {
+        val database = MyRoomDatabase.getDatabase(App.context)
         val photoDao = database.photoDao()
         photoDao.deleteAll()
         PhotoRepository(photoDao).insertAll(PreparePhotoList().getList())
-        PrepareAppList.appList
+    }
+
+    suspend fun prepareVideo() {
+        val database = MyRoomDatabase.getDatabase(App.context)
+        val videoDao = database.videoDao()
+        videoDao.deleteAll()
+        VideoRepository(videoDao).insertAll(PrepareVideoList().getList())
     }
 }

@@ -25,10 +25,8 @@ import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
-import com.google.android.play.core.tasks.OnSuccessListener
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.App.Companion.user
 import com.vkpapps.thunder.BuildConfig
@@ -104,8 +102,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         fileToShare()
         updateTransferringProgressBar()
         PrivacyDialog(this).isPolicyAccepted
-
-
     }
 
     private fun setProfileActionView() {
@@ -128,12 +124,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private fun choice() {
         if (PermissionUtils.checkStoragePermission(this)) {
             DialogsUtils(this).choice(View.OnClickListener {
-                WifiApUtils.turnOnHotspot(this, OnSuccessListener {
-                    navController.navigate(R.id.navigation_dashboard)
-                    setup(true)
-                }, OnFailureListener {
-                    choice()
-                })
+                startActivityForResult(Intent(this, CreateAccessPointActivity::class.java), CREATE_AP_ACTIVITY_RESULT)
             }, View.OnClickListener {
                 startActivityForResult(Intent(this, ConnectionActivity::class.java), CONNECTION_ACTIVITY_RESULT)
             })
@@ -259,17 +250,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onRequestFailed(requestInfo: RequestInfo) {
         requestInfo.status = StatusType.STATUS_FAILED
-        requestViewModel.notifyDataSetChanged()
         requestViewModel.decrementPendingRequestCount()
-    }
-
-    override fun onProgressChange(requestInfo: RequestInfo) {
-        requestViewModel.notifyDataSetChanged()
     }
 
     override fun onRequestAccepted(requestInfo: RequestInfo) {
         requestInfo.status = StatusType.STATUS_ONGOING
-        requestViewModel.notifyDataSetChanged()
     }
 
     override fun onRequestSuccess(requestInfo: RequestInfo, send: Boolean) {
@@ -562,6 +547,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             } else {
                 choice()
             }
+        } else if (requestCode == CREATE_AP_ACTIVITY_RESULT) {
+            if (resultCode == RESULT_OK) {
+                navController.navigate(R.id.navigation_dashboard)
+                setup(true)
+            } else {
+                choice()
+            }
         }
     }
 
@@ -572,6 +564,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         const val ASK_LOCATION_PERMISSION = 3
         const val REQUEST_UPDATE_PROFILE = 4
         const val CONNECTION_ACTIVITY_RESULT = 5
+        const val CREATE_AP_ACTIVITY_RESULT = 6
 
         @JvmStatic
         private val pendingRequest = ArrayList<RawRequestInfo>()

@@ -15,10 +15,12 @@ import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.thunder.loader.PrepareDb
 import com.vkpapps.thunder.model.PhotoInfo
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.constant.FileType
@@ -30,7 +32,9 @@ import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_photo.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -38,7 +42,7 @@ import java.util.*
 /***
  * @author VIJAY PATIDAR
  */
-class PhotoFragment : Fragment(), OnPhotoSelectListener {
+class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRefreshListener {
     companion object {
         private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
     }
@@ -69,31 +73,37 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                 return false
             }
         }
+        swipeRefreshPhotoList.setOnRefreshListener(this)
+        swipeRefreshPhotoList.setColorSchemeResources(R.color.colorAccent)
 
         val photoViewModel = ViewModelProvider(requireActivity()).get(PhotoViewModel::class.java)
         photoViewModel.photoInfos.observe(requireActivity(), androidx.lifecycle.Observer {
-            if (it.isNotEmpty()) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    it.forEach { item ->
-                        if (item.isSelected) {
-                            selectedCount++
+            try {
+                if (it.isNotEmpty()) {
+                    CoroutineScope(IO).launch {
+                        it.forEach { item ->
+                            if (item.isSelected) {
+                                selectedCount++
+                            }
+                        }
+                        withContext(Main) {
+                            hideShowSendButton()
                         }
                     }
-                    withContext(Dispatchers.Main) {
-                        hideShowSendButton()
-                    }
+                    photoInfos.clear()
+                    photoInfos.addAll(it)
+                    photoAdapter?.notifyDataSetChanged()
+                    emptyPhoto.visibility = View.GONE
+                } else {
+                    emptyPhoto.visibility = View.VISIBLE
                 }
-                photoInfos.clear()
-                photoInfos.addAll(it)
-                photoAdapter?.notifyDataSetChanged()
-                emptyPhoto.visibility = View.GONE
-            } else {
-                emptyPhoto.visibility = View.VISIBLE
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         })
         selectionView.btnSendFiles.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
                 photoInfos.forEach {
                     if (it.isSelected) {
@@ -104,7 +114,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
                     }
                 }
                 selectedCount = 0
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     photoAdapter?.notifyDataSetChanged()
                     hideShowSendButton()
                 }
@@ -114,12 +124,12 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
 
         selectionView.btnSelectNon.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 photoInfos.forEach {
                     it.isSelected = false
                 }
                 selectedCount = 0
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     photoAdapter?.notifyDataSetChanged()
                     hideShowSendButton()
                 }
@@ -127,13 +137,13 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
         }
 
         selectionView.btnSelectAll.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 selectedCount = 0
                 photoInfos.forEach {
                     it.isSelected = true
                     selectedCount++
                 }
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     photoAdapter?.notifyDataSetChanged()
                     hideShowSendButton()
                 }
@@ -142,20 +152,20 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
         val model = activity?.run {
             ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
         }
-        model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
+        model?.sortBy?.observe(requireActivity(), {
             if (it.target == 1) {
                 Logger.d("Dialog result ${it.target} ${it.sortBy}")
                 sortBy = it.sortBy
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(IO).launch {
                     if (!photoInfos.isNullOrEmpty()) {
                         sort()
-                        withContext(Dispatchers.Main) {
+                        withContext(Main) {
                             photoAdapter?.notifyDataSetChanged()
                             emptyPhoto.visibility = View.GONE
                         }
 
                     } else {
-                        withContext(Dispatchers.Main) {
+                        withContext(Main) {
                             emptyPhoto.visibility = View.VISIBLE
                         }
                     }
@@ -256,5 +266,15 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener {
     override fun onPhotoDeselected(photoInfo: PhotoInfo) {
         selectedCount--
         hideShowSendButton()
+    }
+
+    override fun onRefresh() {
+        CoroutineScope(IO).launch {
+            PrepareDb().preparePhoto()
+            withContext(Main) {
+                delay(1500)
+                swipeRefreshPhotoList.isRefreshing = false
+            }
+        }
     }
 }

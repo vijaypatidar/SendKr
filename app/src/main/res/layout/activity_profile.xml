@@ -11,16 +11,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingVertical="20dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btnMale"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="120dp"
+            android:layout_marginBottom="-90dp"
+            app:srcCompat="@drawable/ic_male_avatar" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginBottom="20dp"
             app:cardCornerRadius="100dp"
             app:cardElevation="5dp"
+            android:layout_margin="5dp"
             app:cardUseCompatPadding="true">
 
             <ImageView
@@ -35,11 +45,21 @@
                 tools:ignore="ContentDescription,UnusedAttribute" />
         </androidx.cardview.widget.CardView>
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btnFemale"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="120dp"
+            android:layout_marginTop="-90dp"
+            app:srcCompat="@drawable/ic_female_avatar" />
+
         <EditText
             android:id="@+id/userName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="50dp"
             android:layout_marginEnd="20dp"
             android:background="@drawable/round_corner_rectangle"
             android:gravity="center"

@@ -15,12 +15,13 @@ import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.thunder.loader.PrepareDb
 import com.vkpapps.thunder.model.AudioInfo
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.constant.FileType
@@ -32,16 +33,16 @@ import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_music.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
  * @author VIJAY PATIDAR
  */
-class AudioFragment : Fragment(), OnAudioSelectedListener {
+class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.OnRefreshListener {
 
     companion object {
         private var sortBy = FilterDialogFragment.SORT_BY_NAME
@@ -64,12 +65,11 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
         setHasOptionsMenu(true)
         controller = Navigation.findNavController(view)
 
-        val recyclerView: RecyclerView = view.findViewById(R.id.audioList)
         val audioAdapter = AudioAdapter(audioInfos, this, view.context)
-        recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.layoutManager = LinearLayoutManager(view.context)
-        recyclerView.adapter = audioAdapter
-        recyclerView.onFlingListener = object : OnFlingListener() {
+        audioList.itemAnimator = DefaultItemAnimator()
+        audioList.layoutManager = LinearLayoutManager(view.context)
+        audioList.adapter = audioAdapter
+        audioList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
                 if (selectedCount == 0) {
                     onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
@@ -79,29 +79,35 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                 return false
             }
         }
+        swipeRefreshAudioList.setOnRefreshListener(this)
+        swipeRefreshAudioList.setColorSchemeResources(R.color.colorAccent)
 
         //load music
         val audioViewModel = ViewModelProvider(requireActivity()).get(AudioViewModel::class.java)
-        audioViewModel.audioInfos.observe(requireActivity(), androidx.lifecycle.Observer {
+        audioViewModel.audioInfos.observe(requireActivity(), {
             Logger.d("on audio changes")
-            if (it.isNotEmpty()) {
-                CoroutineScope(IO).launch {
-                    it.forEach { item ->
-                        if (item.isSelected) {
-                            selectedCount++
+            try {
+                if (it.isNotEmpty()) {
+                    CoroutineScope(IO).launch {
+                        it.forEach { item ->
+                            if (item.isSelected) {
+                                selectedCount++
+                            }
+                        }
+                        withContext(Main) {
+                            hideShowSendButton()
                         }
                     }
-                    withContext(Dispatchers.Main) {
-                        hideShowSendButton()
-                    }
+                    audioInfos.clear()
+                    audioInfos.addAll(it)
+                    sort()
+                    audioAdapter.notifyDataSetChanged()
+                    emptyMusic.visibility = View.GONE
+                } else {
+                    emptyMusic.visibility = View.VISIBLE
                 }
-                audioInfos.clear()
-                audioInfos.addAll(it)
-                sort()
-                audioAdapter.notifyDataSetChanged()
-                emptyMusic.visibility = View.GONE
-            } else {
-                emptyMusic.visibility = View.VISIBLE
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         })
 
@@ -119,7 +125,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                     }
                 }
                 selectedCount = 0
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     audioAdapter.notifyDataSetChanged()
                     hideShowSendButton()
                 }
@@ -134,7 +140,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                     it.isSelected = false
                 }
                 selectedCount = 0
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     audioAdapter.notifyDataSetChanged()
                     hideShowSendButton()
                 }
@@ -148,7 +154,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
                     it.isSelected = true
                     selectedCount++
                 }
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     audioAdapter.notifyDataSetChanged()
                     hideShowSendButton()
                 }
@@ -200,12 +206,12 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
 
     }
 
-    override fun onAudioLongClickListener(audioInfo: AudioInfo) {
+    override fun onAudioLongClickListener(audioinfo: AudioInfo) {
         controller?.navigate(object : NavDirections {
             override fun getArguments(): Bundle {
                 return Bundle().apply {
-                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, audioInfo.id)
-                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, audioInfo.uri.toString())
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, audioinfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, audioinfo.uri.toString())
                 }
             }
 
@@ -271,6 +277,16 @@ class AudioFragment : Fragment(), OnAudioSelectedListener {
             }
             FilterDialogFragment.SORT_BY_SIZE_DSC -> {
                 audioInfos.sortBy { audioInfo -> audioInfo.size * -1 }
+            }
+        }
+    }
+
+    override fun onRefresh() {
+        CoroutineScope(IO).launch {
+            PrepareDb().prepareAudio()
+            withContext(Main) {
+                delay(1500)
+                swipeRefreshAudioList.isRefreshing = false
             }
         }
     }

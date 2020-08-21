@@ -33,11 +33,11 @@ class PrepareVideoList {
             }
             c.close()
         }
-        Thread(Runnable {
+        Thread {
             videoInfos.forEach {
                 MyThumbnailUtils.loadVideoThumbnail(it.id, it.uri, null)
             }
-        }).start()
+        }.start()
 
         return videoInfos
     }

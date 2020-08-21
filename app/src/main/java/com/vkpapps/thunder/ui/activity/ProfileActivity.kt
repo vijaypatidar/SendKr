@@ -64,6 +64,15 @@ class ProfileActivity : AppCompatActivity() {
                 userName.error = "name required!"
             }
         }
+
+        btnMale.setOnClickListener {
+            userPic.setImageResource(R.drawable.ic_male_avatar)
+            picChange = true
+        }
+        btnFemale.setOnClickListener {
+            userPic.setImageResource(R.drawable.ic_female_avatar)
+            picChange = true
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

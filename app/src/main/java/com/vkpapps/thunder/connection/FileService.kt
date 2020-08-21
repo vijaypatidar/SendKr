@@ -31,6 +31,7 @@ class FileService(private val send: Boolean,
             ServerSocket(PORT).use { serverSocket ->
                 serverSocket.soTimeout = MAX_WAIT_TIME
                 socket = serverSocket.accept()
+                Logger.d(socket.inetAddress.hostAddress)
             }
         } else {
             socket = Socket()

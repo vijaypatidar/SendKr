@@ -14,11 +14,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.thunder.loader.PrepareDb
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.VideoInfo
 import com.vkpapps.thunder.model.constant.FileType
@@ -29,17 +31,14 @@ import com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_video.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /***
  * @author VIJAY PATIDAR
  */
-class VideoFragment : Fragment(), OnVideoSelectListener {
+class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRefreshListener {
     private val videoInfos: MutableList<VideoInfo> = ArrayList()
     private var adapter: VideoAdapter? = null
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
@@ -58,39 +57,44 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
         controller = Navigation.findNavController(view)
-        val recyclerView: RecyclerView = view.findViewById(R.id.videoList)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
+        videoList.layoutManager = LinearLayoutManager(requireContext())
         adapter = VideoAdapter(videoInfos, this)
-        recyclerView.onFlingListener = object : OnFlingListener() {
+        videoList.adapter = adapter
+        videoList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
                 if (selectedCount == 0)
                     onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
                 return false
             }
         }
-        recyclerView.adapter = adapter
+
+        swipeRefreshVideoList.setOnRefreshListener(this)
+        swipeRefreshVideoList.setColorSchemeResources(R.color.colorAccent)
 
         val videoViewModel = ViewModelProvider(requireActivity()).get(VideoViewModel::class.java)
         videoViewModel.videoInfos.observe(requireActivity(), androidx.lifecycle.Observer {
-            if (it.isNotEmpty()) {
-                CoroutineScope(IO).launch {
-                    it.forEach { item ->
-                        if (item.isSelected) {
-                            selectedCount++
+            try {
+                if (it.isNotEmpty()) {
+                    CoroutineScope(IO).launch {
+                        it.forEach { item ->
+                            if (item.isSelected) {
+                                selectedCount++
+                            }
+                        }
+                        withContext(Main) {
+                            hideShowSendButton()
                         }
                     }
-                    withContext(Main) {
-                        hideShowSendButton()
-                    }
+                    videoInfos.clear()
+                    videoInfos.addAll(it)
+                    sort()
+                    adapter?.notifyDataSetChanged()
+                    emptyVideo.visibility = View.GONE
+                } else {
+                    emptyVideo.visibility = View.VISIBLE
                 }
-                videoInfos.clear()
-                videoInfos.addAll(it)
-                sort()
-                adapter?.notifyDataSetChanged()
-                emptyVideo.visibility = View.GONE
-            } else {
-                emptyVideo.visibility = View.VISIBLE
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         })
 
@@ -259,6 +263,17 @@ class VideoFragment : Fragment(), OnVideoSelectListener {
             }
             FilterDialogFragment.SORT_BY_SIZE_DSC -> {
                 videoInfos.sortBy { videoInfo -> videoInfo.size * -1 }
+            }
+        }
+    }
+
+    override fun onRefresh() {
+        Logger.d("[VideoFragment][onRefresh]")
+        CoroutineScope(IO).launch {
+            PrepareDb().prepareVideo()
+            withContext(Main) {
+                delay(1500)
+                swipeRefreshVideoList.isRefreshing = false
             }
         }
     }
