@@ -2,11 +2,19 @@ package com.vkpapps.thunder.ui.activity
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.interfaces.OnFailureListener
+import com.vkpapps.thunder.interfaces.OnSuccessListener
+import com.vkpapps.thunder.model.ConnectionBarCode
+import com.vkpapps.thunder.ui.dialog.DialogsUtils
+import com.vkpapps.thunder.utils.BarCodeUtils
+import com.vkpapps.thunder.utils.PermissionUtils
+import com.vkpapps.thunder.utils.WifiApUtils
 import kotlinx.android.synthetic.main.activity_create_access_point.*
 
-class CreateAccessPointActivity : AppCompatActivity() {
+class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int> {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_access_point)
@@ -15,16 +23,36 @@ class CreateAccessPointActivity : AppCompatActivity() {
             this.elevation = 0f
         }
 
-//        WifiApUtils.turnOnHotspot(this, OnSuccessListener {
-//            setResult(RESULT_OK)
-//            finish()
-//        }, OnFailureListener {
-//            Toast.makeText(this,"failed tp create ap",Toast.LENGTH_SHORT).show()
-//        })
+        if (!WifiApUtils.isWifiApEnabled() && !WifiApUtils.wifiManager.isWifiEnabled)
+            WifiApUtils.turnOnHotspot(this, object : OnSuccessListener<String> {
+                override fun onSuccess(t: String) {
+                    val connectionBarCode = ConnectionBarCode(ConnectionBarCode.CONNECTION_INTERNAL_AP)
+                    connectionBarCode.ssid = WifiApUtils.ssid
+                    connectionBarCode.password = WifiApUtils.password
+                    BarCodeUtils().createQR(connectionBarCode)
+                    setResult(RESULT_OK)
+                    finish()
+                }
+            }, this)
 
-        btnUseExisting.setOnClickListener {
-            setResult(RESULT_OK)
-            finish()
+        if (WifiApUtils.isWifiApEnabled()) {
+            useExistingSection.visibility = View.VISIBLE
+            btnUseExisting.setOnClickListener {
+                setResult(RESULT_OK)
+                BarCodeUtils().createQR(ConnectionBarCode(ConnectionBarCode.CONNECTION_EXTERNAL_AP))
+                finish()
+            }
+        }
+
+        if (WifiApUtils.wifiManager.isWifiEnabled) {
+            useRouterSection.visibility = View.VISIBLE
+            btnUseRouter.setOnClickListener {
+                setResult(RESULT_OK)
+                BarCodeUtils().createQR(ConnectionBarCode(ConnectionBarCode.CONNECTION_VIA_ROUTER).apply {
+                    ip = WifiApUtils.wifiManager.dhcpInfo.ipAddress
+                })
+                finish()
+            }
         }
     }
 
@@ -34,4 +62,19 @@ class CreateAccessPointActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onFailure(t: Int) {
+        when (t) {
+            WifiApUtils.ERROR_LOCATION_PERMISSION_DENIED -> {
+                PermissionUtils.askLocationPermission(this, MainActivity.ASK_LOCATION_PERMISSION)
+            }
+            WifiApUtils.ERROR_ENABLE_GPS_PROVIDER -> {
+                DialogsUtils(this).alertGpsProviderRequire()
+            }
+            WifiApUtils.ERROR_DISABLE_HOTSPOT -> {
+                startActivity(WifiApUtils.getTetheringSettingIntent())
+            }
+        }
+    }
+
 }

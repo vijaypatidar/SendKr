@@ -21,8 +21,8 @@ object MyThumbnailUtils {
         try {
             if (!file.exists()) {
                 val mmr = MediaMetadataRetriever().apply { setDataSource(App.context, uri) }
-                val data = mmr.embeddedPicture
-                val bitmap = BitmapFactory.decodeByteArray(data, 0, data!!.size)
+                val data = mmr.embeddedPicture!!
+                val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
                 imageView?.run {
                     Picasso.get().load(file).centerCrop().into(imageView)
                 }
@@ -37,7 +37,6 @@ object MyThumbnailUtils {
             e.printStackTrace()
             imageView?.setImageResource(R.drawable.ic_default_audio_icon)
         }
-
     }
 
     fun loadVideoThumbnail(id: String, uri: Uri, imageView: ImageView?) {
@@ -47,10 +46,8 @@ object MyThumbnailUtils {
                 val mmr = MediaMetadataRetriever()
                 mmr.setDataSource(App.context, uri)
                 mmr.frameAtTime?.run {
+                    imageView?.setImageBitmap(this)
                     BitmapUtils.bitmapToFile(this, file)
-                }
-                imageView?.run {
-                    Picasso.get().load(file).into(imageView)
                 }
             } else {
                 imageView?.run {
@@ -60,7 +57,6 @@ object MyThumbnailUtils {
         } catch (e: Exception) {
             e.printStackTrace()
             imageView?.setImageResource(R.drawable.ic_movie)
-
         }
     }
 

@@ -8,8 +8,15 @@ import android.graphics.drawable.ColorDrawable
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import com.squareup.picasso.Picasso
+import com.vkpapps.thunder.App
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.interfaces.OnFailureListener
+import com.vkpapps.thunder.interfaces.OnSuccessListener
+import com.vkpapps.thunder.utils.StorageManager
+import java.io.File
 
 
 class DialogsUtils(private val context: Context) {
@@ -42,6 +49,18 @@ class DialogsUtils(private val context: Context) {
         view.findViewById<View>(R.id.btnOk).setOnClickListener {
             alertDialog.cancel()
         }
+    }
+
+    fun displayQRCode() {
+        val ab = AlertDialog.Builder(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.alert_display_qr_code, null)
+        ab.setView(view)
+        ab.setCancelable(true)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+        val barCodeImage = view.findViewById<AppCompatImageView>(R.id.barCodeImage)
+        Picasso.get().load(File(StorageManager(App.context).userDir, "code.png")).into(barCodeImage)
     }
 
     fun joinHotspotFailed(retry: View.OnClickListener, createGroup: View.OnClickListener) {
@@ -160,9 +179,18 @@ class DialogsUtils(private val context: Context) {
         }.show()
     }
 
-    fun alertEnableWifi() {
-
-
+    fun alertEnableWifi(onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<String>) {
+        AlertDialog.Builder(context).apply {
+            setTitle("Enable Wi-Fi")
+            setMessage("Wi-Fi is disabled,please enable it to continue.")
+            setPositiveButton("enable") { _, _ ->
+                onSuccessListener.onSuccess("enable wifi")
+            }
+            setNegativeButton("Cancel") { dialog, _ ->
+                onFailureListener.onFailure("close this")
+                dialog.cancel()
+            }
+        }.show()
     }
 
 

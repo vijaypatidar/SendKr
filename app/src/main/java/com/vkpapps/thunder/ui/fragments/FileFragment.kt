@@ -9,7 +9,6 @@ import androidx.cardview.widget.CardView
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
@@ -38,7 +37,7 @@ import java.io.File
 /***
  * @author VIJAY PATIDAR
  */
-class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
+class FileFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogFragment.OnFilterListener {
 
     companion object {
         const val FILE_ROOT = "FILE_ROOT"
@@ -172,15 +171,6 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                 }
             }
         }
-        val model = activity?.run {
-            ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
-        }
-        model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
-            if (it.target == 4) {
-                sortBy = it.sortBy
-                sort()
-            }
-        })
     }
 
 
@@ -212,18 +202,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.menu_sorting) {
-            navController?.navigate(object : NavDirections {
-                override fun getArguments(): Bundle {
-                    return Bundle().apply {
-                        putInt(FilterDialogFragment.PARAM_TARGET, 4)
-                        putInt(FilterDialogFragment.PARAM_CURRENT_SORT_BY, sortBy)
-                    }
-                }
-
-                override fun getActionId(): Int {
-                    return R.id.filterDialogFragment
-                }
-            })
+            FilterDialogFragment(sortBy, this).show(requireActivity().supportFragmentManager, "SortBy")
             true
         } else
             super.onOptionsItemSelected(item)
@@ -284,7 +263,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
     private fun sort() {
         CoroutineScope(IO).launch {
             withContext(Main) {
-                loadingFile.visibility = View.VISIBLE
+                loadingFile?.visibility = View.VISIBLE
             }
             fileInfos.clear()
             sort(folders)
@@ -293,11 +272,11 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
             fileInfos.addAll(files)
             withContext(Main) {
                 adapter?.notifyDataSetChanged()
-                loadingFile.visibility = View.GONE
+                loadingFile?.visibility = View.GONE
                 if (fileInfos.size == 0) {
-                    emptyDirectory.visibility = View.VISIBLE
+                    emptyDirectory?.visibility = View.VISIBLE
                 } else {
-                    emptyDirectory.visibility = View.GONE
+                    emptyDirectory?.visibility = View.GONE
                 }
             }
         }
@@ -325,5 +304,10 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener {
                 list.sortBy { fileInfo -> fileInfo.size * -1 }
             }
         }
+    }
+
+    override fun onFilterBy(sortBy: Int) {
+        Companion.sortBy = sortBy
+        sort()
     }
 }

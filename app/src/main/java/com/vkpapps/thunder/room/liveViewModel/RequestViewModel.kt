@@ -9,13 +9,14 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
     companion object {
         @JvmStatic
         val requestInfos = ArrayList<RequestInfo>()
+
         @Volatile
         @JvmStatic
         private var pendingRequestCount = 0
     }
 
-    val requestInfosLiveData = MutableLiveData<ArrayList<RequestInfo>>(requestInfos)
-    val pendingRequestCountLiveData = MutableLiveData<Int>(pendingRequestCount)
+    val requestInfosLiveData = MutableLiveData(requestInfos)
+    val pendingRequestCountLiveData = MutableLiveData(pendingRequestCount)
 
     fun insert(obj: RequestInfo) {
         requestInfos.add(obj)

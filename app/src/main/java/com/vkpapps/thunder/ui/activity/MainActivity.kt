@@ -123,9 +123,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     private fun choice() {
         if (PermissionUtils.checkStoragePermission(this)) {
-            DialogsUtils(this).choice(View.OnClickListener {
+            DialogsUtils(this).choice({
                 startActivityForResult(Intent(this, CreateAccessPointActivity::class.java), CREATE_AP_ACTIVITY_RESULT)
-            }, View.OnClickListener {
+            }, {
                 startActivityForResult(Intent(this, ConnectionActivity::class.java), CONNECTION_ACTIVITY_RESULT)
             })
         } else {
@@ -148,15 +148,15 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     d("setup: connection address $address")
                     FileService.HOST_ADDRESS = address
                     ConnectionActivity.network?.bindSocket(socket)
-                    socket.connect(InetSocketAddress(FileService.HOST_ADDRESS, ServerHelper.PORT), 5000)
+                    socket.connect(InetSocketAddress(FileService.HOST_ADDRESS, ServerHelper.PORT), 3000)
                     clientHelper = ClientHelper(socket, this, user, this)
                     clientHelper.start()
                     connected = true
                 } catch (e: IOException) {
                     runOnUiThread {
                         DialogsUtils(this).joinHotspotFailed(
-                                View.OnClickListener { setup(false) },
-                                View.OnClickListener { choice() }
+                                { setup(false) },
+                                { choice() }
                         )
                     }
                     e.printStackTrace()
@@ -371,11 +371,10 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         }
     }
 
-
     override fun onBackPressed() {
         val currentDestination = navController.currentDestination
         if (currentDestination != null && currentDestination.id == R.id.navigation_home) {
-            DialogsUtils(this).exitAppAlert(View.OnClickListener {
+            DialogsUtils(this).exitAppAlert({
                 if (isHost) {
                     serverHelper.shutDown()
                 } else {
@@ -425,6 +424,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             }
         } else {
             pendingRequest.addAll(requests)
+            requestViewModel.notifyPendingCountChange()
             if (requests.isNotEmpty())
                 CoroutineScope(Main).launch {
                     DialogsUtils(this@MainActivity).waitingForReceiver(pendingRequest.size)
@@ -475,7 +475,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     /**
-     * this method will return request information
+     * @return return request information
      */
     private fun getRequestInfo(rid: String): RequestInfo {
         d("requested for RequestInfo where rid = $rid to insert")
@@ -515,14 +515,15 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     private fun updateTransferringProgressBar() {
-        requestViewModel.pendingRequestCountLiveData.observe(this, androidx.lifecycle.Observer {
-            val visible = if (it == 0) View.GONE else View.VISIBLE
+        requestViewModel.pendingRequestCountLiveData.observe(this, {
+            val visible = if (it == 0 && pendingRequest.size == 0) View.GONE else View.VISIBLE
             transferringProgressBar?.visibility = visible
             transferringCountTextView?.visibility = visible
-            if (it > 100) {
+            val count = if (it == 0) pendingRequest.size else it
+            if (count > 100) {
                 transferringCountTextView?.text = "9+"
             } else {
-                transferringCountTextView?.text = it.toString()
+                transferringCountTextView?.text = count.toString()
             }
         })
     }

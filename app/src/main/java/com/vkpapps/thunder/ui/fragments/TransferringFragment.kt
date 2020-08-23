@@ -28,6 +28,7 @@ class TransferringFragment : Fragment() {
     var pendingTransferringCount: AppCompatTextView? = null
     var pendingTransferringCountProgress: View? = null
     var job: Job? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -53,7 +54,7 @@ class TransferringFragment : Fragment() {
                 view.findViewById<View>(R.id.emptyRequestList).visibility = View.VISIBLE
             }
         })
-        viewModel.pendingRequestCountLiveData.observe(requireActivity(), Observer {
+        viewModel.pendingRequestCountLiveData.observe(requireActivity(), {
             pendingTransferringCount?.text = if (it != 0) {
                 pendingTransferringCountProgress?.visibility = View.VISIBLE
                 if (it <= 100) it.toString() else "99+"
@@ -68,7 +69,7 @@ class TransferringFragment : Fragment() {
         job = CoroutineScope(Main).launch {
             while (!isDetached) {
                 adapter.notifyDataSetChanged()
-                delay(1000)
+                delay(2000)
             }
         }
     }

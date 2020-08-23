@@ -77,9 +77,6 @@
         <action
             android:id="@+id/action_navigation_media_to_filePropertyDialogFragment"
             app:destination="@id/filePropertyDialogFragment" />
-        <action
-            android:id="@+id/action_navigation_media_to_filterDialogFragment"
-            app:destination="@id/filterDialogFragment" />
     </fragment>
 
 
@@ -140,20 +137,12 @@
         <action
             android:id="@+id/action_fileFragment_to_filePropertyDialogFragment"
             app:destination="@id/filePropertyDialogFragment" />
-        <action
-            android:id="@+id/action_fileFragment_to_filterDialogFragment"
-            app:destination="@id/filterDialogFragment" />
     </fragment>
     <fragment
         android:id="@+id/transferringFragment"
         android:name="com.vkpapps.thunder.ui.fragments.TransferringFragment"
         android:label="@string/transferring" />
 
-    <dialog
-        android:id="@+id/filterDialogFragment"
-        android:name="com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment"
-        android:label="Filter&amp;Sort by"
-        tools:layout="@layout/fragment_filter_dialog" />
     <dialog
         android:id="@+id/filePropertyDialogFragment"
         android:name="com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment"

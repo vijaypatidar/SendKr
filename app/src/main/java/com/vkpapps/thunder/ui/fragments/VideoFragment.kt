@@ -31,21 +31,26 @@ import com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.thunder.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_video.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /***
  * @author VIJAY PATIDAR
  */
-class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRefreshListener {
+class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
+    companion object {
+        private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
+    }
+
     private val videoInfos: MutableList<VideoInfo> = ArrayList()
     private var adapter: VideoAdapter? = null
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var selectedCount = 0
     private var controller: NavController? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
-    private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -127,7 +132,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRe
                     it.isSelected = false
                 }
                 selectedCount = 0
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     adapter?.notifyDataSetChanged()
                     hideShowSendButton()
                 }
@@ -141,52 +146,17 @@ class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRe
                     it.isSelected = true
                     selectedCount++
                 }
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     adapter?.notifyDataSetChanged()
                     hideShowSendButton()
                 }
             }
         }
-
-
-        val model = activity?.run {
-            ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
-        }
-        model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
-            if (it.target == 3) {
-                sortBy = it.sortBy
-                CoroutineScope(Dispatchers.IO).launch {
-                    if (!videoInfos.isNullOrEmpty()) {
-                        sort()
-                        withContext(Dispatchers.Main) {
-                            adapter?.notifyDataSetChanged()
-                            emptyVideo.visibility = View.GONE
-                        }
-
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            emptyVideo.visibility = View.VISIBLE
-                        }
-                    }
-                }
-            }
-        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.menu_sorting) {
-            controller?.navigate(object : NavDirections {
-                override fun getArguments(): Bundle {
-                    return Bundle().apply {
-                        putInt(FilterDialogFragment.PARAM_TARGET, 3)
-                        putInt(FilterDialogFragment.PARAM_CURRENT_SORT_BY, sortBy)
-                    }
-                }
-
-                override fun getActionId(): Int {
-                    return R.id.filterDialogFragment
-                }
-            })
+            FilterDialogFragment(sortBy, this).show(requireActivity().supportFragmentManager, "SortBy")
             true
         } else
             super.onOptionsItemSelected(item)
@@ -272,8 +242,24 @@ class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRe
         CoroutineScope(IO).launch {
             PrepareDb().prepareVideo()
             withContext(Main) {
-                delay(1500)
                 swipeRefreshVideoList.isRefreshing = false
+            }
+        }
+    }
+
+    override fun onFilterBy(sortBy: Int) {
+        VideoFragment.sortBy = sortBy
+        CoroutineScope(IO).launch {
+            if (!videoInfos.isNullOrEmpty()) {
+                sort()
+                withContext(Main) {
+                    adapter?.notifyDataSetChanged()
+                    emptyVideo.visibility = View.GONE
+                }
+            } else {
+                withContext(Main) {
+                    emptyVideo.visibility = View.VISIBLE
+                }
             }
         }
     }

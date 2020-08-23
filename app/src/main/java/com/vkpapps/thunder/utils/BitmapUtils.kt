@@ -38,7 +38,8 @@ object BitmapUtils {
     fun bitmapToFile(bitmap: Bitmap, file: File) {
         executors.submit {
             try {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, FileOutputStream(file))
+                Bitmap.createScaledBitmap(bitmap, 500, bitmap.height * 500 / bitmap.width, true)
+                        .compress(Bitmap.CompressFormat.PNG, 90, FileOutputStream(file))
             } catch (e: Exception) {
 
             }

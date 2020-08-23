@@ -35,14 +35,13 @@ import kotlinx.android.synthetic.main.fragment_music.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
  * @author VIJAY PATIDAR
  */
-class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.OnRefreshListener {
+class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
 
     companion object {
         private var sortBy = FilterDialogFragment.SORT_BY_NAME
@@ -53,7 +52,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var controller: NavController? = null
     private val audioInfos: MutableList<AudioInfo> = ArrayList()
-
+    private var audioAdapter: AudioAdapter? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -65,7 +64,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
         setHasOptionsMenu(true)
         controller = Navigation.findNavController(view)
 
-        val audioAdapter = AudioAdapter(audioInfos, this, view.context)
+        audioAdapter = AudioAdapter(audioInfos, this, view.context)
         audioList.itemAnimator = DefaultItemAnimator()
         audioList.layoutManager = LinearLayoutManager(view.context)
         audioList.adapter = audioAdapter
@@ -101,7 +100,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
                     audioInfos.clear()
                     audioInfos.addAll(it)
                     sort()
-                    audioAdapter.notifyDataSetChanged()
+                    audioAdapter?.notifyDataSetChanged()
                     emptyMusic.visibility = View.GONE
                 } else {
                     emptyMusic.visibility = View.VISIBLE
@@ -126,7 +125,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
                 }
                 selectedCount = 0
                 withContext(Main) {
-                    audioAdapter.notifyDataSetChanged()
+                    audioAdapter?.notifyDataSetChanged()
                     hideShowSendButton()
                 }
                 onFileRequestPrepareListener?.sendFiles(selected)
@@ -141,7 +140,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
                 }
                 selectedCount = 0
                 withContext(Main) {
-                    audioAdapter.notifyDataSetChanged()
+                    audioAdapter?.notifyDataSetChanged()
                     hideShowSendButton()
                 }
             }
@@ -155,51 +154,17 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
                     selectedCount++
                 }
                 withContext(Main) {
-                    audioAdapter.notifyDataSetChanged()
+                    audioAdapter?.notifyDataSetChanged()
                     hideShowSendButton()
                 }
             }
         }
 
-
-        val model = activity?.run {
-            ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
-        }
-        model?.sortBy?.observe(requireActivity(), androidx.lifecycle.Observer {
-            if (it.target == 2) {
-                Logger.d("Dialog result ${it.sortBy} audio")
-                sortBy = it.sortBy
-                CoroutineScope(IO).launch {
-                    if (!audioInfos.isNullOrEmpty()) {
-                        sort()
-                        withContext(Main) {
-                            audioAdapter.notifyDataSetChanged()
-                            emptyMusic.visibility = View.GONE
-                        }
-                    } else {
-                        withContext(Main) {
-                            emptyMusic.visibility = View.VISIBLE
-                        }
-                    }
-                }
-            }
-        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.menu_sorting) {
-            controller?.navigate(object : NavDirections {
-                override fun getArguments(): Bundle {
-                    return Bundle().apply {
-                        putInt(FilterDialogFragment.PARAM_TARGET, 2)
-                        putInt(FilterDialogFragment.PARAM_CURRENT_SORT_BY, sortBy)
-                    }
-                }
-
-                override fun getActionId(): Int {
-                    return R.id.filterDialogFragment
-                }
-            })
+            FilterDialogFragment(sortBy, this).show(requireActivity().supportFragmentManager, "SortBy")
             true
         } else
             super.onOptionsItemSelected(item)
@@ -285,8 +250,24 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
         CoroutineScope(IO).launch {
             PrepareDb().prepareAudio()
             withContext(Main) {
-                delay(1500)
                 swipeRefreshAudioList.isRefreshing = false
+            }
+        }
+    }
+
+    override fun onFilterBy(sortBy: Int) {
+        AudioFragment.sortBy = sortBy
+        CoroutineScope(IO).launch {
+            if (!audioInfos.isNullOrEmpty()) {
+                sort()
+                withContext(Main) {
+                    audioAdapter?.notifyDataSetChanged()
+                    emptyMusic.visibility = View.GONE
+                }
+            } else {
+                withContext(Main) {
+                    emptyMusic.visibility = View.VISIBLE
+                }
             }
         }
     }

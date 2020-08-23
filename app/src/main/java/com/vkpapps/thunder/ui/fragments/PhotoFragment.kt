@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.loader.PrepareDb
@@ -34,7 +33,6 @@ import kotlinx.android.synthetic.main.fragment_photo.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -42,7 +40,7 @@ import java.util.*
 /***
  * @author VIJAY PATIDAR
  */
-class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRefreshListener {
+class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
     companion object {
         private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
     }
@@ -53,7 +51,6 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRe
     private var photoAdapter: PhotoAdapter? = null
     private var selectedCount = 0
     private var controller: NavController? = null
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_photo, container, false)
@@ -149,29 +146,6 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRe
                 }
             }
         }
-        val model = activity?.run {
-            ViewModelProvider(this).get(FilterDialogFragment.SharedViewModel::class.java)
-        }
-        model?.sortBy?.observe(requireActivity(), {
-            if (it.target == 1) {
-                Logger.d("Dialog result ${it.target} ${it.sortBy}")
-                sortBy = it.sortBy
-                CoroutineScope(IO).launch {
-                    if (!photoInfos.isNullOrEmpty()) {
-                        sort()
-                        withContext(Main) {
-                            photoAdapter?.notifyDataSetChanged()
-                            emptyPhoto.visibility = View.GONE
-                        }
-
-                    } else {
-                        withContext(Main) {
-                            emptyPhoto.visibility = View.VISIBLE
-                        }
-                    }
-                }
-            }
-        })
     }
 
     private fun sort() {
@@ -200,18 +174,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRe
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.menu_sorting) {
-            controller?.navigate(object : NavDirections {
-                override fun getArguments(): Bundle {
-                    return Bundle().apply {
-                        putInt(FilterDialogFragment.PARAM_TARGET, 1)
-                        putInt(FilterDialogFragment.PARAM_CURRENT_SORT_BY, sortBy)
-                    }
-                }
-
-                override fun getActionId(): Int {
-                    return R.id.filterDialogFragment
-                }
-            })
+            FilterDialogFragment(sortBy, this).show(requireActivity().supportFragmentManager, "SortBy")
             true
         } else
             super.onOptionsItemSelected(item)
@@ -272,8 +235,24 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRe
         CoroutineScope(IO).launch {
             PrepareDb().preparePhoto()
             withContext(Main) {
-                delay(1500)
                 swipeRefreshPhotoList.isRefreshing = false
+            }
+        }
+    }
+
+    override fun onFilterBy(sortBy: Int) {
+        Companion.sortBy = sortBy
+        CoroutineScope(IO).launch {
+            if (!photoInfos.isNullOrEmpty()) {
+                sort()
+                withContext(Main) {
+                    photoAdapter?.notifyDataSetChanged()
+                    emptyPhoto?.visibility = View.GONE
+                }
+            } else {
+                withContext(Main) {
+                    emptyPhoto?.visibility = View.VISIBLE
+                }
             }
         }
     }

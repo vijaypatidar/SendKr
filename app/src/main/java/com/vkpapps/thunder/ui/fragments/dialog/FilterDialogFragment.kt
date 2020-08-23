@@ -6,26 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.vkpapps.thunder.R
 import kotlinx.android.synthetic.main.fragment_filter_dialog.*
 
-class FilterDialogFragment : BottomSheetDialogFragment() {
-
-    private var target = -1
-    private var sortBy = 0
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.run {
-            target = this.getInt(PARAM_TARGET, -1)
-            sortBy = this.getInt(PARAM_CURRENT_SORT_BY, 0)
-        }
-    }
+class FilterDialogFragment(private val sortBy: Int, private val onFilterListener: OnFilterListener) : BottomSheetDialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -48,11 +34,6 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val model = activity?.run {
-            ViewModelProvider(this).get(SharedViewModel::class.java)
-        }
-
-
         //set radio button to current state
         when (sortBy) {
             SORT_BY_NAME -> sortByNameAToZ.isChecked = true
@@ -64,17 +45,15 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
         }
 
         btnApply.setOnClickListener {
-            model?.run {
-                val sortBy = when {
-                    sortByNameZToA.isChecked -> SORT_BY_NAME_Z_TO_A
-                    sortByLatest.isChecked -> SORT_BY_LATEST_FIRST
-                    sortByOldest.isChecked -> SORT_BY_OLDEST_FIRST
-                    sortBySize.isChecked -> SORT_BY_SIZE_ASC
-                    sortBySizeDsc.isChecked -> SORT_BY_SIZE_DSC
-                    else -> SORT_BY_NAME
-                }
-                model.select(SharedModel(sortBy, target))
+            val sortBy = when {
+                sortByNameZToA.isChecked -> SORT_BY_NAME_Z_TO_A
+                sortByLatest.isChecked -> SORT_BY_LATEST_FIRST
+                sortByOldest.isChecked -> SORT_BY_OLDEST_FIRST
+                sortBySize.isChecked -> SORT_BY_SIZE_ASC
+                sortBySizeDsc.isChecked -> SORT_BY_SIZE_DSC
+                else -> SORT_BY_NAME
             }
+            onFilterListener.onFilterBy(sortBy)
             dismiss()
         }
 
@@ -91,13 +70,7 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
         const val SORT_BY_SIZE_DSC = 5
     }
 
-    data class SharedModel(val sortBy: Int, val target: Int)
-
-    class SharedViewModel : ViewModel() {
-        val sortBy = MutableLiveData<SharedModel>(SharedModel(SORT_BY_NAME, 0))
-
-        fun select(sharedModel: SharedModel) {
-            sortBy.value = sharedModel
-        }
+    interface OnFilterListener {
+        fun onFilterBy(sortBy: Int)
     }
 }

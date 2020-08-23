@@ -127,7 +127,7 @@ class FileService(private val send: Boolean,
         var HOST_ADDRESS: String? = null
         private const val MAX_WAIT_TIME = 3000
         private const val PORT = 7511
-        private const val BUFFER_SIZE = 3500
+        private const val BUFFER_SIZE = 12000
         val BUFFER = ByteArray(BUFFER_SIZE)
 
         fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, requestInfo: RequestInfo, clientHelper: ClientHelper) {

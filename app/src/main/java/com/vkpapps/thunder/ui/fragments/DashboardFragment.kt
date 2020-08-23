@@ -21,6 +21,7 @@ import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.interfaces.OnUserListRequestListener
 import com.vkpapps.thunder.interfaces.OnUsersUpdateListener
 import com.vkpapps.thunder.ui.adapter.ClientAdapter
+import com.vkpapps.thunder.ui.dialog.DialogsUtils
 import com.vkpapps.thunder.utils.AdsUtils
 import com.vkpapps.thunder.utils.StorageManager
 import com.vkpapps.thunder.utils.WifiApUtils
@@ -67,6 +68,9 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
 
         btnShutDown.setOnClickListener {
             WifiApUtils.disableWifiAp()
+        }
+        barCodeImage.setOnClickListener {
+            DialogsUtils(requireContext()).displayQRCode()
         }
     }
 

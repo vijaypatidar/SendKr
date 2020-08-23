@@ -182,7 +182,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                 historyInfos.addAll(it)
                 withContext(Main) {
                     adapter.setHistoryInfos(it)
-                    noHistory.visibility = if (it.isNotEmpty()) View.GONE else View.VISIBLE
+                    noHistory?.visibility = if (it.isNotEmpty()) View.GONE else View.VISIBLE
                 }
             }
         })
