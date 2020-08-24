@@ -31,8 +31,8 @@ object WifiApUtils {
 
 
     fun turnOnHotspot(activity: Context, onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<Int>) {
+        val providerEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val providerEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
             if (PermissionUtils.checkLocationPermission(activity) && providerEnabled && !isWifiApEnabled()) {
                 wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "")
                 wifiManager.startLocalOnlyHotspot(object : WifiManager.LocalOnlyHotspotCallback() {
@@ -77,6 +77,14 @@ object WifiApUtils {
                 onFailureListener.onFailure(ERROR_LOCATION_PERMISSION_DENIED)
             }
         } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !PermissionUtils.checkLocationPermission(App.context)) {
+                if (!providerEnabled) {
+                    onFailureListener.onFailure(ERROR_ENABLE_GPS_PROVIDER)
+                } else {
+                    onFailureListener.onFailure(ERROR_LOCATION_PERMISSION_DENIED)
+                }
+                return
+            }
             try {
                 val wifiConfiguration = WifiConfiguration()
                 wifiConfiguration.SSID = ssid

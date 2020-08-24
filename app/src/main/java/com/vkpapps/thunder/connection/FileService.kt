@@ -42,6 +42,9 @@ class FileService(private val send: Boolean,
     }
 
     override fun run() {
+        if (requestInfo.status != StatusType.STATUS_PENDING || requestInfo.status == StatusType.STATUS_COMPLETED) return
+        //change status to ongoing
+        requestInfo.status = StatusType.STATUS_ONGOING
         try {
             if (send) {
                 handleActionSend()
@@ -62,7 +65,9 @@ class FileService(private val send: Boolean,
             }
             val socket = getSocket()
             onFileRequestReceiverListener.onRequestAccepted(requestInfo)
-            requestInfo.uri = Uri.fromFile(File(App.downloadPathResolver.getSource(requestInfo))).toString()
+            if (requestInfo.uri == null) {
+                requestInfo.uri = Uri.fromFile(File(App.downloadPathResolver.getSource(requestInfo))).toString()
+            }
             val file = Uri.parse(requestInfo.uri).toFile()
             if (requestInfo.fileType == FileType.FILE_TYPE_FOLDER) {
                 val zipUtils = ZipUtils(requestInfo)
@@ -80,8 +85,13 @@ class FileService(private val send: Boolean,
                 outputStream.close()
             }
             socket.close()
+            if (requestInfo.transferred == requestInfo.size) {
+                //change status to complete if total bytes are transferred
+                requestInfo.status = StatusType.STATUS_COMPLETED
+            }
             onFileRequestReceiverListener.onRequestSuccess(requestInfo, false)
         } catch (e: Exception) {
+            requestInfo.status = StatusType.STATUS_FAILED
             onFileRequestReceiverListener.onRequestFailed(requestInfo)
             e.printStackTrace()
         }
@@ -93,7 +103,6 @@ class FileService(private val send: Boolean,
             if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
                 clientHelper.write(FileRequest(false, requestInfo.rid))
-                onFileRequestReceiverListener.onRequestAccepted(requestInfo)
             }
             val socket = getSocket()
             if (requestInfo.fileType == FileType.FILE_TYPE_FOLDER) {
@@ -113,9 +122,14 @@ class FileService(private val send: Boolean,
                 outputStream.flush()
                 outputStream.close()
             }
-            onFileRequestReceiverListener.onRequestSuccess(requestInfo, true)
             socket.close()
+            if (requestInfo.transferred == requestInfo.size) {
+                //change status to complete if total bytes are transferred
+                requestInfo.status = StatusType.STATUS_COMPLETED
+            }
+            onFileRequestReceiverListener.onRequestSuccess(requestInfo, true)
         } catch (e: Exception) {
+            requestInfo.status = StatusType.STATUS_FAILED
             onFileRequestReceiverListener.onRequestFailed(requestInfo)
             e.printStackTrace()
         }

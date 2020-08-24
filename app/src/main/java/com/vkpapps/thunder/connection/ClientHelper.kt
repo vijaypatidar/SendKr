@@ -4,6 +4,7 @@ import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnClientConnectionStateListener
 import com.vkpapps.thunder.interfaces.OnFileRequestListener
 import com.vkpapps.thunder.model.FileRequest
+import com.vkpapps.thunder.model.FileStatusRequest
 import com.vkpapps.thunder.model.RequestInfo
 import com.vkpapps.thunder.model.User
 import java.io.IOException
@@ -17,6 +18,7 @@ import java.util.concurrent.Executors
  */
 class ClientHelper(private val socket: Socket, private val onFileRequestListener: OnFileRequestListener, var user: User, private val onClientConnectionStateListener: OnClientConnectionStateListener?) : Thread() {
     companion object {
+        @JvmStatic
         private val signalExecutors = Executors.newSingleThreadExecutor()
     }
 
@@ -44,7 +46,10 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
                                 handleFileControl(obj)
                             }
                             is RequestInfo -> {
-                                onFileRequestListener.onNewRequestInfo(obj)
+                                onFileRequestListener.onNewRequestInfo(obj, this)
+                            }
+                            is FileStatusRequest -> {
+                                onFileRequestListener.onFileStatusChange(obj, this)
                             }
                             is User -> {
                                 // update user information
@@ -56,8 +61,8 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
                             }
                             else -> {
                                 Logger.e("invalid object received $obj")
+                                }
                             }
-                        }
                     } catch (e: Exception) {
                         retry++
                         if (retry == 10) break

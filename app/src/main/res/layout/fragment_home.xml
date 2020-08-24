@@ -96,7 +96,7 @@
                                     android:gravity="center_vertical"
                                     android:textAlignment="gravity"
                                     android:textColor="@color/black"
-                                    android:textSize="20sp" />
+                                    android:textSize="18sp" />
 
                                 <androidx.appcompat.widget.AppCompatTextView
                                     android:id="@+id/internalProgressText"
@@ -104,7 +104,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center_vertical"
                                     android:text="12/16Gb"
-                                    android:textSize="14sp" />
+                                    android:textSize="12sp" />
 
                                 <ProgressBar
                                     android:id="@+id/progressBarInternal"
@@ -163,14 +163,14 @@
                                     android:gravity="center_vertical"
                                     android:textAlignment="gravity"
                                     android:textColor="@color/black"
-                                    android:textSize="20sp" />
+                                    android:textSize="18sp" />
 
                                 <androidx.appcompat.widget.AppCompatTextView
                                     android:id="@+id/externalProgressText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center_vertical"
-                                    android:textSize="14sp"
+                                    android:textSize="12sp"
                                     tools:text="14/64Gb" />
 
                                 <ProgressBar
@@ -226,8 +226,7 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:scaleType="centerCrop"
-                                android:src="@drawable/ic_photo"
-                                android:tint="#2196f3" />
+                                android:src="@drawable/ic_photo" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -266,8 +265,7 @@
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_music"
-                                android:tint="#e91e63" />
+                                android:src="@drawable/ic_music" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -315,8 +313,7 @@
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_movie"
-                                android:tint="#009688" />
+                                android:src="@drawable/ic_movie" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -336,6 +333,7 @@
                         android:layout_marginStart="5dp"
                         android:layout_marginTop="5dp"
                         android:layout_marginEnd="10dp"
+                        android:visibility="invisible"
                         android:layout_marginBottom="5dp"
                         android:layout_weight=".5"
                         android:clickable="true"
@@ -356,8 +354,7 @@
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_movie"
-                                android:tint="#FFC107" />
+                                android:src="@drawable/ic_movie" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"

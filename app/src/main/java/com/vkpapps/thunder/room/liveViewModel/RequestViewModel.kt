@@ -20,7 +20,6 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
 
     fun insert(obj: RequestInfo) {
         requestInfos.add(obj)
-        requestInfosLiveData.postValue(requestInfos)
         incrementPendingRequestCount()
     }
 

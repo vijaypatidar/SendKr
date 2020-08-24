@@ -116,9 +116,9 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
         onUserListRequestListener?.onRequestUsers()?.run {
             if (!this.isNullOrEmpty()) {
                 clientAdapter?.setUsers(this)
-                emptyClient.visibility = View.GONE
+                emptyClient?.visibility = View.GONE
             } else {
-                emptyClient.visibility = View.VISIBLE
+                emptyClient?.visibility = View.VISIBLE
             }
         }
     }

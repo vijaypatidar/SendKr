@@ -39,6 +39,7 @@ import com.vkpapps.thunder.connection.ServerHelper
 import com.vkpapps.thunder.interfaces.*
 import com.vkpapps.thunder.loader.PrepareAppList
 import com.vkpapps.thunder.loader.PrepareDb
+import com.vkpapps.thunder.model.FileStatusRequest
 import com.vkpapps.thunder.model.HistoryInfo
 import com.vkpapps.thunder.model.RawRequestInfo
 import com.vkpapps.thunder.model.RequestInfo
@@ -68,7 +69,7 @@ import kotlin.collections.ArrayList
  */
 class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUserListRequestListener,
         OnFragmentAttachStatusListener, OnFileRequestListener, OnFileRequestPrepareListener,
-        OnFileRequestReceiverListener, OnClientConnectionStateListener {
+        OnFileRequestReceiverListener, OnClientConnectionStateListener, OnFileStatusChangeListener {
 
     private lateinit var navController: NavController
     private var onUsersUpdateListener: OnUsersUpdateListener? = null
@@ -175,92 +176,127 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onDownloadRequest(rid: String) {
+        d("[MainActivity][onDownloadRequest] rid = $rid")
         // this method is only invoked for client
-        val requestInfo = getRequestInfo(rid)
-        FileService.startActionReceive(this@MainActivity,
-                requestInfo,
-                clientHelper
-        )
+        getRequestInfo(rid)?.run {
+            FileService.startActionReceive(this@MainActivity,
+                    this,
+                    clientHelper
+            )
+        }
     }
 
     override fun onUploadRequest(rid: String) {
+        d("[MainActivity][onUploadRequest] rid = $rid")
         // this method is only invoked for client
-        val requestInfo = getRequestInfo(rid)
-        requestInfo.status = StatusType.STATUS_ONGOING
-        d("onUploadRequest rid = $rid source = ${requestInfo.uri} name = ${requestInfo.name}")
-        FileService.startActionSend(this@MainActivity, requestInfo,
-                clientHelper
-        )
+        getRequestInfo(rid)?.run {
+            FileService.startActionSend(this@MainActivity, this,
+                    clientHelper
+            )
+        }
     }
 
-    override fun onNewRequestInfo(requestInfo: RequestInfo) {
-        d(" new file request type = ${requestInfo.displaySize} ${requestInfo.name}")
-        Logger.d("size=================${requestInfo.size}")
-        if (isHost) {
-            //new file request
-            if (requestInfo.transferred == 0L) {
-                requestViewModel.insert(requestInfo)
+    override fun onStatusChange(requestInfo: RequestInfo) {
+        d("[MainActivity][onStatusChange] rid = ${requestInfo.rid} status = ${requestInfo.status}")
+        if (requestInfo.status != StatusType.STATUS_COMPLETED) {
+            if (isHost) {
                 serverHelper.clientHelpers.forEach {
-                    if (it.user.userId == requestInfo.sid) {
-                        FileService.startActionReceive(
-                                this@MainActivity,
-                                requestInfo,
-                                it)
-                    }
-                }
-
-                for (clientHelper in serverHelper.clientHelpers) {
-                    if (clientHelper.user.userId != requestInfo.sid) {
-                        val clone = requestInfo.clone()
-                        clone.rid = getRandomId()
-                        clone.cid = clientHelper.user.userId
-                        clientHelper.write(clone)
-                        //preparing intent for service
-                        requestViewModel.insert(clone)
-
-                        FileService.startActionSend(
-                                this@MainActivity,
-                                clone,
-                                clientHelper)
+                    if (it.user.userId == requestInfo.cid) {
+                        it.write(FileStatusRequest(requestInfo.status, requestInfo.rid))
+                        if (requestInfo.status == StatusType.STATUS_PENDING || requestInfo.status == StatusType.STATUS_RETRY) {
+                            if (user.userId == requestInfo.sid) {
+                                FileService.startActionSend(this@MainActivity, requestInfo, it)
+                            } else {
+                                FileService.startActionReceive(this@MainActivity, requestInfo, it)
+                            }
+                        }
+                        return
                     }
                 }
             } else {
-                try {
-                    val requestInfo1 = requestViewModel.getRequestInfo(requestInfo.rid)
-                    requestInfo1?.status = requestInfo.status
-                } catch (e: Exception) {
-
-                }
-            }
-        } else {
-            d("client new req size of file = ${requestInfo.size}")
-            if (requestInfo.transferred == 0L) {
-                requestViewModel.insert(requestInfo)
-            } else {
-                try {
-                    val requestInfo1 = requestViewModel.getRequestInfo(requestInfo.rid)
-                    requestInfo1?.status = requestInfo.status
-                } catch (e: Exception) {
-
-                }
+                clientHelper.write(FileStatusRequest(requestInfo.status, requestInfo.rid))
             }
         }
     }
 
 
+    override fun onNewRequestInfo(requestInfo: RequestInfo, clientHelper: ClientHelper) {
+        d("[MainActivity][onNewRequestInfo] rid = ${requestInfo.rid} status = ${requestInfo.status}")
+        requestInfo.uri = null
+        if (isHost) {
+            //new file request
+            requestViewModel.insert(requestInfo)
+            FileService.startActionReceive(this@MainActivity, requestInfo, clientHelper)
+            //todo send to other from one client to other
+//                val afterList = ArrayList<ClientHelper>()
+//                for (clientHelper in serverHelper.clientHelpers) {
+//                    if (clientHelper.user.userId != requestInfo.sid) {
+//                        val clone = requestInfo.clone()
+//                        clone.rid = getRandomId()
+//                        clone.cid = clientHelper.user.userId
+//                        clientHelper.write(clone)
+//                        //preparing intent for service
+//                        requestViewModel.insert(clone)
+//                        afterList.add(clientHelper)
+//                        FileService.startActionSend(
+//                                this@MainActivity,
+//                                clone,
+//                                clientHelper)
+//                    }
+//                }
+
+        } else {
+            requestViewModel.insert(requestInfo)
+        }
+    }
+
+    override fun onFileStatusChange(fileStatusRequest: FileStatusRequest, clientHelper: ClientHelper) {
+        d("[MainActivity][onFileStatusChange] rid = ${fileStatusRequest.rid} status = ${fileStatusRequest.status}")
+        if (isHost) {
+            try {
+                requestViewModel.getRequestInfo(fileStatusRequest.rid)?.run {
+                    if (fileStatusRequest.status == StatusType.STATUS_RETRY) {
+                        this.status = StatusType.STATUS_PENDING
+                        this.transferred = 0
+                    } else {
+                        this.status = fileStatusRequest.status
+                    }
+                    if (this.status == StatusType.STATUS_PENDING) {
+                        if (user.userId == this.sid) {
+                            d("[MainActivity][onFileStatusChange] rid = inside if send")
+                            FileService.startActionSend(this@MainActivity, this, clientHelper)
+                        } else {
+                            d("[MainActivity][onFileStatusChange] rid = inside if receive")
+                            FileService.startActionReceive(this@MainActivity, this, clientHelper)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+
+            }
+        } else {
+            requestViewModel.getRequestInfo(fileStatusRequest.rid)?.run {
+                if (fileStatusRequest.status == StatusType.STATUS_RETRY) {
+                    this.status = StatusType.STATUS_PENDING
+                    this.transferred = 0
+                } else {
+                    this.status = fileStatusRequest.status
+                }
+            }
+        }
+    }
+
     override fun onRequestFailed(requestInfo: RequestInfo) {
-        requestInfo.status = StatusType.STATUS_FAILED
         requestViewModel.decrementPendingRequestCount()
     }
 
     override fun onRequestAccepted(requestInfo: RequestInfo) {
-        requestInfo.status = StatusType.STATUS_ONGOING
+
     }
 
     override fun onRequestSuccess(requestInfo: RequestInfo, send: Boolean) {
         CoroutineScope(IO).launch {
-            if (requestInfo.transferred == requestInfo.size) {
-                requestInfo.status = StatusType.STATUS_COMPLETED
+            if (requestInfo.status == StatusType.STATUS_COMPLETED) {
                 requestViewModel.decrementPendingRequestCount()
                 if (!send) {
                     historyViewModel.insert(
@@ -269,10 +305,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     // notify media store to scan files
                     sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(requestInfo.uri)))
                 }
-            } else {
-                requestInfo.status = StatusType.STATUS_PAUSE
             }
-            requestViewModel.notifyDataSetChanged()
         }
     }
 
@@ -435,7 +468,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onClientConnected(clientHelper: ClientHelper) {
         runOnUiThread {
             onUsersUpdateListener?.onUserUpdated()
-            Toast.makeText(this@MainActivity, "${clientHelper.user.name} connected", Toast.LENGTH_SHORT).show()
         }
         if (clientHelper.user.appVersion < BuildConfig.VERSION_CODE) {
             try {
@@ -465,7 +497,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         //prompt client when disconnect
         if (!isHost) {
             connected = false
-            requestViewModel.clearRequestList()
+//            requestViewModel.clearRequestList()
             runOnUiThread { choice() }
         }
     }
@@ -477,11 +509,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     /**
      * @return return request information
      */
-    private fun getRequestInfo(rid: String): RequestInfo {
+    private fun getRequestInfo(rid: String): RequestInfo? {
         d("requested for RequestInfo where rid = $rid to insert")
         var requestInfo = requestViewModel.getRequestInfo(rid)
         var tryCount = 0
-        while (requestInfo == null || tryCount != 10) {
+        while (requestInfo == null && tryCount != 15) {
             Logger.e("waiting for rid = $rid to insert")
             Thread.sleep(90)
             tryCount++
@@ -565,6 +597,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         const val ASK_LOCATION_PERMISSION = 3
         const val REQUEST_UPDATE_PROFILE = 4
         const val CONNECTION_ACTIVITY_RESULT = 5
+
         const val CREATE_AP_ACTIVITY_RESULT = 6
 
         @JvmStatic
