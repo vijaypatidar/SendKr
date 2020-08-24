@@ -22,6 +22,7 @@ object WifiApUtils {
     const val ERROR_ENABLE_GPS_PROVIDER = 0
     const val ERROR_LOCATION_PERMISSION_DENIED = 4
     const val ERROR_DISABLE_HOTSPOT = 1
+    const val ERROR_DISABLE_WIFI = 5
     const val ERROR_UNKNOWN = 3
 
     val wifiManager = App.context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -55,7 +56,6 @@ object WifiApUtils {
                             e.printStackTrace()
                             onFailureListener.onFailure(ERROR_UNKNOWN)
                         }
-
                     }
 
                     override fun onStopped() {
@@ -81,6 +81,7 @@ object WifiApUtils {
                 val wifiConfiguration = WifiConfiguration()
                 wifiConfiguration.SSID = ssid
                 wifiConfiguration.preSharedKey = password
+                wifiManager.isWifiEnabled = false
                 setWifiApEnabled(wifiConfiguration, true)
                 BarCodeUtils().createQR("${ssid}\n${password}", File(StorageManager(App.context).userDir, "code.png").absolutePath)
                 onSuccessListener.onSuccess("created")

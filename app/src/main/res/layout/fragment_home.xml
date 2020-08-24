@@ -9,6 +9,7 @@
     android:background="@color/white"
     android:fitsSystemWindows="false"
     app:cardCornerRadius="@dimen/top_corner_radius"
+    app:cardElevation="0dp"
     tools:context=".ui.fragments.HomeFragment">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -56,7 +57,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:layout_marginTop="5dp"
-                        android:layout_marginEnd="5dp"
+                        android:layout_marginEnd="10dp"
                         android:layout_marginBottom="5dp"
                         android:layout_weight="1"
                         android:clickable="true"
@@ -103,7 +104,6 @@
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center_vertical"
                                     android:text="12/16Gb"
-                                    android:visibility="gone"
                                     android:textSize="14sp" />
 
                                 <ProgressBar
@@ -111,9 +111,8 @@
                                     style="?android:attr/progressBarStyleHorizontal"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:max="16"
-                                    android:visibility="gone"
-                                    android:progress="0" />
+                                    android:max="100"
+                                    android:progress="50" />
                             </LinearLayout>
 
                         </LinearLayout>
@@ -123,7 +122,6 @@
                         android:id="@+id/external"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
                         android:layout_marginTop="5dp"
                         android:layout_marginEnd="10dp"
                         android:layout_marginBottom="5dp"
@@ -132,6 +130,7 @@
                         android:focusable="true"
                         android:foreground="?android:attr/selectableItemBackground"
                         app:cardCornerRadius="@dimen/home_card_radius"
+                        android:visibility="gone"
                         app:cardElevation="5dp">
 
                         <LinearLayout
@@ -167,19 +166,19 @@
                                     android:textSize="20sp" />
 
                                 <androidx.appcompat.widget.AppCompatTextView
+                                    android:id="@+id/externalProgressText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center_vertical"
-                                    android:text="14/64Gb"
                                     android:textSize="14sp"
-                                    android:visibility="gone" />
+                                    tools:text="14/64Gb" />
 
                                 <ProgressBar
+                                    android:id="@+id/progressBarExternal"
                                     style="?android:attr/progressBarStyleHorizontal"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:max="64"
-                                    android:visibility="gone"
                                     android:progress="14" />
                             </LinearLayout>
 
@@ -218,7 +217,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#2196f3"
+                            android:background="#1a2196f3"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -228,7 +227,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:scaleType="centerCrop"
                                 android:src="@drawable/ic_photo"
-                                android:tint="@color/white" />
+                                android:tint="#2196f3" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -236,7 +235,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/photo"
-                                android:textColor="@color/white"
+                                android:textColor="#2196f3"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -259,7 +258,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#e91e63"
+                            android:background="#1ae91e63"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -268,7 +267,7 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_music"
-                                android:tint="@color/white" />
+                                android:tint="#e91e63" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -276,7 +275,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/audio"
-                                android:textColor="@color/white"
+                                android:textColor="#e91e63"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -308,7 +307,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#009688"
+                            android:background="#1a009688"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -317,7 +316,7 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_movie"
-                                android:tint="@color/white" />
+                                android:tint="#009688" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -325,7 +324,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/video"
-                                android:textColor="@color/white"
+                                android:textColor="#009688"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -349,7 +348,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#FFC107"
+                            android:background="#1aFFC107"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -358,7 +357,7 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_movie"
-                                android:tint="@color/white" />
+                                android:tint="#FFC107" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -366,7 +365,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="Zip"
-                                android:textColor="@color/white"
+                                android:textColor="#FFC107"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>

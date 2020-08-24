@@ -19,6 +19,7 @@ class StorageManager(private val context: Context) {
     val internal: File
         get() = File("/storage/emulated/0/")
 
+
     val external: File?
         get() {
             val externalStoragePath = KeyValue(context).externalStoragePath

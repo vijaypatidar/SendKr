@@ -1,6 +1,8 @@
 package com.vkpapps.thunder.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +16,7 @@ import com.vkpapps.thunder.utils.PermissionUtils
 import com.vkpapps.thunder.utils.WifiApUtils
 import kotlinx.android.synthetic.main.activity_create_access_point.*
 
-class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int> {
+class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, OnSuccessListener<String> {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_access_point)
@@ -23,17 +25,14 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int> {
             this.elevation = 0f
         }
 
-        if (!WifiApUtils.isWifiApEnabled() && !WifiApUtils.wifiManager.isWifiEnabled)
-            WifiApUtils.turnOnHotspot(this, object : OnSuccessListener<String> {
-                override fun onSuccess(t: String) {
-                    val connectionBarCode = ConnectionBarCode(ConnectionBarCode.CONNECTION_INTERNAL_AP)
-                    connectionBarCode.ssid = WifiApUtils.ssid
-                    connectionBarCode.password = WifiApUtils.password
-                    BarCodeUtils().createQR(connectionBarCode)
-                    setResult(RESULT_OK)
-                    finish()
-                }
-            }, this)
+        createHotspot()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        btnCreateHotspot.setOnClickListener {
+            WifiApUtils.turnOnHotspot(this, this, this)
+        }
 
         if (WifiApUtils.isWifiApEnabled()) {
             useExistingSection.visibility = View.VISIBLE
@@ -56,6 +55,16 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int> {
         }
     }
 
+    private fun createHotspot() {
+        if (!WifiApUtils.isWifiApEnabled() && !WifiApUtils.wifiManager.isWifiEnabled) {
+            WifiApUtils.turnOnHotspot(this, this, this)
+        } else if (WifiApUtils.isWifiApEnabled()) {
+            onFailure(WifiApUtils.ERROR_DISABLE_HOTSPOT)
+        } else {
+            onFailure(WifiApUtils.ERROR_DISABLE_WIFI)
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             onBackPressed()
@@ -72,9 +81,37 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int> {
                 DialogsUtils(this).alertGpsProviderRequire()
             }
             WifiApUtils.ERROR_DISABLE_HOTSPOT -> {
-                startActivity(WifiApUtils.getTetheringSettingIntent())
+                DialogsUtils(this).alertDisableHotspot(object : OnSuccessListener<String> {
+                    override fun onSuccess(t: String) {
+                        startActivity(WifiApUtils.getTetheringSettingIntent())
+                    }
+                }, object : OnFailureListener<String> {
+                    override fun onFailure(t: String) {
+
+                    }
+                })
+            }
+            WifiApUtils.ERROR_DISABLE_WIFI -> {
+                DialogsUtils(this).alertDisableWifi(object : OnSuccessListener<String> {
+                    override fun onSuccess(t: String) {
+                        startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
+                    }
+                }, object : OnFailureListener<String> {
+                    override fun onFailure(t: String) {
+
+                    }
+                })
             }
         }
+    }
+
+    override fun onSuccess(t: String) {
+        val connectionBarCode = ConnectionBarCode(ConnectionBarCode.CONNECTION_INTERNAL_AP)
+        connectionBarCode.ssid = WifiApUtils.ssid
+        connectionBarCode.password = WifiApUtils.password
+        BarCodeUtils().createQR(connectionBarCode)
+        setResult(RESULT_OK)
+        finish()
     }
 
 }

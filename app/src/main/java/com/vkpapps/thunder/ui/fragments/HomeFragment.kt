@@ -1,11 +1,14 @@
 package com.vkpapps.thunder.ui.fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.os.StatFs
 import android.view.*
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
@@ -16,6 +19,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.HistoryInfo
@@ -50,12 +54,14 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
         navController = Navigation.findNavController(view)
         val controller = Navigation.findNavController(view)
 
+        var externalStoragePath = "/storage/"
 
         photo.setOnClickListener {
             controller.navigate(getDestination(0))
@@ -91,7 +97,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
                 override fun getArguments(): Bundle {
                     val bundle = Bundle()
-                    bundle.putString(FileFragment.FILE_ROOT, DocumentFile.fromFile(File("/storage/")).uri.toString())
+                    bundle.putString(FileFragment.FILE_ROOT, DocumentFile.fromFile(File(externalStoragePath)).uri.toString())
                     bundle.putString(FileFragment.FRAGMENT_TITLE, "External Storage")
                     return bundle
                 }
@@ -102,7 +108,35 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
         AdsUtils.getAdRequest(adView)
 
-
+        try {
+            val statFs = StatFs(StorageManager(requireContext()).internal.path)
+            internalProgressText.text = "${MathUtils.longToStringSize(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSize(statFs.totalBytes.toDouble())}"
+            val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
+            progressBarInternal.progress = progress
+            Logger.d("[MainActivity][onCreate] storage size = ${MathUtils.longToStringSize(statFs.availableBytes.toDouble())}  sizeTotal = ${MathUtils.longToStringSize(statFs.totalBytes.toDouble())} ")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        try {
+            ContextCompat.getExternalFilesDirs(requireContext(), null).forEach {
+                Logger.d("[MainActivity][onCreate] storage  = ${it.absolutePath} ")
+                if (!it.absoluteFile.startsWith("/storage/emulated/0/")) {
+                    external.visibility = View.VISIBLE
+                    externalStoragePath = it.absolutePath
+                    val indexOf = externalStoragePath.indexOf("/Android")
+                    if (indexOf != -1)
+                        externalStoragePath = externalStoragePath.subSequence(0, indexOf).toString()
+                    Logger.d("[MainActivity][onCreate] storage  externalStoragePath = ${externalStoragePath} ")
+                    val statFs = StatFs(it.path)
+                    externalProgressText.text = "${MathUtils.longToStringSize(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSize(statFs.totalBytes.toDouble())}"
+                    val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
+                    progressBarExternal.progress = progress
+                }
+            }
+        } catch (e: Exception) {
+            external.visibility = View.GONE
+            e.printStackTrace()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

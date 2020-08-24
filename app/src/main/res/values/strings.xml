@@ -30,7 +30,7 @@
     <string name="video">Video</string>
     <string name="audio">Audio</string>
     <string name="photo">Photo</string>
-    <string name="external">External</string>
+    <string name="external">SD Card</string>
     <string name="internal">Phone</string>
     <string name="download_location">Download location</string>
     <string name="history_cleared_message">History deleted</string>

@@ -40,6 +40,5 @@ class App : Application() {
 
         @JvmStatic
         val taskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
-
     }
 }

@@ -193,5 +193,33 @@ class DialogsUtils(private val context: Context) {
         }.show()
     }
 
+    fun alertDisableHotspot(onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<String>) {
+        AlertDialog.Builder(context).apply {
+            setTitle("Hotspot is enable")
+            setMessage("Please turn off Hotspot tethering to continue.")
+            setPositiveButton("Turn Off") { _, _ ->
+                onSuccessListener.onSuccess("enable wifi")
+            }
+            setNegativeButton("Cancel") { dialog, _ ->
+                onFailureListener.onFailure("close this")
+                dialog.cancel()
+            }
+        }.show()
+    }
+
+    fun alertDisableWifi(onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<String>) {
+        AlertDialog.Builder(context).apply {
+            setTitle("Wi-Fi is enable")
+            setMessage("Please turn off Wi-Fi to continue.")
+            setPositiveButton("Turn Off") { _, _ ->
+                onSuccessListener.onSuccess("disable wifi")
+            }
+            setNegativeButton("Cancel") { dialog, _ ->
+                onFailureListener.onFailure("close this")
+                dialog.cancel()
+            }
+        }.show()
+    }
+
 
 }
