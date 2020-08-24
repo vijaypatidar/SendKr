@@ -31,7 +31,7 @@
       android:fillColor="#f5f5f5"
       android:pathData="M349.68,346.77m-341.64,0a341.64,341.64 0,1 1,683.28 0a341.64,341.64 0,1 1,-683.28 0" />
   <path
-      android:fillColor="#FC820F"
+      android:fillColor="#FF9800"
       android:pathData="M350,689.76a340,340 0,0 0,187.79 -56.2c-12.59,-68.8 -60.5,-72.72 -60.5,-72.72L213.09,560.84s-45.21,3.71 -59.33,67A340.07,340.07 0,0 0,350 689.76Z" />
   <path
       android:fillColor="#333"

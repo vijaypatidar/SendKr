@@ -15,7 +15,6 @@ class ZipUtils(private val requestInfo: RequestInfo) {
     fun openZipOutStream(outputStream: OutputStream, path: File) {
         bi = path.absolutePath.length + 1
         val zos = ZipOutputStream(outputStream)
-        zos.setLevel(ZipOutputStream.STORED)
         addEntry(zos, path)
         zos.flush()
         zos.close()
@@ -27,7 +26,7 @@ class ZipUtils(private val requestInfo: RequestInfo) {
             for (file in DocumentFile.fromFile(path).listFiles()) {
                 addEntry(zos, File(path, file.name!!))
             }
-        } else {
+        } else if (path.length() > 0) {
             val zipEntry = ZipEntry(path.absolutePath.substring(bi))
             zos.putNextEntry(zipEntry)
             val `in`: InputStream = FileInputStream(path)
