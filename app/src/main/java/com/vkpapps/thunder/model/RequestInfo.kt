@@ -11,7 +11,6 @@ class RequestInfo : Serializable {
     //used to decide destination folder
     var fileType = 0
     var size: Long = 0
-    var displaySize: String = ""
 
     // generated at receiver side after checking file exists status is false
     var uri: String? = null
@@ -29,7 +28,6 @@ class RequestInfo : Serializable {
         clone.name = name
         clone.fileType = fileType
         clone.size = size
-        clone.displaySize = displaySize
         clone.uri = uri
         clone.status = status
         clone.transferred = transferred

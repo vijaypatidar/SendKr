@@ -168,57 +168,85 @@ class DialogsUtils(private val context: Context) {
     }
 
     fun alertGpsProviderRequire() {
-        AlertDialog.Builder(context).apply {
-            setTitle("GPS Requires")
-            setMessage("GPS provider is disabled,please enable it to continue.")
-            setPositiveButton("Settings") { _, _ ->
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                context.startActivity(intent)
-            }
-            setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        }.show()
+        val ab = AlertDialog.Builder(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_gps_provider_require, null)
+        ab.setView(view)
+        ab.setCancelable(false)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+        view.findViewById<View>(R.id.btnEnable).setOnClickListener {
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            context.startActivity(intent)
+            alertDialog.cancel()
+        }
+        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+            alertDialog.cancel()
+        }
     }
 
     fun alertEnableWifi(onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<String>) {
-        AlertDialog.Builder(context).apply {
-            setTitle("Enable Wi-Fi")
-            setMessage("Wi-Fi is disabled,please enable it to continue.")
-            setPositiveButton("enable") { _, _ ->
-                onSuccessListener.onSuccess("enable wifi")
-            }
-            setNegativeButton("Cancel") { dialog, _ ->
-                onFailureListener.onFailure("close this")
-                dialog.cancel()
-            }
-        }.show()
+        val ab = AlertDialog.Builder(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_enable_wifi, null)
+        ab.setView(view)
+        ab.setCancelable(false)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+        view.findViewById<View>(R.id.btnEnable).setOnClickListener {
+            onSuccessListener.onSuccess("enable wifi")
+            alertDialog.cancel()
+        }
+        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+            onFailureListener.onFailure("close this")
+            alertDialog.cancel()
+        }
     }
 
     fun alertDisableHotspot(onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<String>) {
-        AlertDialog.Builder(context).apply {
-            setTitle("Hotspot is enable")
-            setMessage("Please turn off Hotspot tethering to continue.")
-            setPositiveButton("Turn Off") { _, _ ->
-                onSuccessListener.onSuccess("enable wifi")
-            }
-            setNegativeButton("Cancel") { dialog, _ ->
-                onFailureListener.onFailure("close this")
-                dialog.cancel()
-            }
-        }.show()
+        val ab = AlertDialog.Builder(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_disable_hotspot, null)
+        ab.setView(view)
+        ab.setCancelable(false)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+        view.findViewById<View>(R.id.btnTurnOff).setOnClickListener {
+            onSuccessListener.onSuccess("disable hotspot")
+            alertDialog.cancel()
+        }
+        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+            onFailureListener.onFailure("close")
+            alertDialog.cancel()
+        }
     }
 
     fun alertDisableWifi(onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<String>) {
-        AlertDialog.Builder(context).apply {
-            setTitle("Wi-Fi is enable")
-            setMessage("Please turn off Wi-Fi to continue.")
-            setPositiveButton("Turn Off") { _, _ ->
-                onSuccessListener.onSuccess("disable wifi")
-            }
-            setNegativeButton("Cancel") { dialog, _ ->
-                onFailureListener.onFailure("close this")
-                dialog.cancel()
-            }
-        }.show()
+        val ab = AlertDialog.Builder(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_disable_wifi, null)
+        ab.setView(view)
+        ab.setCancelable(false)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+        view.findViewById<View>(R.id.btnTurnOff).setOnClickListener {
+            onSuccessListener.onSuccess("disable wifi")
+            alertDialog.cancel()
+        }
+        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+            onFailureListener.onFailure("close")
+            alertDialog.cancel()
+        }
+    }
+
+    fun alertLoadingDialog(): AlertDialog {
+        val ab = AlertDialog.Builder(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_please_wait, null)
+        ab.setView(view)
+        ab.setCancelable(false)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        return alertDialog
     }
 
 

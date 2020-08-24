@@ -18,6 +18,7 @@ import com.vkpapps.thunder.model.FileInfo
 import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.ui.adapter.FileAdapter.MyViewHolder
 import com.vkpapps.thunder.ui.fragments.FileFragment
+import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -52,7 +53,9 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
         holder.name.text = fileInfo.file.name
         if (fileInfo.file.isDirectory) {
             CoroutineScope(IO).launch {
-                val text = if (fileInfo.fileCount > 0) fileInfo.fileCount.toString() + " files | ${fileInfo.displaySize}" else "empty folder"
+                val text = if (fileInfo.fileCount > 0) fileInfo.fileCount.toString() + " files | ${
+                    MathUtils.longToStringSize(fileInfo.size.toDouble())
+                }" else "empty folder"
                 withContext(Main) {
                     holder.info.text = text
                 }
@@ -72,7 +75,7 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
                 })
             }
         } else {
-            holder.info.text = fileInfo.displaySize
+            holder.info.text = MathUtils.longToStringSize(fileInfo.size.toDouble())
             thumbnailUtils.loadThumbnail(fileInfo.id,
                     fileInfo.uri,
                     fileInfo.type,

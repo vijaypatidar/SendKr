@@ -31,7 +31,6 @@ import com.vkpapps.thunder.App
 import com.vkpapps.thunder.App.Companion.user
 import com.vkpapps.thunder.BuildConfig
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.analitics.Logger.d
 import com.vkpapps.thunder.connection.ClientHelper
 import com.vkpapps.thunder.connection.FileService
@@ -123,15 +122,19 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     private fun choice() {
-        if (PermissionUtils.checkStoragePermission(this)) {
-            DialogsUtils(this).choice({
+        DialogsUtils(this).choice({
+            if (PermissionUtils.checkStoragePermission(this)) {
                 startActivityForResult(Intent(this, CreateAccessPointActivity::class.java), CREATE_AP_ACTIVITY_RESULT)
-            }, {
+            } else {
+                PermissionUtils.askStoragePermission(this, ASK_PERMISSION_FROM_MAIN_ACTIVITY)
+            }
+        }, {
+            if (PermissionUtils.checkStoragePermission(this)) {
                 startActivityForResult(Intent(this, ConnectionActivity::class.java), CONNECTION_ACTIVITY_RESULT)
-            })
-        } else {
-            PermissionUtils.askStoragePermission(this, ASK_PERMISSION_FROM_MAIN_ACTIVITY)
-        }
+            } else {
+                PermissionUtils.askStoragePermission(this, ASK_PERMISSION_FROM_MAIN_ACTIVITY)
+            }
+        })
     }
 
     private fun setup(host: Boolean) {
@@ -375,32 +378,37 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // request made by local Song fragment
-        if (requestCode == ASK_PERMISSION_FROM_GENERIC_FRAGMENT) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                CoroutineScope(IO).launch {
-                    PrepareDb().prepareAll()
+        try {
+
+            if (requestCode == ASK_PERMISSION_FROM_GENERIC_FRAGMENT) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    CoroutineScope(IO).launch {
+                        PrepareDb().prepareAll()
+                    }
+                    navController.navigate(R.id.navigation_media)
+                } else {
+                    Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
                 }
-                navController.navigate(R.id.navigation_media)
-            } else {
-                Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
-            }
-        } else if (requestCode == ASK_PERMISSION_FROM_SHARED_INTENT) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                CoroutineScope(IO).launch {
-                    PrepareDb().prepareAll()
+            } else if (requestCode == ASK_PERMISSION_FROM_SHARED_INTENT) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    CoroutineScope(IO).launch {
+                        PrepareDb().prepareAll()
+                    }
+                    fileToShare()
+                } else {
+                    Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
                 }
-                fileToShare()
-            } else {
-                Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
-            }
-        } else if (requestCode == ASK_PERMISSION_FROM_MAIN_ACTIVITY) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                CoroutineScope(IO).launch {
-                    PrepareDb().prepareAll()
+            } else if (requestCode == ASK_PERMISSION_FROM_MAIN_ACTIVITY) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    CoroutineScope(IO).launch {
+                        PrepareDb().prepareAll()
+                    }
+                } else {
+                    Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
             }
+        } catch (e: Exception) {
+
         }
     }
 
@@ -421,7 +429,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         } else super.onBackPressed()
     }
 
+
     override fun sendFiles(requests: List<RawRequestInfo>) {
+        d("[MainActivity][sendFiles]  requests = ${requests.size}")
         if (connected && (!isHost || serverHelper.clientHelpers.size != 0)) {
             CoroutineScope(IO).launch {
                 for (rawRequestInfo in requests) {
@@ -432,7 +442,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         requestInfo.fileType = rawRequestInfo.type
                         requestInfo.sid = user.userId
                         requestInfo.size = rawRequestInfo.size
-                        requestInfo.displaySize = MathUtils.longToStringSize(rawRequestInfo.size.toDouble())
                         if (isHost) {
                             for (clientHelper in serverHelper.clientHelpers) {
                                 val clone = requestInfo.clone()
@@ -497,7 +506,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         //prompt client when disconnect
         if (!isHost) {
             connected = false
-//            requestViewModel.clearRequestList()
+            requestViewModel.clearRequestList()
             runOnUiThread { choice() }
         }
     }
@@ -510,11 +519,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
      * @return return request information
      */
     private fun getRequestInfo(rid: String): RequestInfo? {
-        d("requested for RequestInfo where rid = $rid to insert")
+        d("[MainActivity][getRequestInfo]  rid = $rid")
         var requestInfo = requestViewModel.getRequestInfo(rid)
         var tryCount = 0
         while (requestInfo == null && tryCount != 15) {
-            Logger.e("waiting for rid = $rid to insert")
+            d("[MainActivity][getRequestInfo]  waiting for rid = $rid  tryCount $tryCount")
             Thread.sleep(90)
             tryCount++
             requestInfo = requestViewModel.getRequestInfo(rid)
@@ -526,7 +535,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         if (PermissionUtils.checkStoragePermission(this)) {
             val toShare = intent.getParcelableArrayListExtra<Parcelable>("shared")
             if (toShare != null) {
-                d("toShare = ${toShare.size} $toShare")
                 val rawRequestInfos = ArrayList<RawRequestInfo>()
                 toShare.forEach {
                     val uri = it as Uri
@@ -610,10 +618,10 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         var isHost: Boolean = false
 
         @JvmStatic
-        private lateinit var serverHelper: ServerHelper
+        internal lateinit var serverHelper: ServerHelper
 
         @JvmStatic
-        private lateinit var clientHelper: ClientHelper
+        internal lateinit var clientHelper: ClientHelper
     }
 }
 

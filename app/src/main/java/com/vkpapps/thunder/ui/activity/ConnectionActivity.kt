@@ -21,6 +21,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
+import com.google.zxing.BarcodeFormat
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.analitics.Logger
@@ -32,6 +33,7 @@ import com.vkpapps.thunder.ui.dialog.DialogsUtils
 import com.vkpapps.thunder.utils.BarCodeUtils
 import com.vkpapps.thunder.utils.PermissionUtils
 import kotlinx.android.synthetic.main.activity_connection.*
+import java.util.*
 
 class ConnectionActivity : AppCompatActivity() {
     companion object {
@@ -48,9 +50,11 @@ class ConnectionActivity : AppCompatActivity() {
         window?.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
         initUI()
 
+        scanner.setFormats(Collections.singletonList(BarcodeFormat.QR_CODE))
         scanner.setResultHandler {
             connect(it.text)
         }
+        startScanner()
     }
 
     private fun startScanner() {
@@ -84,7 +88,6 @@ class ConnectionActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        startScanner()
         if (!wifiManager.isWifiEnabled) {
             DialogsUtils(this).alertEnableWifi(object : OnSuccessListener<String> {
                 override fun onSuccess(t: String) {

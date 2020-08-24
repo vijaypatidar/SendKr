@@ -19,7 +19,6 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.HistoryInfo
@@ -113,20 +112,17 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             internalProgressText.text = "${MathUtils.longToStringSize(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSize(statFs.totalBytes.toDouble())}"
             val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
             progressBarInternal.progress = progress
-            Logger.d("[MainActivity][onCreate] storage size = ${MathUtils.longToStringSize(statFs.availableBytes.toDouble())}  sizeTotal = ${MathUtils.longToStringSize(statFs.totalBytes.toDouble())} ")
         } catch (e: Exception) {
             e.printStackTrace()
         }
         try {
             ContextCompat.getExternalFilesDirs(requireContext(), null).forEach {
-                Logger.d("[MainActivity][onCreate] storage  = ${it.absolutePath} ")
                 if (!it.absoluteFile.startsWith("/storage/emulated/0/")) {
                     external.visibility = View.VISIBLE
                     externalStoragePath = it.absolutePath
                     val indexOf = externalStoragePath.indexOf("/Android")
                     if (indexOf != -1)
                         externalStoragePath = externalStoragePath.subSequence(0, indexOf).toString()
-                    Logger.d("[MainActivity][onCreate] storage  externalStoragePath = ${externalStoragePath} ")
                     val statFs = StatFs(it.path)
                     externalProgressText.text = "${MathUtils.longToStringSize(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSize(statFs.totalBytes.toDouble())}"
                     val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()

@@ -22,7 +22,7 @@ interface VideoDao {
     @Query("DELETE FROM videoinfo")
     suspend fun deleteAll()
 
-    @Query("SELECT * from videoinfo order by modified DESC")
+    @Query("SELECT * from videoinfo order by lastModified DESC")
     fun getLiveVideoInfos(): LiveData<List<VideoInfo>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

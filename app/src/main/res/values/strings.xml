@@ -58,7 +58,7 @@
     <string name="exit_app">Exit app</string>
     <string name="exit">Exit</string>
     <string name="clear">Clear</string>
-    <string name="waiting_for_receiver_detail">%S files are in send queue and waiting for receiver.</string>
+    <string name="waiting_for_receiver_detail">%S files are in send queue.</string>
     <string name="waiting_for_receiver">Waiting for receiver…</string>
     <string name="ok">OK</string>
     <string name="show_hidden_files">Show hidden files</string>

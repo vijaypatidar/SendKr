@@ -20,6 +20,7 @@ import com.vkpapps.thunder.interfaces.OnFragmentAttachStatusListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.interfaces.OnUserListRequestListener
 import com.vkpapps.thunder.interfaces.OnUsersUpdateListener
+import com.vkpapps.thunder.ui.activity.MainActivity
 import com.vkpapps.thunder.ui.adapter.ClientAdapter
 import com.vkpapps.thunder.ui.dialog.DialogsUtils
 import com.vkpapps.thunder.utils.AdsUtils
@@ -67,7 +68,14 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
         AdsUtils.getAdRequest(adView)
 
         btnShutDown.setOnClickListener {
-            WifiApUtils.disableWifiAp()
+            if (MainActivity.isHost) {
+                WifiApUtils.disableWifiAp()
+                MainActivity.serverHelper.shutDown()
+            } else {
+                MainActivity.clientHelper.shutDown()
+            }
+            MainActivity.connected = false
+            requireActivity().recreate()
         }
         barCodeImage.setOnClickListener {
             DialogsUtils(requireContext()).displayQRCode()

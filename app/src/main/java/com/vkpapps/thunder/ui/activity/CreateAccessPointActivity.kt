@@ -1,5 +1,6 @@
 package com.vkpapps.thunder.ui.activity
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -7,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.vkpapps.thunder.R
+import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFailureListener
 import com.vkpapps.thunder.interfaces.OnSuccessListener
 import com.vkpapps.thunder.model.ConnectionBarCode
@@ -17,20 +19,25 @@ import com.vkpapps.thunder.utils.WifiApUtils
 import kotlinx.android.synthetic.main.activity_create_access_point.*
 
 class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, OnSuccessListener<String> {
+    var progressDialog: AlertDialog? = null
     override fun onCreate(savedInstanceState: Bundle?) {
+        Logger.d("[CreateAccessPointActivity][onCreate]")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_access_point)
         supportActionBar?.run {
             this.setDisplayHomeAsUpEnabled(true)
             this.elevation = 0f
         }
+        progressDialog = DialogsUtils(this).alertLoadingDialog()
 
-        createHotspot()
     }
 
     override fun onResume() {
         super.onResume()
+        Logger.d("[CreateAccessPointActivity][onResume]")
+        createHotspot()
         btnCreateHotspot.setOnClickListener {
+            progressDialog?.show()
             WifiApUtils.turnOnHotspot(this, this, this)
         }
 
@@ -43,19 +50,20 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, O
             }
         }
 
-        if (WifiApUtils.wifiManager.isWifiEnabled) {
-            useRouterSection.visibility = View.VISIBLE
-            btnUseRouter.setOnClickListener {
-                setResult(RESULT_OK)
-                BarCodeUtils().createQR(ConnectionBarCode(ConnectionBarCode.CONNECTION_VIA_ROUTER).apply {
-                    ip = WifiApUtils.wifiManager.dhcpInfo.ipAddress
-                })
-                finish()
-            }
-        }
+//        if (WifiApUtils.wifiManager.isWifiEnabled) {
+//            useRouterSection.visibility = View.VISIBLE
+//            btnUseRouter.setOnClickListener {
+//                setResult(RESULT_OK)
+//                BarCodeUtils().createQR(ConnectionBarCode(ConnectionBarCode.CONNECTION_VIA_ROUTER).apply {
+//                    ip = WifiApUtils.wifiManager.dhcpInfo.ipAddress
+//                })
+//                finish()
+//            }
+//        }
     }
 
     private fun createHotspot() {
+        progressDialog?.show()
         if (!WifiApUtils.isWifiApEnabled() && !WifiApUtils.wifiManager.isWifiEnabled) {
             WifiApUtils.turnOnHotspot(this, this, this)
         } else if (WifiApUtils.isWifiApEnabled()) {
@@ -73,6 +81,7 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, O
     }
 
     override fun onFailure(t: Int) {
+        progressDialog?.hide()
         when (t) {
             WifiApUtils.ERROR_LOCATION_PERMISSION_DENIED -> {
                 PermissionUtils.askLocationPermission(this, MainActivity.ASK_LOCATION_PERMISSION)
@@ -113,5 +122,4 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, O
         setResult(RESULT_OK)
         finish()
     }
-
 }

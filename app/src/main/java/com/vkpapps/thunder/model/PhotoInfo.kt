@@ -14,5 +14,5 @@ class PhotoInfo(var name: String, var uri: Uri, val size: Long, val lastModified
     @NonNull
     lateinit var id: String
     var isSelected = false
-    var modified: Long = 0
+//    var modified: Long = 0
 }

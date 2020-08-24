@@ -5,7 +5,6 @@ import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.thunder.model.constant.FileType
 import com.vkpapps.thunder.utils.DownloadDestinationFolderResolver
 import com.vkpapps.thunder.utils.HashUtils
-import com.vkpapps.thunder.utils.MathUtils
 
 class FileInfo(var file: DocumentFile, val size: Long) {
 
@@ -23,9 +22,7 @@ class FileInfo(var file: DocumentFile, val size: Long) {
     val lastModified: Long by lazy {
         file.lastModified()
     }
-    val displaySize: String by lazy {
-        MathUtils.longToStringSize(size.toDouble())
-    }
+
     val fileCount: Int by lazy {
         var res = 0
         try {

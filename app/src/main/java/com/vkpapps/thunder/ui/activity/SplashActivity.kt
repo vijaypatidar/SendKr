@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import com.vkpapps.thunder.App
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.loader.PrepareDb
 import com.vkpapps.thunder.utils.PermissionUtils
 import kotlinx.coroutines.CoroutineScope
@@ -50,7 +49,6 @@ class SplashActivity : AppCompatActivity() {
     private fun loadData(list: ArrayList<Parcelable>) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("shared", list)
-        Logger.d("App =   ${App.databasePrepared}")
         if (PermissionUtils.checkStoragePermission(this) && !App.databasePrepared) {
             CoroutineScope(IO).launch {
                 PrepareDb().prepareAll()

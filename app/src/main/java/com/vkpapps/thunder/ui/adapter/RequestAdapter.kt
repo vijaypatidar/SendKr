@@ -36,7 +36,7 @@ class RequestAdapter(context: Context, private val onFileStatusChangeListener: O
         val requestInfo = requestInfos[position]
         if (holder is DefaultRequestHolder) {
             holder.name.text = requestInfo.name
-            holder.size.text = requestInfo.displaySize
+            holder.size.text = MathUtils.longToStringSize(requestInfo.size.toDouble())
             updateStatus(holder, requestInfo)
             holder.status.setOnClickListener {
                 if (requestInfo.fileType == FileType.FILE_TYPE_FOLDER) {

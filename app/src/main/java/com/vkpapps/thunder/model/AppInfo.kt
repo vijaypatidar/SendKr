@@ -12,6 +12,4 @@ class AppInfo(var name: String, var uri: Uri, var packageName: String) {
     var isObbSelected = false
     var obbName: String? = null
     var obbUri: Uri? = null
-    lateinit var size: String
-    var obbSize: String = ""
 }

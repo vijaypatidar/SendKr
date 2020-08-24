@@ -22,7 +22,7 @@ interface PhotoDao {
     @Query("DELETE FROM photoinfo")
     suspend fun deleteAll()
 
-    @Query("SELECT * from photoinfo order by modified DESC")
+    @Query("SELECT * from photoinfo order by lastModified DESC")
     fun getLivePhotoInfos(): LiveData<List<PhotoInfo>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

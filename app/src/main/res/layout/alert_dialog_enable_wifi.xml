@@ -14,36 +14,47 @@
         android:layout_marginBottom="10dp"
         android:orientation="vertical">
 
-
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
+            android:layout_marginHorizontal="10dp"
             android:layout_marginTop="5dp"
-            android:text="@string/waiting_for_receiver"
+            android:text="Enable Wi-Fi"
             android:textColor="@color/black"
             android:textSize="18sp" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/message"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="5dp"
-            android:text="@string/waiting_for_receiver_detail"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="5dp"
+            android:text="Wi-Fi is disabled,please enable it to continue."
             android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_margin="5dp"
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnOk"
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/round"
+                android:elevation="0dp"
+                android:gravity="center"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:text="@string/cancel"
+                android:textAlignment="gravity"
+                android:textAllCaps="false"
+                android:textColor="@color/colorAccent" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnEnable"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_margin="5dp"
@@ -53,7 +64,7 @@
                 android:gravity="center"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
-                android:text="@string/ok"
+                android:text="Enable"
                 android:textAlignment="gravity"
                 android:textAllCaps="false"
                 android:textColor="@color/white" />

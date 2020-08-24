@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.thunder.R
 import com.vkpapps.thunder.model.VideoInfo
 import com.vkpapps.thunder.utils.IntentUtils
+import com.vkpapps.thunder.utils.MathUtils
 import com.vkpapps.thunder.utils.MyThumbnailUtils
 
 /**
@@ -25,7 +26,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideo
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
         val videoInfo = videoInfos!![position]
         holder.title.text = videoInfo.name
-        holder.size.text = videoInfo.displaySize
+        holder.size.text = MathUtils.longToStringSize(videoInfo.size.toDouble())
         holder.btnSelected.isChecked = videoInfo.isSelected
         holder.btnSelected.setOnClickListener {
             videoInfo.isSelected = !videoInfo.isSelected

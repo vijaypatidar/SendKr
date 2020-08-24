@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.thunder.R
-import com.vkpapps.thunder.analitics.Logger
 import com.vkpapps.thunder.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.thunder.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.thunder.model.FileInfo
@@ -222,11 +221,9 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogF
 
     override fun onDestroy() {
         super.onDestroy()
-        Logger.d("File fragment destroy $rootDir")
         fileInfos.clear()
         folders.clear()
         files.clear()
-        System.gc()
     }
 
     private fun hideShowSendButton() {
@@ -245,7 +242,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogF
                 return Bundle().apply {
                     putString(FilePropertyDialogFragment.PARAM_FILE_ID, fileInfo.id)
                     putString(FilePropertyDialogFragment.PARAM_FILE_URI, fileInfo.uri.toString())
-                    putString(FilePropertyDialogFragment.PARAM_FILE_SIZE, fileInfo.displaySize)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_SIZE, MathUtils.longToStringSize(fileInfo.size.toDouble()))
                 }
             }
 
