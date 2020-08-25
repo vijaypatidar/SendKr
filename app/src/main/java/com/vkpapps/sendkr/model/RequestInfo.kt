@@ -33,4 +33,20 @@ class RequestInfo : Serializable {
         clone.transferred = transferred
         return clone
     }
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            other == null -> {
+                false
+            }
+            (other as RequestInfo).rid == rid -> {
+                true
+            }
+            else -> false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return rid.hashCode()
+    }
 }

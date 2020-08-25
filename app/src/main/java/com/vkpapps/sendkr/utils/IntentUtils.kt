@@ -6,34 +6,16 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.widget.Toast
 import androidx.core.net.toFile
-import com.vkpapps.sendkr.analitics.Logger
 
 object IntentUtils {
-    fun startIntentToPlayVideo(context: Context, uri: Uri) {
+    fun startAppInstallIntent(context: Context, uri: Uri) {
         try {
-            MediaScannerConnection.scanFile(context, arrayOf(uri.toFile().absolutePath), null) { _, resUri ->
+            MediaScannerConnection.scanFile(context, arrayOf(uri.toFile().absolutePath), null) { _, uri ->
                 run {
                     val type = context.contentResolver.getType(uri)
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(resUri, type)
-                    }
-                    context.startActivity(intent)
-                }
-            }
-
-        } catch (e: Exception) {
-            Toast.makeText(context, "error occurred", Toast.LENGTH_SHORT).show()
-            e.printStackTrace()
-        }
-    }
-
-    fun startIntentToViewImage(context: Context, uri: Uri) {
-        try {
-            MediaScannerConnection.scanFile(context, arrayOf(uri.toFile().absolutePath), null) { _, resUri ->
-                run {
-                    val type = context.contentResolver.getType(uri)
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(resUri, type)
+                    val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                        setDataAndType(uri, "application/vnd.android.package-archive")
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     }
                     context.startActivity(intent)
                 }
@@ -44,14 +26,14 @@ object IntentUtils {
         }
     }
 
-    fun startIntentToPlayAudio(context: Context, uri: Uri) {
+    fun startActionViewIntent(context: Context, uri: Uri) {
         try {
-            val intent = Intent(Intent.ACTION_VIEW)
-            MediaScannerConnection.scanFile(context, arrayOf(uri.path), null) { _, uri ->
+            MediaScannerConnection.scanFile(context, arrayOf(uri.toFile().absolutePath), null) { _, resUri ->
                 run {
                     val type = context.contentResolver.getType(uri)
-                    Logger.d("file $uri type = $type")
-                    intent.setDataAndType(uri, type)
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(resUri, type)
+                    }
                     context.startActivity(intent)
                 }
             }

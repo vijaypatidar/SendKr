@@ -42,7 +42,7 @@ import java.util.*
 class ConnectionActivity : AppCompatActivity() {
     companion object {
         var network: Network? = null
-        const val PARAM_CONNECTION_TYPE = "com.vkpapps.thunder.PARAM_CONNECTION_TYPE"
+        const val PARAM_CONNECTION_TYPE = "com.vkpapps.sendkr.PARAM_CONNECTION_TYPE"
     }
 
     private val wifiManager = App.context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -151,11 +151,10 @@ class ConnectionActivity : AppCompatActivity() {
                             finish()
                         }
 
-                        override fun onLost(network: Network) {
-                            super.onLost(network)
-                            Logger.d("onLost")
+                        override fun onUnavailable() {
+                            scanner.startCamera()
                         }
-                    })
+                    }, 7000)
                 } else {
                     val configuration = WifiConfiguration()
                     configuration.SSID = "\"${connectionBarCode.ssid}\""

@@ -60,7 +60,10 @@ class DialogsUtils(private val context: Context) {
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
         val barCodeImage = view.findViewById<AppCompatImageView>(R.id.barCodeImage)
-        Picasso.get().load(File(StorageManager(App.context).userDir, "code.png")).into(barCodeImage)
+        val code = File(StorageManager(App.context).userDir, "code.png")
+        val picasso = Picasso.get()
+        picasso.invalidate(code)
+        picasso.load(code).fit().into(barCodeImage)
     }
 
     fun joinHotspotFailed(retry: View.OnClickListener, createGroup: View.OnClickListener) {

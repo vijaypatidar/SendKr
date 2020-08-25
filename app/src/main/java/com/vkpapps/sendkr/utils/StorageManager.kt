@@ -32,7 +32,7 @@ class StorageManager(private val context: Context) {
 
     val downloadDir: File
         get() {
-            val file = File(KeyValue(context).externalStoragePath ?: "/storage/emulated/0/Thunder")
+            val file = File(KeyValue(context).externalStoragePath ?: "/storage/emulated/0/SendKr")
             if (!file.exists()) file.mkdirs()
             return file
         }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.view.View
+import com.squareup.picasso.Picasso
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -40,6 +41,8 @@ object BitmapUtils {
             try {
                 Bitmap.createScaledBitmap(bitmap, 500, bitmap.height * 500 / bitmap.width, true)
                         .compress(Bitmap.CompressFormat.PNG, 90, FileOutputStream(file))
+                Picasso.get().invalidate(file)
+                Picasso.get().load(file)
             } catch (e: Exception) {
 
             }

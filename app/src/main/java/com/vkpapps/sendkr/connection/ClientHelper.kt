@@ -82,14 +82,16 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
     }
 
     fun write(command: Any) {
-        signalExecutors.submit {
-            outputStream?.let {
-                synchronized(it) {
-                    try {
-                        outputStream?.writeObject(command)
-                        outputStream?.flush()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
+        synchronized(signalExecutors) {
+            signalExecutors.submit {
+                outputStream?.let {
+                    synchronized(it) {
+                        try {
+                            outputStream?.writeObject(command)
+                            outputStream?.flush()
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                        }
                     }
                 }
             }

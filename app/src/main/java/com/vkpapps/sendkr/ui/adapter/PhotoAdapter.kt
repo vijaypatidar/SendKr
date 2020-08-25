@@ -42,7 +42,7 @@ class PhotoAdapter(private val photoInfos: List<PhotoInfo>?, private val onPhoto
         }
         myThumbnailUtils.loadPhotoThumbnail(photoInfo.uri, holder.picture)
         holder.btnFullscreen.setOnClickListener {
-            IntentUtils.startIntentToViewImage(it.context, photoInfo.uri)
+            IntentUtils.startActionViewIntent(it.context, photoInfo.uri)
         }
     }
 

@@ -3,12 +3,17 @@ package com.vkpapps.sendkr.room.liveViewModel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.model.RequestInfo
+import com.vkpapps.sendkr.model.constant.StatusType
 
 class RequestViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         @JvmStatic
-        val requestInfos = ArrayList<RequestInfo>()
+        private val requestInfos = ArrayList<RequestInfo>()
+
+        @JvmStatic
+        private val requestInfoMap = HashMap<String, RequestInfo>()
 
         @Volatile
         @JvmStatic
@@ -18,20 +23,29 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
     val requestInfosLiveData = MutableLiveData(requestInfos)
     val pendingRequestCountLiveData = MutableLiveData(pendingRequestCount)
 
-    fun insert(obj: RequestInfo) {
-        requestInfos.add(obj)
-        incrementPendingRequestCount()
+    fun insert(requestInfo: RequestInfo) {
+        Logger.d("[RequestViewModel][insert] rid = ${requestInfo.rid}")
+        synchronized(requestInfos) {
+            requestInfos.add(requestInfo)
+            requestInfoMap[requestInfo.rid] = requestInfo
+            incrementPendingRequestCount()
+        }
     }
 
     fun getRequestInfo(rid: String): RequestInfo? {
-        try {
-            for (i in requestInfos.indices) {
-                if (requestInfos[i].rid == rid) return requestInfos[i]
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        Logger.d("[RequestViewModel][getRequestInfo] rid = $rid")
+        synchronized(requestInfos) {
+            return requestInfoMap[rid]
         }
-        return null
+    }
+
+    fun requestCompleted(requestInfo: RequestInfo) {
+        Logger.d("[RequestViewModel][requestCompleted] rid = ${requestInfo.rid}")
+        if (requestInfo.status == StatusType.STATUS_COMPLETED) {
+            synchronized(requestInfo) {
+                requestInfoMap.remove(requestInfo.rid)
+            }
+        }
     }
 
     fun notifyDataSetChanged() {
@@ -43,7 +57,7 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
     }
 
 
-    private fun incrementPendingRequestCount() {
+    fun incrementPendingRequestCount() {
         pendingRequestCount++
         pendingRequestCountLiveData.postValue(pendingRequestCount)
     }
@@ -56,6 +70,7 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
     fun clearRequestList() {
         pendingRequestCount = 0
         requestInfos.clear()
+        requestInfoMap.clear()
         notifyPendingCountChange()
         notifyDataSetChanged()
     }

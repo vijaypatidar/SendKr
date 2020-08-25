@@ -2,6 +2,7 @@ package com.vkpapps.sendkr.ui.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.StatFs
@@ -159,7 +160,11 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_share -> {
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show()
+                val share = resources.getString(R.string.app_share_message)
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.type = "text/plain"
+                intent.putExtra(Intent.EXTRA_TEXT, share)
+                requireActivity().startActivity(Intent.createChooser(intent, "Share with"))
             }
         }
         return super.onOptionsItemSelected(item)

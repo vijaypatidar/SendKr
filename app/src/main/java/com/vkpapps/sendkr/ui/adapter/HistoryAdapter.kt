@@ -1,28 +1,24 @@
 package com.vkpapps.sendkr.ui.adapter
 
 import android.content.Context
-import android.content.Intent
-import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.net.toFile
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.R
-import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.model.HistoryInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.ui.adapter.HistoryAdapter.HistoryViewHolder
 import com.vkpapps.sendkr.ui.dialog.DialogsUtils
 import com.vkpapps.sendkr.ui.fragments.FileFragment
 import com.vkpapps.sendkr.utils.MyThumbnailUtils
+import com.vkpapps.sendkr.utils.OpenUtils
 import java.util.*
 
 /**
@@ -52,15 +48,15 @@ class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHi
             }
         }
         holder.itemView.setOnLongClickListener { v: View ->
-            DialogsUtils(v.context).clearSelectedHistoryDialog("Remove " + historyInfo.name + " from history.", View.OnClickListener {
+            DialogsUtils(v.context).clearSelectedHistoryDialog("Remove " + historyInfo.name + " from history.") {
                 onHistorySelectListener.onHistoryDeleteRequestSelected(historyInfo)
-            })
+            }
             true
         }
-        when (historyInfo.type) {
-            FileType.FILE_TYPE_FOLDER -> {
-                holder.itemView.setOnClickListener { v: View? ->
-                    Navigation.findNavController(v!!).navigate(object : NavDirections {
+        holder.itemView.setOnClickListener { v: View ->
+            when (historyInfo.type) {
+                FileType.FILE_TYPE_FOLDER -> {
+                    Navigation.findNavController(v).navigate(object : NavDirections {
                         override fun getActionId(): Int {
                             return R.id.fileFragment
                         }
@@ -73,46 +69,12 @@ class HistoryAdapter(context: Context, private val onHistorySelectListener: OnHi
                         }
                     })
                 }
-            }
-            FileType.FILE_TYPE_APP -> {
-                holder.itemView.setOnClickListener {
-                    try {
-                        MediaScannerConnection.scanFile(it.context, arrayOf(historyInfo.uri.toFile().absolutePath), null) { _, uri ->
-                            run {
-                                val type = it.context.contentResolver.getType(uri)
-                                Logger.d("file $uri type = $type")
-                                val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                                    setDataAndType(uri, "application/vnd.android.package-archive")
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                }
-                                it.context.startActivity(intent)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Toast.makeText(it.context, "file not found", Toast.LENGTH_SHORT).show()
-                        e.printStackTrace()
-                    }
-                }
-            }
-            else -> {
-                holder.itemView.setOnClickListener {
-                    try {
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        MediaScannerConnection.scanFile(it.context, arrayOf(historyInfo.uri.toFile().absolutePath), null) { _, uri ->
-                            run {
-                                val type = it.context.contentResolver.getType(uri)
-                                Logger.d("file $uri type = $type")
-                                intent.setDataAndType(uri, type)
-                                it.context.startActivity(intent)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Toast.makeText(it.context, "file not found", Toast.LENGTH_SHORT).show()
-                        e.printStackTrace()
-                    }
+                else -> {
+                    OpenUtils.open(historyInfo.type, v.context, historyInfo.uri)
                 }
             }
         }
+
         try {
             myThumbnailUtils.loadThumbnail(historyInfo.id, historyInfo.uri, historyInfo.type, holder.logo)
         } catch (e: Exception) {

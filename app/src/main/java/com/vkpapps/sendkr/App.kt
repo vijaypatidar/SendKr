@@ -7,8 +7,6 @@ import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.model.User
 import com.vkpapps.sendkr.utils.DownloadPathResolver
 import com.vkpapps.sendkr.utils.UserUtils
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * @author VIJAY PATIDAR
@@ -38,7 +36,5 @@ class App : Application() {
         @JvmStatic
         var databasePrepared: Boolean = false
 
-        @JvmStatic
-        val taskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     }
 }

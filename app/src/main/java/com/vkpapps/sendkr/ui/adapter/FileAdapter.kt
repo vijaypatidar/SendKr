@@ -1,7 +1,5 @@
 package com.vkpapps.sendkr.ui.adapter
 
-import android.content.Intent
-import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,17 +7,16 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.net.toFile
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.model.FileInfo
-import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.ui.adapter.FileAdapter.MyViewHolder
 import com.vkpapps.sendkr.ui.fragments.FileFragment
 import com.vkpapps.sendkr.utils.MathUtils
 import com.vkpapps.sendkr.utils.MyThumbnailUtils
+import com.vkpapps.sendkr.utils.OpenUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -81,25 +78,8 @@ class FileAdapter(private val onFileSelectListener: OnFileSelectListener, privat
                     fileInfo.type,
                     holder.icon
             )
-
             holder.itemView.setOnClickListener {
-                MediaScannerConnection.scanFile(it.context, arrayOf(fileInfo.uri.toFile().absolutePath), null) { _, uri ->
-                    run {
-
-                        it.context.startActivity(
-                                if (fileInfo.type == FileType.FILE_TYPE_APP) {
-                                    Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                                        setDataAndType(uri, "application/vnd.android.package-archive")
-                                    }
-                                } else {
-                                    val type = it.context.contentResolver.getType(uri)
-                                    Intent(Intent.ACTION_VIEW).apply {
-                                        setDataAndType(uri, type)
-                                    }
-                                })
-
-                    }
-                }
+                OpenUtils.open(fileInfo.type, it.context, fileInfo.uri)
             }
         }
         holder.btnSelected.isChecked = fileInfo.isSelected

@@ -64,7 +64,9 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
         recyclerView.adapter = clientAdapter
         updateList()
         val code = File(StorageManager(App.context).userDir, "code.png")
-        Picasso.get().load(code).fit().into(barCodeImage)
+        val picasso = Picasso.get()
+        picasso.invalidate(code)
+        picasso.load(code).fit().into(barCodeImage)
 
         AdsUtils.getAdRequest(adView)
 

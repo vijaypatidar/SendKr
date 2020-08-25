@@ -38,7 +38,7 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideo
             }
         }
         holder.picture.setOnClickListener {
-            IntentUtils.startIntentToPlayVideo(it.context, videoInfo.uri)
+            IntentUtils.startActionViewIntent(it.context, videoInfo.uri)
         }
         holder.itemView.setOnLongClickListener {
             onVideoSelectListener.onVideoLongClickListener(videoInfo)

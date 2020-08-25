@@ -24,10 +24,9 @@ object MyThumbnailUtils {
                 val data = mmr.embeddedPicture!!
                 val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
                 imageView?.run {
-                    Picasso.get().load(file).centerCrop().into(imageView)
+                    Picasso.get().load(file).into(imageView)
                 }
                 BitmapUtils.bitmapToFile(bitmap, file)
-                mmr.close()
             } else {
                 imageView?.run {
                     Picasso.get().load(file).into(imageView)

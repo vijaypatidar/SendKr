@@ -2,12 +2,15 @@ package com.vkpapps.sendkr.ui.adapter
 
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
@@ -15,9 +18,11 @@ import com.vkpapps.sendkr.interfaces.OnFileStatusChangeListener
 import com.vkpapps.sendkr.model.RequestInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.model.constant.StatusType
+import com.vkpapps.sendkr.ui.fragments.FileFragment
 import com.vkpapps.sendkr.ui.views.HorizontalProgressBar
 import com.vkpapps.sendkr.utils.MathUtils
 import com.vkpapps.sendkr.utils.MyThumbnailUtils
+import com.vkpapps.sendkr.utils.OpenUtils
 
 class RequestAdapter(context: Context, private val onFileStatusChangeListener: OnFileStatusChangeListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -38,28 +43,53 @@ class RequestAdapter(context: Context, private val onFileStatusChangeListener: O
             holder.name.text = requestInfo.name
             holder.size.text = MathUtils.longToStringSize(requestInfo.size.toDouble())
             updateStatus(holder, requestInfo)
-            holder.status.setOnClickListener {
-                if (requestInfo.fileType == FileType.FILE_TYPE_FOLDER) {
-                    Toast.makeText(it.context, "Operation not supported for folder at this time.", Toast.LENGTH_SHORT).show()
-                } else {
-                    Logger.d("[Adapter][onBindViewHolder] status = ${requestInfo.status}")
-                    when (requestInfo.status) {
-                        StatusType.STATUS_PENDING -> {
-                            requestInfo.status = StatusType.STATUS_PAUSE
+            if (requestInfo.status != StatusType.STATUS_COMPLETED) {
+                holder.status.setOnClickListener {
+                    if (requestInfo.fileType == FileType.FILE_TYPE_FOLDER) {
+                        Toast.makeText(it.context, "Operation not supported for folder at this time.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Logger.d("[Adapter][onBindViewHolder] status = ${requestInfo.status}")
+                        when (requestInfo.status) {
+                            StatusType.STATUS_PENDING -> {
+                                requestInfo.status = StatusType.STATUS_PAUSE
+                            }
+                            StatusType.STATUS_ONGOING -> {
+                                requestInfo.status = StatusType.STATUS_PAUSE
+                            }
+                            StatusType.STATUS_PAUSE -> {
+                                requestInfo.status = StatusType.STATUS_PENDING
+                            }
+                            StatusType.STATUS_FAILED -> {
+                                requestInfo.transferred = 0
+                                requestInfo.status = StatusType.STATUS_RETRY
+                            }
                         }
-                        StatusType.STATUS_ONGOING -> {
-                            requestInfo.status = StatusType.STATUS_PAUSE
+                        updateStatus(holder, requestInfo)
+                        onFileStatusChangeListener.onStatusChange(requestInfo)
+                    }
+                }
+            }
+            if (requestInfo.status == StatusType.STATUS_COMPLETED) {
+                holder.thumbnail.setOnClickListener { v: View ->
+                    when (requestInfo.fileType) {
+                        FileType.FILE_TYPE_FOLDER -> {
+                            Navigation.findNavController(v).navigate(object : NavDirections {
+                                override fun getActionId(): Int {
+                                    return R.id.fileFragment
+                                }
+
+                                override fun getArguments(): Bundle {
+                                    val bundle = Bundle()
+                                    bundle.putString(FileFragment.FRAGMENT_TITLE, requestInfo.name)
+                                    bundle.putString(FileFragment.FILE_ROOT, requestInfo.uri.toString())
+                                    return bundle
+                                }
+                            })
                         }
-                        StatusType.STATUS_PAUSE -> {
-                            requestInfo.status = StatusType.STATUS_PENDING
-                        }
-                        StatusType.STATUS_FAILED -> {
-                            requestInfo.transferred = 0
-                            requestInfo.status = StatusType.STATUS_RETRY
+                        else -> {
+                            OpenUtils.open(requestInfo.fileType, v.context, Uri.parse(requestInfo.uri))
                         }
                     }
-                    updateStatus(holder, requestInfo)
-                    onFileStatusChangeListener.onStatusChange(requestInfo)
                 }
             }
         }

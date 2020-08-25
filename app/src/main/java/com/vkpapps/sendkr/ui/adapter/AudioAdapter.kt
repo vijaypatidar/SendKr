@@ -46,7 +46,7 @@ class AudioAdapter(private val audioInfos: MutableList<AudioInfo>, private val o
             }
         }
         holder.audioIcon.setOnClickListener {
-            IntentUtils.startIntentToPlayAudio(it.context, audioinfo.uri)
+            IntentUtils.startActionViewIntent(it.context, audioinfo.uri)
             try {
                 val intent = Intent(Intent.ACTION_VIEW)
                 MediaScannerConnection.scanFile(it.context, arrayOf(audioinfo.uri.path), null) { _, uri ->

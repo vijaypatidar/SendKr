@@ -3,7 +3,6 @@ package com.vkpapps.sendkr.connection
 import android.net.Uri
 import androidx.core.net.toFile
 import com.vkpapps.sendkr.App
-import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFileRequestReceiverListener
 import com.vkpapps.sendkr.model.FileRequest
 import com.vkpapps.sendkr.model.RequestInfo
@@ -15,6 +14,8 @@ import java.io.*
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /***
  * @author VIJAY PATIDAR
@@ -31,7 +32,6 @@ class FileService(private val send: Boolean,
             ServerSocket(PORT).use { serverSocket ->
                 serverSocket.soTimeout = MAX_WAIT_TIME
                 socket = serverSocket.accept()
-                Logger.d(socket.inetAddress.hostAddress)
             }
         } else {
             socket = Socket()
@@ -44,7 +44,6 @@ class FileService(private val send: Boolean,
     override fun run() {
         if (requestInfo.status != StatusType.STATUS_PENDING || requestInfo.status == StatusType.STATUS_COMPLETED) return
         //change status to ongoing
-        requestInfo.status = StatusType.STATUS_ONGOING
         try {
             if (send) {
                 handleActionSend()
@@ -57,13 +56,13 @@ class FileService(private val send: Boolean,
     }
 
     private fun handleActionReceive() {
-        Logger.d("handleActionReceive ${requestInfo.uri} isDirectory = ${requestInfo.fileType == FileType.FILE_TYPE_FOLDER}")
         try {
             if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
                 clientHelper.write(FileRequest(true, requestInfo.rid))
             }
             val socket = getSocket()
+            requestInfo.status = StatusType.STATUS_ONGOING
             onFileRequestReceiverListener.onRequestAccepted(requestInfo)
             if (requestInfo.uri == null) {
                 requestInfo.uri = Uri.fromFile(File(App.downloadPathResolver.getSource(requestInfo))).toString()
@@ -105,6 +104,7 @@ class FileService(private val send: Boolean,
                 clientHelper.write(FileRequest(false, requestInfo.rid))
             }
             val socket = getSocket()
+            requestInfo.status = StatusType.STATUS_ONGOING
             if (requestInfo.fileType == FileType.FILE_TYPE_FOLDER) {
                 val zipUtils = ZipUtils(requestInfo)
                 zipUtils.openZipOutStream(socket.getOutputStream(), uri.toFile())
@@ -139,22 +139,25 @@ class FileService(private val send: Boolean,
     companion object {
         @JvmField
         var HOST_ADDRESS: String? = null
-        private const val MAX_WAIT_TIME = 3000
+        private const val MAX_WAIT_TIME = 4000
         private const val PORT = 7511
-        private const val BUFFER_SIZE = 12000
+        private const val BUFFER_SIZE = 10000
         val BUFFER = ByteArray(BUFFER_SIZE)
 
+        @JvmStatic
+        val taskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+
         fun startActionSend(onFileRequestReceiverListener: OnFileRequestReceiverListener, requestInfo: RequestInfo, clientHelper: ClientHelper) {
-            synchronized(App.taskExecutor) {
-                App.taskExecutor.submit(FileService(
+            synchronized(taskExecutor) {
+                taskExecutor.submit(FileService(
                         true, onFileRequestReceiverListener, requestInfo, clientHelper
                 ))
             }
         }
 
         fun startActionReceive(onFileRequestReceiverListener: OnFileRequestReceiverListener, requestInfo: RequestInfo, clientHelper: ClientHelper) {
-            synchronized(App.taskExecutor) {
-                App.taskExecutor.submit(FileService(
+            synchronized(taskExecutor) {
+                taskExecutor.submit(FileService(
                         false, onFileRequestReceiverListener, requestInfo, clientHelper
                 ))
             }

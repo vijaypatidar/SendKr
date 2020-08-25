@@ -34,6 +34,7 @@ import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger.d
 import com.vkpapps.sendkr.connection.ClientHelper
 import com.vkpapps.sendkr.connection.FileService
+import com.vkpapps.sendkr.connection.FileService.Companion.taskExecutor
 import com.vkpapps.sendkr.connection.ServerHelper
 import com.vkpapps.sendkr.interfaces.*
 import com.vkpapps.sendkr.loader.PrepareAppList
@@ -221,7 +222,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         }
     }
 
-
     override fun onNewRequestInfo(requestInfo: RequestInfo, clientHelper: ClientHelper) {
         d("[MainActivity][onNewRequestInfo] rid = ${requestInfo.rid} status = ${requestInfo.status}")
         requestInfo.uri = null
@@ -258,6 +258,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             try {
                 requestViewModel.getRequestInfo(fileStatusRequest.rid)?.run {
                     if (fileStatusRequest.status == StatusType.STATUS_RETRY) {
+                        requestViewModel.incrementPendingRequestCount()
                         this.status = StatusType.STATUS_PENDING
                         this.transferred = 0
                     } else {
@@ -297,6 +298,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     override fun onRequestSuccess(requestInfo: RequestInfo, send: Boolean) {
+        requestViewModel.requestCompleted(requestInfo)
         CoroutineScope(IO).launch {
             if (requestInfo.status == StatusType.STATUS_COMPLETED) {
                 requestViewModel.decrementPendingRequestCount()
@@ -421,7 +423,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     clientHelper.shutDown()
                 }
                 connected = false
-                App.taskExecutor.shutdownNow()
+                taskExecutor.shutdownNow()
                 App.databasePrepared = false
                 finish()
             }, null)
@@ -479,7 +481,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         }
         if (clientHelper.user.appVersion < BuildConfig.VERSION_CODE) {
             try {
-                PrepareAppList.thunder?.run {
+                PrepareAppList.sendKr?.run {
                     val uri = this.uri
                     sendFiles(Collections.singletonList(RawRequestInfo(this.name,
                             uri,

@@ -1,6 +1,8 @@
 package com.vkpapps.sendkr.ui.dialog
 
 import android.app.AlertDialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +29,7 @@ class PrivacyDialog(private val activity: AppCompatActivity) {
         builder.setView(view)
         builder.setCancelable(false)
         val create = builder.create()
+        create.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         create.show()
         view.findViewById<TextView>(R.id.message).movementMethod = LinkMovementMethod.getInstance()
         view.findViewById<TextView>(R.id.btnCancel).setOnClickListener {

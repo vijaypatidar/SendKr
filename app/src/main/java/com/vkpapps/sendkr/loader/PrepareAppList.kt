@@ -43,17 +43,17 @@ object PrepareAppList {
             }
         }
 
-        Thread(Runnable {
+        Thread {
             appInfos.forEach {
                 MyThumbnailUtils.loadApkThumbnail(it.id, it.uri, null)
             }
-        }).start()
+        }.start()
 
         appInfos.sortBy { appInfo -> appInfo.name }
         appInfos
     }
 
-    val thunder: AppInfo? by lazy {
+    val sendKr: AppInfo? by lazy {
         var appInfo: AppInfo? = null
         appList.forEach {
             if (it.packageName == App.context.packageName) {

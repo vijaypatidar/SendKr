@@ -61,7 +61,7 @@ class TransferringFragment : Fragment() {
 
             job = CoroutineScope(Main).launch {
                 while (!isDetached) {
-                    adapter.notifyDataSetChanged()
+                    viewModel.notifyDataSetChanged()
                     delay(1000)
                 }
             }

@@ -13,7 +13,7 @@
     <string name="app_description">An app for sending and receiving files with other without internet.</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="privacy_policy_url">https://vijaypatidar.me</string>
-    <string name="accept_policy">By using the app you agree to the Thunder <a href="https://vijaypatidar.me">Privacy Policy</a></string>
+    <string name="accept_policy">By using the app you agree to the SendKr <a href="https://vijaypatidar.me">privacy policy</a></string>
     <string name="cancel">Cancel</string>
     <string name="i_agree">I Agree</string>
     <string name="github_url">https://github.com/vijaypatidar</string>
@@ -68,10 +68,11 @@
     <string name="scan_connection_code">Scan Connection Code</string>
     <string name="ask">Ask</string>
     <string name="allow">ALLOW</string>
-    <string name="waiting_for_connection">waiting for connection…</string>
+    <string name="waiting_for_connection">waiting for device connection…</string>
     <string name="storage_devices">Storage devices</string>
     <string name="quick_access">Quick access</string>
-    <string name="history_is_clear_message">Oops! You have not received any file yet or history is cleared.</string>
+    <string name="history_is_clear_message">You have not received any file yet or history is cleared.</string>
     <string name="camera_access_denied">camera access denied</string>
     <string name="close">Close</string>
+    <string name="app_share_message"><b>vijay</b><p>vij</p></string>
 </resources>
