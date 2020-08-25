@@ -428,7 +428,7 @@
 
         </RelativeLayout>
 
-        <com.vkpapps.thunder.ui.views.SelectionView
+        <com.vkpapps.sendkr.ui.views.SelectionView
             android:id="@+id/selectionView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

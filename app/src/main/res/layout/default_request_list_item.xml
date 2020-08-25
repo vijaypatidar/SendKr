@@ -23,7 +23,7 @@
             android:layout_gravity="center_vertical"
             tools:ignore="UnusedAttribute">
 
-            <com.vkpapps.thunder.ui.views.HorizontalProgressBar
+            <com.vkpapps.sendkr.ui.views.HorizontalProgressBar
                 android:id="@+id/progress"
                 android:layout_width="match_parent"
                 android:layout_height="90dp"

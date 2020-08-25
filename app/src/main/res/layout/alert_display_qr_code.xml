@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.vkpapps.thunder.ui.views.SquareImageView
+        <com.vkpapps.sendkr.ui.views.SquareImageView
             android:id="@+id/barCodeImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Thunder</string>
+    <string name="app_name">SendKr</string>
     <string name="save">save</string>
     <string name="hint_name">enter name</string>
     <string name="title_home">Home</string>
@@ -73,4 +73,5 @@
     <string name="quick_access">Quick access</string>
     <string name="history_is_clear_message">Oops! You have not received any file yet or history is cleared.</string>
     <string name="camera_access_denied">camera access denied</string>
+    <string name="close">Close</string>
 </resources>

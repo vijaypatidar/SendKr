@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.vkpapps.thunder.ui.views.SquareImageView
+        <com.vkpapps.sendkr.ui.views.SquareImageView
             android:id="@+id/picture"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -22,7 +22,7 @@
             android:src="@color/colorPrimary"
             tools:ignore="UnusedAttribute" />
 
-        <com.vkpapps.thunder.ui.views.SquareImageView
+        <com.vkpapps.sendkr.ui.views.SquareImageView
             android:id="@+id/btnSelect"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

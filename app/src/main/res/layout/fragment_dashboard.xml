@@ -25,13 +25,17 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/btnShutDown"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|start"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginTop="15dp"
                 android:layout_marginBottom="-40dp"
-                android:src="@android:drawable/ic_lock_power_off" />
+                android:background="@drawable/round"
+                android:backgroundTint="#1aFF1100"
+                android:padding="5dp"
+                android:src="@android:drawable/ic_lock_power_off"
+                android:tint="@color/red" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/barCodeImage"

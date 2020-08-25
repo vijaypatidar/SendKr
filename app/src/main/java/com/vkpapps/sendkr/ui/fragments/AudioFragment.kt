@@ -1,0 +1,274 @@
+package com.vkpapps.sendkr.ui.fragments
+
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.OnFlingListener
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.vkpapps.sendkr.R
+import com.vkpapps.sendkr.analitics.Logger
+import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
+import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.sendkr.loader.PrepareDb
+import com.vkpapps.sendkr.model.AudioInfo
+import com.vkpapps.sendkr.model.RawRequestInfo
+import com.vkpapps.sendkr.model.constant.FileType
+import com.vkpapps.sendkr.room.liveViewModel.AudioViewModel
+import com.vkpapps.sendkr.ui.adapter.AudioAdapter
+import com.vkpapps.sendkr.ui.adapter.AudioAdapter.OnAudioSelectedListener
+import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
+import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
+import com.vkpapps.sendkr.utils.MathUtils
+import kotlinx.android.synthetic.main.fragment_music.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+/**
+ * @author VIJAY PATIDAR
+ */
+class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
+
+    companion object {
+        private var sortBy = FilterDialogFragment.SORT_BY_NAME
+    }
+
+    private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
+    private var selectedCount = 0
+    private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
+    private var controller: NavController? = null
+    private val audioInfos: MutableList<AudioInfo> = ArrayList()
+    private var audioAdapter: AudioAdapter? = null
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_music, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
+        controller = Navigation.findNavController(view)
+
+        audioAdapter = AudioAdapter(audioInfos, this, view.context)
+        audioList.itemAnimator = DefaultItemAnimator()
+        audioList.layoutManager = LinearLayoutManager(view.context)
+        audioList.adapter = audioAdapter
+        audioList.onFlingListener = object : OnFlingListener() {
+            override fun onFling(velocityX: Int, velocityY: Int): Boolean {
+                if (selectedCount == 0) {
+                    onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                } else {
+                    onNavigationVisibilityListener?.onNavVisibilityChange(false)
+                }
+                return false
+            }
+        }
+        swipeRefreshAudioList.setOnRefreshListener(this)
+        swipeRefreshAudioList.setColorSchemeResources(R.color.colorAccent)
+
+        //load music
+        val audioViewModel = ViewModelProvider(requireActivity()).get(AudioViewModel::class.java)
+        audioViewModel.audioInfos.observe(requireActivity(), {
+            Logger.d("on audio changes")
+            try {
+                if (it.isNotEmpty()) {
+                    CoroutineScope(IO).launch {
+                        it.forEach { item ->
+                            if (item.isSelected) {
+                                selectedCount++
+                            }
+                        }
+                        withContext(Main) {
+                            hideShowSendButton()
+                        }
+                    }
+                    audioInfos.clear()
+                    audioInfos.addAll(it)
+                    sort()
+                    audioAdapter?.notifyDataSetChanged()
+                    emptyMusic.visibility = View.GONE
+                } else {
+                    emptyMusic.visibility = View.VISIBLE
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        })
+
+
+        selectionView.btnSendFiles.setOnClickListener {
+            if (selectedCount == 0) return@setOnClickListener
+            CoroutineScope(IO).launch {
+                val selected = ArrayList<RawRequestInfo>()
+                audioInfos.forEach {
+                    if (it.isSelected) {
+                        it.isSelected = false
+                        selected.add(RawRequestInfo(
+                                it.name, it.uri, FileType.FILE_TYPE_MUSIC, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
+                        ))
+                    }
+                }
+                selectedCount = 0
+                withContext(Main) {
+                    audioAdapter?.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+                onFileRequestPrepareListener?.sendFiles(selected)
+            }
+        }
+
+        selectionView.btnSelectNon.setOnClickListener {
+            if (selectedCount == 0) return@setOnClickListener
+            CoroutineScope(IO).launch {
+                audioInfos.forEach {
+                    it.isSelected = false
+                }
+                selectedCount = 0
+                withContext(Main) {
+                    audioAdapter?.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
+        }
+
+        selectionView.btnSelectAll.setOnClickListener {
+            CoroutineScope(IO).launch {
+                selectedCount = 0
+                audioInfos.forEach {
+                    it.isSelected = true
+                    selectedCount++
+                }
+                withContext(Main) {
+                    audioAdapter?.notifyDataSetChanged()
+                    hideShowSendButton()
+                }
+            }
+        }
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.menu_sorting) {
+            FilterDialogFragment(sortBy, this).show(requireActivity().supportFragmentManager, "SortBy")
+            true
+        } else
+            super.onOptionsItemSelected(item)
+
+    }
+
+    override fun onAudioLongClickListener(audioinfo: AudioInfo) {
+        controller?.navigate(object : NavDirections {
+            override fun getArguments(): Bundle {
+                return Bundle().apply {
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, audioinfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, audioinfo.uri.toString())
+                }
+            }
+
+            override fun getActionId(): Int {
+                return R.id.filePropertyDialogFragment
+            }
+        })
+    }
+
+    override fun onAudioSelected(audioMode: AudioInfo) {
+        selectedCount++
+        hideShowSendButton()
+    }
+
+    override fun onAudioDeselected(audioinfo: AudioInfo) {
+        selectedCount--
+        hideShowSendButton()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnNavigationVisibilityListener) {
+            onNavigationVisibilityListener = context
+        }
+        if (context is OnFileRequestPrepareListener) {
+            onFileRequestPrepareListener = context
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        onNavigationVisibilityListener = null
+        onFileRequestPrepareListener = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        hideShowSendButton()
+    }
+
+    private fun hideShowSendButton() {
+        selectionView.changeVisibility(selectedCount)
+        onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
+    }
+
+    private fun sort() {
+        when (sortBy) {
+            FilterDialogFragment.SORT_BY_NAME -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.name }
+            }
+            FilterDialogFragment.SORT_BY_NAME_Z_TO_A -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.name }
+                audioInfos.reverse()
+            }
+            FilterDialogFragment.SORT_BY_OLDEST_FIRST -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.lastModified }
+            }
+            FilterDialogFragment.SORT_BY_LATEST_FIRST -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.lastModified * -1 }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_ASC -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.size }
+            }
+            FilterDialogFragment.SORT_BY_SIZE_DSC -> {
+                audioInfos.sortBy { audioInfo -> audioInfo.size * -1 }
+            }
+        }
+    }
+
+    override fun onRefresh() {
+        CoroutineScope(IO).launch {
+            PrepareDb().prepareAudio()
+            withContext(Main) {
+                swipeRefreshAudioList.isRefreshing = false
+            }
+        }
+    }
+
+    override fun onFilterBy(sortBy: Int) {
+        AudioFragment.sortBy = sortBy
+        CoroutineScope(IO).launch {
+            if (!audioInfos.isNullOrEmpty()) {
+                sort()
+                withContext(Main) {
+                    audioAdapter?.notifyDataSetChanged()
+                    emptyMusic.visibility = View.GONE
+                }
+            } else {
+                withContext(Main) {
+                    emptyMusic.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+}
