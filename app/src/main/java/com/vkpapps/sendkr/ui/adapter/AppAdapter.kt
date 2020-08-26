@@ -31,7 +31,7 @@ class AppAdapter(appInfos: ArrayList<AppInfo>, onAppSelectListener: OnAppSelectL
         loadApkThumbnail(appInfo.id, appInfo.uri, appHolder.appIcon)
         appHolder.btnSelected.isChecked = appInfo.isSelected
         appHolder.packageName.text = MathUtils.longToStringSize(appInfo.uri.toFile().length().toDouble())
-        appHolder.btnSelected.setOnClickListener { v: View? ->
+        appHolder.btnSelected.setOnClickListener {
             appInfo.isSelected = !appInfo.isSelected
             if (appInfo.obbUri != null && appInfo.isSelected != appInfo.isObbSelected) {
                 appInfo.isObbSelected = appInfo.isSelected
@@ -46,7 +46,7 @@ class AppAdapter(appInfos: ArrayList<AppInfo>, onAppSelectListener: OnAppSelectL
             appHolder.obbName.text = appInfo.obbName
             appHolder.obbSize.text = MathUtils.longToStringSize(appInfo.obbUri!!.toFile().length().toDouble())
             appHolder.btnObbSelected.isChecked = appInfo.isObbSelected
-            appHolder.btnObbSelected.setOnClickListener { v: View? ->
+            appHolder.btnObbSelected.setOnClickListener {
                 appInfo.isObbSelected = !appInfo.isObbSelected
                 appHolder.btnObbSelected.isChecked = appInfo.isObbSelected
                 selectionChange(appInfo, appInfo.isObbSelected)

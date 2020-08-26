@@ -18,7 +18,7 @@ import java.lang.reflect.Method
 
 object WifiApUtils {
     var ssid: String = "Android_share214"
-    var password: String = "asfdgiytv1@3a"
+    var password: String = HashUtils.getRandomId(10)
     const val ERROR_ENABLE_GPS_PROVIDER = 0
     const val ERROR_LOCATION_PERMISSION_DENIED = 4
     const val ERROR_DISABLE_HOTSPOT = 1
@@ -31,6 +31,7 @@ object WifiApUtils {
 
 
     fun turnOnHotspot(activity: Context, onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<Int>) {
+        Logger.d("[WifiApUtils][turnOnHotspot]")
         val providerEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (PermissionUtils.checkLocationPermission(activity) && providerEnabled && !isWifiApEnabled()) {
@@ -50,7 +51,6 @@ object WifiApUtils {
                             } else {
                                 reservation.wifiConfiguration!!.preSharedKey
                             }
-                            Logger.d("successfully started ssid = $ssid   password = $password ")
                             onSuccessListener.onSuccess("ap created automatically")
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -87,8 +87,8 @@ object WifiApUtils {
             }
             try {
                 val wifiConfiguration = WifiConfiguration()
-                wifiConfiguration.SSID = ssid
-                wifiConfiguration.preSharedKey = password
+                wifiConfiguration.SSID = "\"${ssid}\""
+                wifiConfiguration.preSharedKey = "\"${password}\""
                 wifiManager.isWifiEnabled = false
                 setWifiApEnabled(wifiConfiguration, true)
                 BarCodeUtils().createQR("${ssid}\n${password}", File(StorageManager(App.context).userDir, "code.png").absolutePath)

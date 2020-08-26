@@ -1,6 +1,7 @@
 package com.vkpapps.sendkr.ui.activity
 
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -43,10 +44,12 @@ class ConnectionActivity : AppCompatActivity() {
     companion object {
         var network: Network? = null
         const val PARAM_CONNECTION_TYPE = "com.vkpapps.sendkr.PARAM_CONNECTION_TYPE"
+        const val PARAM_CONNECTION_HOST_IP = "com.vkpapps.sendkr.PARAM_CONNECTION_HOST_IP"
     }
 
     private val wifiManager = App.context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
     private val connectivityManager = App.context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private var alertEnableWifi: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,22 +91,25 @@ class ConnectionActivity : AppCompatActivity() {
         btnAllow.setOnClickListener {
             showCameraPermissionAskDialog()
         }
+        alertEnableWifi = DialogsUtils(this).alertEnableWifi(object : OnSuccessListener<String> {
+            override fun onSuccess(t: String) {
+                startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
+            }
+        }, object : OnFailureListener<String> {
+            override fun onFailure(t: String) {
+                Toast.makeText(this@ConnectionActivity, "Failed,Wi-Fi is disabled.", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        })
     }
 
     override fun onResume() {
         super.onResume()
         scanner.startCamera()
         if (!wifiManager.isWifiEnabled) {
-            DialogsUtils(this).alertEnableWifi(object : OnSuccessListener<String> {
-                override fun onSuccess(t: String) {
-                    startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
-                }
-            }, object : OnFailureListener<String> {
-                override fun onFailure(t: String) {
-                    Toast.makeText(this@ConnectionActivity, "Failed,Wi-Fi is disabled.", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-            })
+            alertEnableWifi?.show()
+        } else {
+            alertEnableWifi?.hide()
         }
     }
 
@@ -185,6 +191,7 @@ class ConnectionActivity : AppCompatActivity() {
                 ConnectionActivity.network = network
                 setResult(RESULT_OK, Intent().apply {
                     putExtra(PARAM_CONNECTION_TYPE, connectionBarCode.connectionType)
+                    putExtra(PARAM_CONNECTION_HOST_IP, connectionBarCode.ip)
                 })
                 finish()
             }
@@ -192,6 +199,8 @@ class ConnectionActivity : AppCompatActivity() {
             override fun onUnavailable() {
                 if (connectionBarCode.connectionType == ConnectionBarCode.CONNECTION_EXTERNAL_AP) {
                     Toast.makeText(this@ConnectionActivity, "Please connect your Wi-Fi to group owner Hotspot manually.And then try again.", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this@ConnectionActivity, "Please connect your device Wi-Fi to same router to which group owner is connected.And then try again.", Toast.LENGTH_LONG).show()
                 }
                 scanner.startCamera()
             }
@@ -201,7 +210,7 @@ class ConnectionActivity : AppCompatActivity() {
         } else {
             connectivityManager.requestNetwork(networkRequest, networkCallback)
             CoroutineScope(Main).launch {
-                delay(7000)
+                delay(5000)
                 networkCallback.onUnavailable()
             }
         }

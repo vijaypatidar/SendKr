@@ -10,11 +10,10 @@ import androidx.core.net.toFile
 object IntentUtils {
     fun startAppInstallIntent(context: Context, uri: Uri) {
         try {
-            MediaScannerConnection.scanFile(context, arrayOf(uri.toFile().absolutePath), null) { _, uri ->
+            MediaScannerConnection.scanFile(context, arrayOf(uri.toFile().absolutePath), null) { _, uriRes ->
                 run {
-                    val type = context.contentResolver.getType(uri)
                     val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                        setDataAndType(uri, "application/vnd.android.package-archive")
+                        setDataAndType(uriRes, "application/vnd.android.package-archive")
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     }
                     context.startActivity(intent)

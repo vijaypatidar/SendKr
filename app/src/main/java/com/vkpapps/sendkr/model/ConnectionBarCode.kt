@@ -9,5 +9,5 @@ class ConnectionBarCode(val connectionType: Int) {
 
     var ssid: String? = null
     var password: String? = null
-    var ip: Int? = null
+    var ip: String? = null
 }

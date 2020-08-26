@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginHorizontal="10dp"
-            android:text="Please wait..."
+            android:text="@string/please_wait"
             android:textSize="14sp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

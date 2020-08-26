@@ -75,4 +75,21 @@
     <string name="camera_access_denied">camera access denied</string>
     <string name="close">Close</string>
     <string name="app_share_message">Hey,I am using SendKr app for sending and receiving files.It can send all types of file and folder.\nDownload app\nhttps://vkp.page.link/SendKr</string>
+    <string name="create_new_hotspot">Create new access point</string>
+    <string name="use_existing_hotspot">Use existing access point</string>
+    <string name="via_router">Via router</string>
+    <string name="enable">Enable</string>
+    <string name="enable_gps">Enable GPS</string>
+    <string name="enable_gps_description">Please enable gps provider to continue creating group.</string>
+    <string name="enable_wi_fi">Enable Wi-Fi</string>
+    <string name="enable_wifi_description">Wi-Fi is disabled,please enable it to continue.</string>
+    <string name="disable_wi_fi">Disable Wi-Fi</string>
+    <string name="disable_wifi_description">Please turn off Wi-Fi to continue.</string>
+    <string name="turn_off_hotspot">Turn off Hotspot</string>
+    <string name="turn_off_hotspot_description">Please turn off Hotspot tethering to continue</string>
+    <string name="turn_off">Turn Off</string>
+    <string name="camera_permission_required_description">Camera permission required for scanning QR code.</string>
+    <string name="Continue">Continue</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="scan_amp_connect"><![CDATA[SCAN & CONNECT]]></string>
 </resources>

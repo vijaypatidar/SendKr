@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:layout_marginTop="5dp"
-            android:text="Enable GPS"
+            android:text="@string/enable_gps"
             android:textColor="@color/black"
             android:textSize="18sp" />
 
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:layout_marginVertical="5dp"
-            android:text="Please enable gps provider to continue creating group."
+            android:text="@string/enable_gps_description"
             android:textSize="14sp" />
 
         <LinearLayout
@@ -64,7 +64,7 @@
                 android:gravity="center"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
-                android:text="Enable"
+                android:text="@string/enable"
                 android:textAlignment="gravity"
                 android:textAllCaps="false"
                 android:textColor="@color/white" />

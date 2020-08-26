@@ -26,7 +26,7 @@
                 android:layout_marginBottom="15dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Camera permission required for scanning QR code."
+                android:text="@string/camera_permission_required_description"
                 android:textAlignment="gravity"
                 android:textSize="14sp" />
 

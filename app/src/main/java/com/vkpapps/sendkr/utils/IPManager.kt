@@ -21,4 +21,8 @@ class IPManager(context: Context) {
     fun hostIp(): String {
         return intToIp(manager.dhcpInfo.gateway)
     }
+
+    fun deviceIp(): String {
+        return intToIp(manager.dhcpInfo.ipAddress)
+    }
 }

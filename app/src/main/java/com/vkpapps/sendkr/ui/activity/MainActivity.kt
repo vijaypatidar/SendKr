@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         })
     }
 
-    private fun setup(host: Boolean) {
+    private fun setup(host: Boolean, hostIP: String? = null) {
         isHost = host
         if (isHost) {
             serverHelper = ServerHelper(this, user, this)
@@ -147,10 +147,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             Thread {
                 val socket = Socket()
                 try {
-                    val ipManager = IPManager(this)
-                    val address = ipManager.hostIp()
-                    d("setup: connection address $address")
-                    FileService.HOST_ADDRESS = address
+                    if (hostIP != null) {
+                        FileService.HOST_ADDRESS = hostIP
+                    } else {
+                        val ipManager = IPManager(this)
+                        val address = ipManager.hostIp()
+                        FileService.HOST_ADDRESS = address
+                    }
                     ConnectionActivity.network?.bindSocket(socket)
                     socket.connect(InetSocketAddress(FileService.HOST_ADDRESS, ServerHelper.PORT), 3000)
                     clientHelper = ClientHelper(socket, this, user, this)
@@ -568,7 +571,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             }
         } else if (requestCode == CONNECTION_ACTIVITY_RESULT) {
             if (resultCode == RESULT_OK) {
-                setup(false)
+                val hostIP = data?.getStringExtra(ConnectionActivity.PARAM_CONNECTION_HOST_IP)
+                setup(false, hostIP)
             } else {
                 choice()
             }

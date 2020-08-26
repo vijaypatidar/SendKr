@@ -15,7 +15,7 @@ object HashUtils {
         return bigInteger.toString(16).trim()
     }
 
-    fun getRandomId(): String {
-        return getHashValue(Random.nextBytes(30))
+    fun getRandomId(length: Int = 30): String {
+        return getHashValue(Random.nextBytes(length))
     }
 }
