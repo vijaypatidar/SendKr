@@ -205,9 +205,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             if (isHost) {
                 serverHelper.clientHelpers.forEach {
                     if (it.user.userId == requestInfo.cid) {
-                        it.write(FileStatusRequest(requestInfo.status, requestInfo.rid))
+                        it.send(FileStatusRequest(requestInfo.status, requestInfo.rid))
                         if (requestInfo.status == StatusType.STATUS_PENDING || requestInfo.status == StatusType.STATUS_RETRY) {
-                            if (user.userId == requestInfo.sid) {
+                            if (requestInfo.send) {
                                 FileService.startActionSend(this@MainActivity, requestInfo, it)
                             } else {
                                 FileService.startActionReceive(this@MainActivity, requestInfo, it)
@@ -217,7 +217,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     }
                 }
             } else {
-                clientHelper.write(FileStatusRequest(requestInfo.status, requestInfo.rid))
+                clientHelper.send(FileStatusRequest(requestInfo.status, requestInfo.rid))
             }
         }
     }
@@ -230,22 +230,6 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
             requestViewModel.insert(requestInfo)
             FileService.startActionReceive(this@MainActivity, requestInfo, clientHelper)
             //todo send to other from one client to other
-//                val afterList = ArrayList<ClientHelper>()
-//                for (clientHelper in serverHelper.clientHelpers) {
-//                    if (clientHelper.user.userId != requestInfo.sid) {
-//                        val clone = requestInfo.clone()
-//                        clone.rid = getRandomId()
-//                        clone.cid = clientHelper.user.userId
-//                        clientHelper.write(clone)
-//                        //preparing intent for service
-//                        requestViewModel.insert(clone)
-//                        afterList.add(clientHelper)
-//                        FileService.startActionSend(
-//                                this@MainActivity,
-//                                clone,
-//                                clientHelper)
-//                    }
-//                }
 
         } else {
             requestViewModel.insert(requestInfo)
@@ -265,7 +249,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         this.status = fileStatusRequest.status
                     }
                     if (this.status == StatusType.STATUS_PENDING) {
-                        if (user.userId == this.sid) {
+                        if (this.send) {
                             d("[MainActivity][onFileStatusChange] rid = inside if send")
                             FileService.startActionSend(this@MainActivity, this, clientHelper)
                         } else {
@@ -441,7 +425,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                         requestInfo.name = rawRequestInfo.name
                         requestInfo.uri = rawRequestInfo.uri.toString()
                         requestInfo.fileType = rawRequestInfo.type
-                        requestInfo.sid = user.userId
+                        requestInfo.send = true
                         requestInfo.size = rawRequestInfo.size
                         if (isHost) {
                             for (clientHelper in serverHelper.clientHelpers) {
@@ -450,7 +434,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                                 clone.cid = clientHelper.user.userId
                                 //preparing intent for service
                                 requestViewModel.insert(clone)
-                                clientHelper.write(clone)
+                                clientHelper.send(clone)
                                 FileService.startActionSend(
                                         this@MainActivity,
                                         clone,
@@ -458,9 +442,8 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                             }
                         } else {
                             requestInfo.rid = getRandomId()
-                            requestInfo.cid = user.userId
                             requestViewModel.insert(requestInfo)
-                            clientHelper.write(requestInfo)
+                            clientHelper.send(requestInfo)
                         }
                     }
                 }
@@ -542,7 +525,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     val file = DocumentFile.fromSingleUri(this@MainActivity, uri)
                     file?.run {
                         try {
-                            rawRequestInfos.add(RawRequestInfo(file.name!!, file.uri, DownloadDestinationFolderResolver.getFileType(file.type), file.length()))
+                            rawRequestInfos.add(RawRequestInfo(file.name!!, file.uri, FileTypeResolver.getFileType(file.type), file.length()))
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -579,7 +562,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                     if (isHost) {
                         serverHelper.broadcast(user)
                     } else {
-                        clientHelper.write(user)
+                        clientHelper.send(user)
                     }
                 }
             }

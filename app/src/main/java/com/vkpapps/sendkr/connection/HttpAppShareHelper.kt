@@ -19,11 +19,10 @@ class HttpAppShareHelper : Thread() {
                 val outputStream = accept.getOutputStream()
                 accept.getInputStream()
                 // header for download
-                outputStream.write("200 OK\r\n".toByteArray())
-                outputStream.write("Content-Type: application/octet-stream\r\n".toByteArray())
-                outputStream.write("Content-Disposition: attachment; filename=\"SendKr.apk\"\r\n".toByteArray())
-                outputStream.write("Content-Length: $size\r\n".toByteArray())
-                outputStream.write("\r\n".toByteArray())
+                outputStream.write("200 OK${System.lineSeparator()}".toByteArray())
+                outputStream.write("Content-Type: application/octet-stream${System.lineSeparator()}".toByteArray())
+                outputStream.write("Content-Disposition: attachment; filename=\"SendKr.apk\"${System.lineSeparator()}".toByteArray())
+                outputStream.write("Content-Length: $size${System.lineSeparator()}".toByteArray())
 
                 val fis = FileInputStream(apk)
                 var read: Int

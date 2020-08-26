@@ -1,7 +1,6 @@
 package com.vkpapps.sendkr.utils
 
-import android.content.Context
-import com.vkpapps.sendkr.analitics.Logger
+import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.model.RequestInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import java.io.File
@@ -11,8 +10,8 @@ import java.io.File
  * @author VIJAY PATIDAR
  *
  */
-class DownloadPathResolver(private val context: Context) {
-    private val root: File = StorageManager(context).downloadDir
+object DownloadPathResolver {
+    private val root: File = StorageManager(App.context).downloadDir
     private fun getDirectory(type: Int): File {
         val file = when (type) {
             FileType.FILE_TYPE_MUSIC -> File(root, "musics")
@@ -20,7 +19,6 @@ class DownloadPathResolver(private val context: Context) {
             FileType.FILE_TYPE_PHOTO -> File(root, "images")
             FileType.FILE_TYPE_VIDEO -> File(root, "videos")
             FileType.FILE_TYPE_FOLDER -> File(root, "folders")
-            FileType.FILE_TYPE_PROFILE_PIC -> context.getDir("profiles", Context.MODE_PRIVATE)
             else -> File(root, "others")
         }
         file.exists().run {
@@ -50,7 +48,6 @@ class DownloadPathResolver(private val context: Context) {
         obj.name = file.name
         if (obj.fileType == FileType.FILE_TYPE_FOLDER) {
             file.mkdirs()
-            Logger.d("New dir created ${obj.uri}")
         }
         return file.absolutePath
     }

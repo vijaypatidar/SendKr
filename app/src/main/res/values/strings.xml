@@ -12,8 +12,8 @@
     <string name="developer">Developer Profile</string>
     <string name="app_description">An app for sending and receiving files with other without internet.</string>
     <string name="privacy_policy">Privacy Policy</string>
-    <string name="privacy_policy_url">https://vijaypatidar.me</string>
-    <string name="accept_policy">By using the app you agree to the SendKr <a href="https://vijaypatidar.me">privacy policy</a></string>
+    <string name="privacy_policy_url">https://vkp.page.link/skpp</string>
+    <string name="accept_policy">By using the app you agree to the SendKr <a href="https://vkp.page.link/skpp">privacy policy</a></string>
     <string name="cancel">Cancel</string>
     <string name="i_agree">I Agree</string>
     <string name="github_url">https://github.com/vijaypatidar</string>
@@ -74,5 +74,5 @@
     <string name="history_is_clear_message">You have not received any file yet or history is cleared.</string>
     <string name="camera_access_denied">camera access denied</string>
     <string name="close">Close</string>
-    <string name="app_share_message"><b>vijay</b><p>vij</p></string>
+    <string name="app_share_message">Hey,I am using SendKr app for sending and receiving files.It can send all types of file and folder.\nDownload app\nhttps://vkp.page.link/SendKr</string>
 </resources>

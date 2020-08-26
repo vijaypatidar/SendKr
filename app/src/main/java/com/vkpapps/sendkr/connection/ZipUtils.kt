@@ -8,7 +8,6 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class ZipUtils(private val requestInfo: RequestInfo) {
-    private val buffer = FileService.BUFFER
     private var bi = 0
 
     @Throws(IOException::class)
@@ -31,8 +30,8 @@ class ZipUtils(private val requestInfo: RequestInfo) {
             zos.putNextEntry(zipEntry)
             val `in`: InputStream = FileInputStream(path)
             var read: Int
-            while (`in`.read(buffer).also { read = it } > 0) {
-                zos.write(buffer, 0, read)
+            while (`in`.read(FileService.BUFFER).also { read = it } > 0) {
+                zos.write(FileService.BUFFER, 0, read)
                 requestInfo.transferred += read
             }
             zos.closeEntry()
@@ -50,8 +49,8 @@ class ZipUtils(private val requestInfo: RequestInfo) {
             file.parentFile?.mkdirs()
             val fos = FileOutputStream(file)
             var read: Int
-            while (zis.read(buffer).also { read = it } > 0) {
-                fos.write(buffer, 0, read)
+            while (zis.read(FileService.BUFFER).also { read = it } > 0) {
+                fos.write(FileService.BUFFER, 0, read)
                 requestInfo.transferred += read
             }
             fos.flush()

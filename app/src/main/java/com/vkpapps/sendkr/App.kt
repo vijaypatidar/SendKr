@@ -5,7 +5,6 @@ import android.content.Context
 import com.google.android.gms.ads.MobileAds
 import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.model.User
-import com.vkpapps.sendkr.utils.DownloadPathResolver
 import com.vkpapps.sendkr.utils.UserUtils
 
 /**
@@ -20,15 +19,11 @@ class App : Application() {
         context = applicationContext
         user = UserUtils(this).loadUser()
         Logger.logger = BuildConfig.DEBUG
-        downloadPathResolver = DownloadPathResolver(this)
     }
 
     companion object {
         @JvmStatic
         lateinit var user: User
-
-        @JvmStatic
-        lateinit var downloadPathResolver: DownloadPathResolver
 
         @JvmStatic
         lateinit var context: Context

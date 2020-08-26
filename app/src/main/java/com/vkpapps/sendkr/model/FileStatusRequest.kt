@@ -1,8 +1,8 @@
 package com.vkpapps.sendkr.model
 
-import java.io.Serializable
+import com.google.gson.annotations.Expose
 
 /***
  * @author VIJAY PATIDAR
  */
-class FileStatusRequest(var status: Int, var rid: String) : Serializable
+class FileStatusRequest(@Expose var status: Int, @Expose var rid: String)

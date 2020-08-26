@@ -27,6 +27,7 @@
         tools:targetApi="q">
         <activity
             android:name="com.vkpapps.sendkr.ui.activity.CreateAccessPointActivity"
+            android:exported="false"
             android:label="@string/create_group">
 
         </activity>

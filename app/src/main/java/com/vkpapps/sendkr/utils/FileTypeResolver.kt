@@ -2,7 +2,7 @@ package com.vkpapps.sendkr.utils
 
 import com.vkpapps.sendkr.model.constant.FileType
 
-object DownloadDestinationFolderResolver {
+object FileTypeResolver {
     fun getFileType(mimeType: String?): Int {
         return when {
             mimeType == null -> {

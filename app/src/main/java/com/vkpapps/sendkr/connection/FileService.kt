@@ -10,7 +10,11 @@ import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.model.constant.StatusType
 import com.vkpapps.sendkr.ui.activity.ConnectionActivity
 import com.vkpapps.sendkr.ui.activity.MainActivity
-import java.io.*
+import com.vkpapps.sendkr.utils.DownloadPathResolver
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
@@ -59,20 +63,20 @@ class FileService(private val send: Boolean,
         try {
             if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
-                clientHelper.write(FileRequest(true, requestInfo.rid))
+                clientHelper.send(FileRequest(true, requestInfo.rid))
             }
             val socket = getSocket()
             requestInfo.status = StatusType.STATUS_ONGOING
             onFileRequestReceiverListener.onRequestAccepted(requestInfo)
             if (requestInfo.uri == null) {
-                requestInfo.uri = Uri.fromFile(File(App.downloadPathResolver.getSource(requestInfo))).toString()
+                requestInfo.uri = Uri.fromFile(File(DownloadPathResolver.getSource(requestInfo))).toString()
             }
             val file = Uri.parse(requestInfo.uri).toFile()
             if (requestInfo.fileType == FileType.FILE_TYPE_FOLDER) {
                 val zipUtils = ZipUtils(requestInfo)
                 zipUtils.openInputStream(socket.getInputStream(), file)
             } else {
-                val inputStream = BufferedInputStream(socket.getInputStream())
+                val inputStream = socket.getInputStream()
                 val outputStream: OutputStream = FileOutputStream(file, true)
                 var read: Int
                 while (inputStream.read(BUFFER).apply { read = this } > 0) {
@@ -101,7 +105,7 @@ class FileService(private val send: Boolean,
         try {
             if (MainActivity.isHost) {
                 if (!clientHelper.connected) throw  Exception("client disconnected")
-                clientHelper.write(FileRequest(false, requestInfo.rid))
+                clientHelper.send(FileRequest(false, requestInfo.rid))
             }
             val socket = getSocket()
             requestInfo.status = StatusType.STATUS_ONGOING
@@ -139,7 +143,7 @@ class FileService(private val send: Boolean,
     companion object {
         @JvmField
         var HOST_ADDRESS: String? = null
-        private const val MAX_WAIT_TIME = 4000
+        private const val MAX_WAIT_TIME = 6000
         private const val PORT = 7511
         private const val BUFFER_SIZE = 10000
         val BUFFER = ByteArray(BUFFER_SIZE)

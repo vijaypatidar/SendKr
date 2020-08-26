@@ -1,16 +1,24 @@
 package com.vkpapps.sendkr.model
 
-import java.io.Serializable
+import com.google.gson.annotations.Expose
 
-class RequestInfo : Serializable {
+class RequestInfo {
+    @Expose
     var rid: String = ""
-    var sid: String = ""
+
     var cid: String = ""
+
+    @Expose
     var name: String = ""
 
     //used to decide destination folder
+    @Expose
     var fileType = 0
+
+    @Expose
     var size: Long = 0
+
+    var send: Boolean = false
 
     // generated at receiver side after checking file exists status is false
     var uri: String? = null
@@ -23,7 +31,7 @@ class RequestInfo : Serializable {
     fun clone(): RequestInfo {
         val clone = RequestInfo()
         clone.rid = rid
-        clone.sid = sid
+        clone.send = send
         clone.cid = cid
         clone.name = name
         clone.fileType = fileType

@@ -3,7 +3,7 @@ package com.vkpapps.sendkr.model
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.sendkr.model.constant.FileType
-import com.vkpapps.sendkr.utils.DownloadDestinationFolderResolver
+import com.vkpapps.sendkr.utils.FileTypeResolver
 import com.vkpapps.sendkr.utils.HashUtils
 
 class FileInfo(var file: DocumentFile, val size: Long) {
@@ -33,5 +33,5 @@ class FileInfo(var file: DocumentFile, val size: Long) {
         res
     }
 
-    val type: Int by lazy { if (file.isDirectory) FileType.FILE_TYPE_FOLDER else DownloadDestinationFolderResolver.getFileType(file.type) }
+    val type: Int by lazy { if (file.isDirectory) FileType.FILE_TYPE_FOLDER else FileTypeResolver.getFileType(file.type) }
 }

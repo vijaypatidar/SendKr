@@ -2,6 +2,9 @@ package com.vkpapps.sendkr.connection
 
 import com.vkpapps.sendkr.interfaces.OnClientConnectionStateListener
 import com.vkpapps.sendkr.interfaces.OnFileRequestListener
+import com.vkpapps.sendkr.model.FileRequest
+import com.vkpapps.sendkr.model.FileStatusRequest
+import com.vkpapps.sendkr.model.RequestInfo
 import com.vkpapps.sendkr.model.User
 import java.io.IOException
 import java.net.ServerSocket
@@ -38,7 +41,20 @@ class ServerHelper(private val onFileRequestListener: OnFileRequestListener,
 
     fun broadcast(command: Any) {
         for (c in clientHelpers) {
-            c.write(command)
+            when (command) {
+                is User -> {
+                    c.send(command)
+                }
+                is FileRequest -> {
+                    c.send(command)
+                }
+                is FileStatusRequest -> {
+                    c.send(command)
+                }
+                is RequestInfo -> {
+                    c.send(command)
+                }
+            }
         }
     }
 
@@ -62,5 +78,4 @@ class ServerHelper(private val onFileRequestListener: OnFileRequestListener,
             c.shutDown()
         }
     }
-
 }
