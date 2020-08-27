@@ -24,6 +24,10 @@ object MathUtils {
         }
     }
 
+    fun longToStringSizeGb(length: Double): String {
+        return "${roundTo(length / (1073741824))}"
+    }
+
     fun getFileDisplaySize(file: DocumentFile): String {
         var res = "0 byte"
         try {

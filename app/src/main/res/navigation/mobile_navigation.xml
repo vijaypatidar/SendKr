@@ -42,6 +42,9 @@
         <action
             android:id="@+id/action_navigation_home_to_navigation_dashboard"
             app:destination="@id/navigation_dashboard" />
+        <action
+            android:id="@+id/action_navigation_home_to_quickAccessFragment"
+            app:destination="@id/quickAccessFragment" />
     </fragment>
 
     <fragment
@@ -144,5 +147,13 @@
         android:name="com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment"
         android:label="Property"
         tools:layout="@layout/fragment_file_property_dialog" />
+    <fragment
+        android:id="@+id/quickAccessFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.QuickAccessFragment"
+        android:label="QuickAccessFragment">
+        <action
+            android:id="@+id/action_quickAccessFragment_to_transferringFragment"
+            app:destination="@id/transferringFragment" />
+    </fragment>
 
 </navigation>

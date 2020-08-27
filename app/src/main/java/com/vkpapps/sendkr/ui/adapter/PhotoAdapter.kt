@@ -5,20 +5,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.R
-import com.vkpapps.sendkr.model.PhotoInfo
+import com.vkpapps.sendkr.interfaces.OnMediaSelectListener
+import com.vkpapps.sendkr.model.MediaInfo
 import com.vkpapps.sendkr.utils.IntentUtils
 import com.vkpapps.sendkr.utils.MyThumbnailUtils
 
 /**
  * @author VIJAY PATIDAR
  */
-class PhotoAdapter(private val photoInfos: List<PhotoInfo>?, private val onPhotoSelectListener: OnPhotoSelectListener, view: View) : RecyclerView.Adapter<PhotoAdapter.MyHolder>() {
+class PhotoAdapter(private val photoInfos: List<MediaInfo>?, private val onMediaSelectListener: OnMediaSelectListener) : RecyclerView.Adapter<PhotoAdapter.MyHolder>() {
     private val myThumbnailUtils = MyThumbnailUtils
-    private val controller: NavController = Navigation.findNavController(view)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.photo_list_item, parent, false)
         return MyHolder(view)
@@ -31,13 +29,13 @@ class PhotoAdapter(private val photoInfos: List<PhotoInfo>?, private val onPhoto
             photoInfo.isSelected = !photoInfo.isSelected
             holder.btnSelected.visibility = if (photoInfo.isSelected) View.VISIBLE else View.GONE
             if (photoInfo.isSelected) {
-                onPhotoSelectListener.onPhotoSelected(photoInfo)
+                onMediaSelectListener.onMediaSelected(photoInfo)
             } else {
-                onPhotoSelectListener.onPhotoDeselected(photoInfo)
+                onMediaSelectListener.onMediaDeselected(photoInfo)
             }
         }
         holder.itemView.setOnLongClickListener {
-            onPhotoSelectListener.onPhotoLongClickListener(photoInfo)
+            onMediaSelectListener.onMediaLongClickListener(photoInfo)
             true
         }
         myThumbnailUtils.loadPhotoThumbnail(photoInfo.uri, holder.picture)
@@ -54,12 +52,6 @@ class PhotoAdapter(private val photoInfos: List<PhotoInfo>?, private val onPhoto
         val picture: AppCompatImageView = itemView.findViewById(R.id.picture)
         val btnSelected: AppCompatImageView = itemView.findViewById(R.id.btnSelect)
         val btnFullscreen: AppCompatImageButton = itemView.findViewById(R.id.btnFullscreen)
-    }
-
-    interface OnPhotoSelectListener {
-        fun onPhotoLongClickListener(photoInfo: PhotoInfo)
-        fun onPhotoSelected(photoInfo: PhotoInfo)
-        fun onPhotoDeselected(photoInfo: PhotoInfo)
     }
 
 }

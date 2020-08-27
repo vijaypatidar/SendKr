@@ -6,7 +6,7 @@
     android:background="@null">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="300dp"
+        android:layout_width="@dimen/alert_dialog_width"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_gravity="center"

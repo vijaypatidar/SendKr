@@ -20,6 +20,6 @@
     <item
         android:id="@+id/navigation_profile"
         android:checkable="false"
-        android:icon="@drawable/ic_profile_pic"
+        android:icon="@drawable/ic_male_avatar"
         android:title="@string/title_profile" />
 </menu>

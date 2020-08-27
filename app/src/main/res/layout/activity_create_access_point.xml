@@ -31,26 +31,16 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <LinearLayout
+                <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginHorizontal="10dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:text="@string/create_new_hotspot"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="14sp" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_weight="1"
-                        android:text="@string/create_new_hotspot"
-                        android:textColor="@color/colorAccent"
-                        android:textSize="14sp" />
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/ic_help" />
-                </LinearLayout>
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/btnCreateHotspot"
@@ -96,27 +86,16 @@
                     android:visibility="gone"
                     tools:visibility="visible">
 
-                    <LinearLayout
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_marginHorizontal="10dp"
                         android:layout_marginTop="10dp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:layout_weight="1"
-                            android:text="@string/use_existing_hotspot"
-                            android:textColor="@color/colorAccent"
-                            android:textSize="14sp" />
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:srcCompat="@drawable/ic_help" />
-                    </LinearLayout>
+                        android:orientation="horizontal"
+                        android:text="@string/use_existing_hotspot"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="14sp" />
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/btnUseExisting"
@@ -163,27 +142,17 @@
                     android:visibility="gone"
                     tools:visibility="visible">
 
-                    <LinearLayout
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_marginHorizontal="10dp"
                         android:layout_marginTop="10dp"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:text="@string/via_router"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="14sp" />
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:layout_weight="1"
-                            android:text="@string/via_router"
-                            android:textColor="@color/colorAccent"
-                            android:textSize="14sp" />
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:srcCompat="@drawable/ic_help" />
-                    </LinearLayout>
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/btnUseRouter"

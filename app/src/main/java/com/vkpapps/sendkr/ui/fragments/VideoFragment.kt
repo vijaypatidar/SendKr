@@ -19,14 +19,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
+import com.vkpapps.sendkr.interfaces.OnMediaSelectListener
 import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
-import com.vkpapps.sendkr.loader.PrepareDb
+import com.vkpapps.sendkr.model.MediaInfo
 import com.vkpapps.sendkr.model.RawRequestInfo
-import com.vkpapps.sendkr.model.VideoInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.room.liveViewModel.VideoViewModel
 import com.vkpapps.sendkr.ui.adapter.VideoAdapter
-import com.vkpapps.sendkr.ui.adapter.VideoAdapter.OnVideoSelectListener
 import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.sendkr.utils.MathUtils
@@ -40,17 +39,18 @@ import kotlinx.coroutines.withContext
 /***
  * @author VIJAY PATIDAR
  */
-class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
+class VideoFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
     companion object {
         private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
     }
 
-    private val videoInfos: MutableList<VideoInfo> = ArrayList()
+    private val videoInfos: MutableList<MediaInfo> = ArrayList()
     private var adapter: VideoAdapter? = null
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var selectedCount = 0
     private var controller: NavController? = null
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
+    private val videoViewModel by lazy { ViewModelProvider(requireActivity()).get(VideoViewModel::class.java) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -74,11 +74,11 @@ class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRe
         }
 
         swipeRefreshVideoList.setOnRefreshListener(this)
-        swipeRefreshVideoList.setColorSchemeResources(R.color.colorAccent)
 
-        val videoViewModel = ViewModelProvider(requireActivity()).get(VideoViewModel::class.java)
-        videoViewModel.videoInfos.observe(requireActivity(), androidx.lifecycle.Observer {
+        videoViewModel.videoInfosLiveData.observe(requireActivity(), {
             try {
+                selectedCount = 0
+                swipeRefreshVideoList?.hide()
                 if (it.isNotEmpty()) {
                     CoroutineScope(IO).launch {
                         it.forEach { item ->
@@ -178,12 +178,12 @@ class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRe
         onNavigationVisibilityListener = null
     }
 
-    override fun onVideoLongClickListener(videoInfo: VideoInfo) {
+    override fun onMediaLongClickListener(mediaInfo: MediaInfo) {
         controller?.navigate(object : NavDirections {
             override fun getArguments(): Bundle {
                 return Bundle().apply {
-                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, videoInfo.id)
-                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, videoInfo.uri.toString())
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, mediaInfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, mediaInfo.uri.toString())
                 }
             }
 
@@ -193,12 +193,12 @@ class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRe
         })
     }
 
-    override fun onVideoSelected(videoInfo: VideoInfo) {
+    override fun onMediaSelected(mediaInfo: MediaInfo) {
         selectedCount++
         hideShowSendButton()
     }
 
-    override fun onVideoDeselected(videoInfo: VideoInfo) {
+    override fun onMediaDeselected(mediaInfo: MediaInfo) {
         selectedCount--
         hideShowSendButton()
     }
@@ -239,12 +239,7 @@ class VideoFragment : Fragment(), OnVideoSelectListener, SwipeRefreshLayout.OnRe
 
     override fun onRefresh() {
         Logger.d("[VideoFragment][onRefresh]")
-        CoroutineScope(IO).launch {
-            PrepareDb().prepareVideo()
-            withContext(Main) {
-                swipeRefreshVideoList.isRefreshing = false
-            }
-        }
+        videoViewModel.refreshData()
     }
 
     override fun onFilterBy(sortBy: Int) {

@@ -2,32 +2,30 @@ package com.vkpapps.sendkr.room.liveViewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
-import com.vkpapps.sendkr.model.PhotoInfo
-import com.vkpapps.sendkr.room.database.MyRoomDatabase
-import com.vkpapps.sendkr.room.repository.PhotoRepository
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.MutableLiveData
+import com.vkpapps.sendkr.loader.PrepareDb
+import com.vkpapps.sendkr.model.MediaInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
 class PhotoViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: PhotoRepository = PhotoRepository(MyRoomDatabase.getDatabase(application).photoDao())
-
-    val photoInfos: LiveData<List<PhotoInfo>>
-
-    init {
-        photoInfos = repository.allPhotoInfo
+    companion object {
+        val photoInfos = ArrayList<MediaInfo>()
     }
 
-    /**
-     * Launching a new coroutine to insert the data in a non-blocking way
-     */
-    fun insert(photoInfo: PhotoInfo) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insert(photoInfo)
+    val photoInfosLiveData = MutableLiveData(photoInfos)
+
+    private fun notifyDataChange() {
+        photoInfosLiveData.postValue(photoInfos)
     }
 
-    fun insertAll(photoInfo: List<PhotoInfo>) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insertAll(photoInfo)
+    fun refreshData() {
+        CoroutineScope(IO).launch {
+            PrepareDb().preparePhoto()
+            notifyDataChange()
+        }
     }
+
 }

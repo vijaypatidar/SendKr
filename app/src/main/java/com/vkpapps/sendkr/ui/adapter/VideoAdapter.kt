@@ -8,7 +8,8 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.R
-import com.vkpapps.sendkr.model.VideoInfo
+import com.vkpapps.sendkr.interfaces.OnMediaSelectListener
+import com.vkpapps.sendkr.model.MediaInfo
 import com.vkpapps.sendkr.utils.IntentUtils
 import com.vkpapps.sendkr.utils.MathUtils
 import com.vkpapps.sendkr.utils.MyThumbnailUtils
@@ -16,7 +17,7 @@ import com.vkpapps.sendkr.utils.MyThumbnailUtils
 /**
  * @author VIJAY PATIDAR
  */
-class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideoSelectListener: OnVideoSelectListener) : RecyclerView.Adapter<VideoAdapter.MyHolder>() {
+class VideoAdapter(private val videoInfos: List<MediaInfo>?, private val onMediaSelectListener: OnMediaSelectListener) : RecyclerView.Adapter<VideoAdapter.MyHolder>() {
     private val myThumbnailUtils = MyThumbnailUtils
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.video_list_item, parent, false)
@@ -32,16 +33,16 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideo
             videoInfo.isSelected = !videoInfo.isSelected
             holder.btnSelected.isChecked = videoInfo.isSelected
             if (videoInfo.isSelected) {
-                onVideoSelectListener.onVideoSelected(videoInfo)
+                onMediaSelectListener.onMediaSelected(videoInfo)
             } else {
-                onVideoSelectListener.onVideoDeselected(videoInfo)
+                onMediaSelectListener.onMediaDeselected(videoInfo)
             }
         }
         holder.picture.setOnClickListener {
             IntentUtils.startActionViewIntent(it.context, videoInfo.uri)
         }
         holder.itemView.setOnLongClickListener {
-            onVideoSelectListener.onVideoLongClickListener(videoInfo)
+            onMediaSelectListener.onMediaLongClickListener(videoInfo)
             true
         }
         myThumbnailUtils.loadVideoThumbnail(videoInfo.id, videoInfo.uri, holder.picture)
@@ -58,11 +59,4 @@ class VideoAdapter(private val videoInfos: List<VideoInfo>?, private val onVideo
         val size: AppCompatTextView = itemView.findViewById(R.id.size)
 
     }
-
-    interface OnVideoSelectListener {
-        fun onVideoLongClickListener(videoInfo: VideoInfo)
-        fun onVideoSelected(videoInfo: VideoInfo)
-        fun onVideoDeselected(videoInfo: VideoInfo)
-    }
-
 }

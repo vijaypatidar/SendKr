@@ -16,11 +16,8 @@ class UpdateManager {
         // Checks that the platform will allow the specified type of update.
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                // Request the update.
-                if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-                } else if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-
-                }
+                appUpdateManager.startUpdateFlowForResult(appUpdateInfo,
+                        AppUpdateType.FLEXIBLE, context, 0)
             }
         }
     }

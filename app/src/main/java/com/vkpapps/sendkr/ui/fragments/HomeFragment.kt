@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.R
@@ -73,6 +74,16 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             controller.navigate(getDestination(2))
         }
 
+        documents.setOnClickListener {
+            openQuickAccess(QuickAccessFragment.TYPE_DOCUMENTS)
+        }
+        apk.setOnClickListener {
+            openQuickAccess(QuickAccessFragment.TYPE_APK)
+        }
+        zips.setOnClickListener {
+            openQuickAccess(QuickAccessFragment.TYPE_ZIPS)
+        }
+
         internal.setOnClickListener {
             val internal = StorageManager(requireContext()).internal
             Navigation.findNavController(view).navigate(object : NavDirections {
@@ -89,7 +100,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             })
         }
         external.setOnClickListener {
-
             Navigation.findNavController(view).navigate(object : NavDirections {
                 override fun getActionId(): Int {
                     return R.id.action_navigation_home_to_files
@@ -102,7 +112,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                     return bundle
                 }
             })
-
         }
         setupHistory()
 
@@ -110,7 +119,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
         try {
             val statFs = StatFs(StorageManager(requireContext()).internal.path)
-            internalProgressText.text = "${MathUtils.longToStringSize(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSize(statFs.totalBytes.toDouble())}"
+            internalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSizeGb(statFs.totalBytes.toDouble())}GB"
             val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
             progressBarInternal.progress = progress
         } catch (e: Exception) {
@@ -125,7 +134,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                     if (indexOf != -1)
                         externalStoragePath = externalStoragePath.subSequence(0, indexOf).toString()
                     val statFs = StatFs(it.path)
-                    externalProgressText.text = "${MathUtils.longToStringSize(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSize(statFs.totalBytes.toDouble())}"
+                    externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSizeGb(statFs.totalBytes.toDouble())}GB"
                     val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
                     progressBarExternal.progress = progress
                 }
@@ -134,6 +143,21 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             external.visibility = View.GONE
             e.printStackTrace()
         }
+    }
+
+    private fun openQuickAccess(type: Int = QuickAccessFragment.TYPE_DOCUMENTS) {
+        findNavController().navigate(object : NavDirections {
+            override fun getActionId(): Int {
+                return R.id.action_navigation_home_to_quickAccessFragment
+            }
+
+            override fun getArguments(): Bundle {
+                return Bundle().apply {
+                    putInt(QuickAccessFragment.PARAM_TYPE, type)
+                }
+            }
+        })
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -165,6 +189,13 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                 intent.type = "text/plain"
                 intent.putExtra(Intent.EXTRA_TEXT, share)
                 requireActivity().startActivity(Intent.createChooser(intent, "Share with"))
+            }
+            R.id.menu_feedback -> {
+                val intent = Intent(Intent.ACTION_SENDTO)
+                intent.data = Uri.parse("mailto:vkramotiya987@gmail.com")
+                intent.putExtra(Intent.EXTRA_SUBJECT, "SendKr feedback")
+                intent.putExtra(Intent.EXTRA_TEXT, "Hi! Developer\n")
+                requireActivity().startActivity(Intent.createChooser(intent, "Send with"))
             }
         }
         return super.onOptionsItemSelected(item)

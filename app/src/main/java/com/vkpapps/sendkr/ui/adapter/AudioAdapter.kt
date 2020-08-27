@@ -13,7 +13,8 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
-import com.vkpapps.sendkr.model.AudioInfo
+import com.vkpapps.sendkr.interfaces.OnMediaSelectListener
+import com.vkpapps.sendkr.model.MediaInfo
 import com.vkpapps.sendkr.ui.adapter.AudioAdapter.AudioViewHolder
 import com.vkpapps.sendkr.utils.IntentUtils
 import com.vkpapps.sendkr.utils.MyThumbnailUtils
@@ -22,7 +23,7 @@ import com.vkpapps.sendkr.utils.MyThumbnailUtils
 /**
  * @author VIJAY PATIDAR
  */
-class AudioAdapter(private val audioInfos: MutableList<AudioInfo>, private val onAudioSelectedListener: OnAudioSelectedListener, context: Context) : RecyclerView.Adapter<AudioViewHolder>() {
+class AudioAdapter(private val mediaInfos: MutableList<MediaInfo>, private val onMediaSelectListener: OnMediaSelectListener, context: Context) : RecyclerView.Adapter<AudioViewHolder>() {
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     private val myThumbnailUtils = MyThumbnailUtils
 
@@ -32,7 +33,7 @@ class AudioAdapter(private val audioInfos: MutableList<AudioInfo>, private val o
     }
 
     override fun onBindViewHolder(holder: AudioViewHolder, position: Int) {
-        val audioinfo = audioInfos[position]
+        val audioinfo = mediaInfos[position]
 
         holder.audioTitle.text = audioinfo.name
         holder.btnSelect.isChecked = audioinfo.isSelected
@@ -40,9 +41,9 @@ class AudioAdapter(private val audioInfos: MutableList<AudioInfo>, private val o
             audioinfo.isSelected = !audioinfo.isSelected
             holder.btnSelect.isChecked = audioinfo.isSelected
             if (audioinfo.isSelected) {
-                onAudioSelectedListener.onAudioSelected(audioinfo)
+                onMediaSelectListener.onMediaSelected(audioinfo)
             } else {
-                onAudioSelectedListener.onAudioDeselected(audioinfo)
+                onMediaSelectListener.onMediaDeselected(audioinfo)
             }
         }
         holder.audioIcon.setOnClickListener {
@@ -63,7 +64,7 @@ class AudioAdapter(private val audioInfos: MutableList<AudioInfo>, private val o
             }
         }
         holder.itemView.setOnLongClickListener {
-            onAudioSelectedListener.onAudioLongClickListener(audioinfo)
+            onMediaSelectListener.onMediaLongClickListener(audioinfo)
             true
         }
         myThumbnailUtils.loadAudioThumbnail(audioinfo.id, audioinfo.uri, holder.audioIcon)
@@ -71,18 +72,12 @@ class AudioAdapter(private val audioInfos: MutableList<AudioInfo>, private val o
     }
 
     override fun getItemCount(): Int {
-        return audioInfos.size
+        return mediaInfos.size
     }
 
     class AudioViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var audioTitle: TextView = itemView.findViewById(R.id.audio_title)
         var audioIcon: AppCompatImageView = itemView.findViewById(R.id.audio_icon)
         var btnSelect: RadioButton = itemView.findViewById(R.id.btnSelect)
-    }
-
-    interface OnAudioSelectedListener {
-        fun onAudioLongClickListener(audioinfo: AudioInfo)
-        fun onAudioSelected(audioMode: AudioInfo)
-        fun onAudioDeselected(audioinfo: AudioInfo)
     }
 }

@@ -18,14 +18,13 @@ import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
+import com.vkpapps.sendkr.interfaces.OnMediaSelectListener
 import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
-import com.vkpapps.sendkr.loader.PrepareDb
-import com.vkpapps.sendkr.model.PhotoInfo
+import com.vkpapps.sendkr.model.MediaInfo
 import com.vkpapps.sendkr.model.RawRequestInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.room.liveViewModel.PhotoViewModel
 import com.vkpapps.sendkr.ui.adapter.PhotoAdapter
-import com.vkpapps.sendkr.ui.adapter.PhotoAdapter.OnPhotoSelectListener
 import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.sendkr.utils.MathUtils
@@ -40,17 +39,19 @@ import java.util.*
 /***
  * @author VIJAY PATIDAR
  */
-class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
+class PhotoFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
     companion object {
         private var sortBy = FilterDialogFragment.SORT_BY_LATEST_FIRST
     }
 
     private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
-    private val photoInfos: MutableList<PhotoInfo> = ArrayList()
+    private val photoInfos: MutableList<MediaInfo> = ArrayList()
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var photoAdapter: PhotoAdapter? = null
     private var selectedCount = 0
     private var controller: NavController? = null
+    private val photoViewModel by lazy { ViewModelProvider(requireActivity()).get(PhotoViewModel::class.java) }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_photo, container, false)
@@ -61,7 +62,7 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRe
         setHasOptionsMenu(true)
         controller = Navigation.findNavController(view)
         photoList.layoutManager = GridLayoutManager(requireContext(), 3)
-        photoAdapter = PhotoAdapter(photoInfos, this, view)
+        photoAdapter = PhotoAdapter(photoInfos, this)
         photoList.adapter = photoAdapter
         photoList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
@@ -71,11 +72,11 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRe
             }
         }
         swipeRefreshPhotoList.setOnRefreshListener(this)
-        swipeRefreshPhotoList.setColorSchemeResources(R.color.colorAccent)
 
-        val photoViewModel = ViewModelProvider(requireActivity()).get(PhotoViewModel::class.java)
-        photoViewModel.photoInfos.observe(requireActivity(), androidx.lifecycle.Observer {
+        photoViewModel.photoInfosLiveData.observe(requireActivity(), {
             try {
+                selectedCount = 0
+                swipeRefreshPhotoList?.hide()
                 if (it.isNotEmpty()) {
                     CoroutineScope(IO).launch {
                         it.forEach { item ->
@@ -206,12 +207,12 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRe
         selectionView.changeVisibility(selectedCount)
     }
 
-    override fun onPhotoLongClickListener(photoInfo: PhotoInfo) {
+    override fun onMediaLongClickListener(mediaInfo: MediaInfo) {
         controller?.navigate(object : NavDirections {
             override fun getArguments(): Bundle {
                 return Bundle().apply {
-                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, photoInfo.id)
-                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, photoInfo.uri.toString())
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, mediaInfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, mediaInfo.uri.toString())
                 }
             }
 
@@ -221,23 +222,18 @@ class PhotoFragment : Fragment(), OnPhotoSelectListener, SwipeRefreshLayout.OnRe
         })
     }
 
-    override fun onPhotoSelected(photoInfo: PhotoInfo) {
+    override fun onMediaSelected(mediaInfo: MediaInfo) {
         selectedCount++
         hideShowSendButton()
     }
 
-    override fun onPhotoDeselected(photoInfo: PhotoInfo) {
+    override fun onMediaDeselected(mediaInfo: MediaInfo) {
         selectedCount--
         hideShowSendButton()
     }
 
     override fun onRefresh() {
-        CoroutineScope(IO).launch {
-            PrepareDb().preparePhoto()
-            withContext(Main) {
-                swipeRefreshPhotoList.isRefreshing = false
-            }
-        }
+        photoViewModel.refreshData()
     }
 
     override fun onFilterBy(sortBy: Int) {

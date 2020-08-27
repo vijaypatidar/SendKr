@@ -5,23 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.vkpapps.sendkr.model.AudioInfo
 import com.vkpapps.sendkr.model.HistoryInfo
-import com.vkpapps.sendkr.model.PhotoInfo
-import com.vkpapps.sendkr.model.VideoInfo
-import com.vkpapps.sendkr.room.dao.AudioDao
 import com.vkpapps.sendkr.room.dao.HistoryDao
-import com.vkpapps.sendkr.room.dao.PhotoDao
-import com.vkpapps.sendkr.room.dao.VideoDao
 import com.vkpapps.sendkr.room.typeConverter.UriConverter
 
-@Database(entities = [PhotoInfo::class, AudioInfo::class, VideoInfo::class, HistoryInfo::class], version = 1, exportSchema = false)
+@Database(entities = [HistoryInfo::class], version = 1, exportSchema = false)
 @TypeConverters(UriConverter::class)
 abstract class MyRoomDatabase : RoomDatabase() {
-
-    abstract fun photoDao(): PhotoDao
-    abstract fun audioDao(): AudioDao
-    abstract fun videoDao(): VideoDao
     abstract fun historyDao(): HistoryDao
 
 
@@ -40,7 +30,7 @@ abstract class MyRoomDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                         context.applicationContext,
                         MyRoomDatabase::class.java,
-                        "word_database"
+                        "historyDB"
                 ).build()
                 INSTANCE = instance
                 return instance

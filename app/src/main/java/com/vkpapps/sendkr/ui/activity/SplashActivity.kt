@@ -37,36 +37,33 @@ class SplashActivity : AppCompatActivity() {
         send.typeface = typeface
         kr.typeface = typeface
 
-        val arrayList = ArrayList<Parcelable>()
-        when (intent?.action) {
-            Intent.ACTION_SEND -> {
-                (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM))?.let {
-                    arrayList.add(it)
+        CoroutineScope(IO).launch {
+            val arrayList = ArrayList<Parcelable>()
+            when (intent?.action) {
+                Intent.ACTION_SEND -> {
+                    (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM))?.let {
+                        arrayList.add(it)
+                    }
+                }
+                Intent.ACTION_SEND_MULTIPLE -> {
+                    intent.getParcelableArrayListExtra<Parcelable>(Intent.EXTRA_STREAM)?.let { list ->
+                        arrayList.addAll(list)
+                    }
                 }
             }
-            Intent.ACTION_SEND_MULTIPLE -> {
-                intent.getParcelableArrayListExtra<Parcelable>(Intent.EXTRA_STREAM)?.let { list ->
-                    arrayList.addAll(list)
-                }
-            }
+            loadData(arrayList)
         }
-        loadData(arrayList)
         createNotificationChannel()
     }
 
-    private fun loadData(list: ArrayList<Parcelable>) {
+    private suspend fun loadData(list: ArrayList<Parcelable>) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("shared", list)
         if (PermissionUtils.checkStoragePermission(this) && !App.databasePrepared) {
-            CoroutineScope(IO).launch {
-                PrepareDb().prepareAll()
-                App.databasePrepared = true
-                withContext(Main) {
-                    startActivity(intent)
-                    finish()
-                }
-            }
-        } else {
+            PrepareDb().prepareAll()
+            App.databasePrepared = true
+        }
+        withContext(Main) {
             startActivity(intent)
             finish()
         }

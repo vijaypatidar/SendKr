@@ -1,38 +1,29 @@
 package com.vkpapps.sendkr.loader
 
-import com.vkpapps.sendkr.App
-import com.vkpapps.sendkr.room.database.MyRoomDatabase
-import com.vkpapps.sendkr.room.repository.AudioRepository
-import com.vkpapps.sendkr.room.repository.PhotoRepository
-import com.vkpapps.sendkr.room.repository.VideoRepository
+import com.vkpapps.sendkr.room.liveViewModel.AudioViewModel
+import com.vkpapps.sendkr.room.liveViewModel.PhotoViewModel
+import com.vkpapps.sendkr.room.liveViewModel.VideoViewModel
 
 class PrepareDb {
-    suspend fun prepareAll() {
+    fun prepareAll() {
         prepareAudio()
         prepareVideo()
         preparePhoto()
         PrepareAppList.appList
     }
 
-    suspend fun prepareAudio() {
-        val database = MyRoomDatabase.getDatabase(App.context)
-        val audioDao = database.audioDao()
-        audioDao.deleteAll()
-        AudioRepository(audioDao).insertAll(PrepareAudioList().getList())
-
+    fun prepareAudio() {
+        AudioViewModel.audioInfos.clear()
+        AudioViewModel.audioInfos.addAll(PrepareAudioList().getList())
     }
 
-    suspend fun preparePhoto() {
-        val database = MyRoomDatabase.getDatabase(App.context)
-        val photoDao = database.photoDao()
-        photoDao.deleteAll()
-        PhotoRepository(photoDao).insertAll(PreparePhotoList().getList())
+    fun preparePhoto() {
+        PhotoViewModel.photoInfos.clear()
+        PhotoViewModel.photoInfos.addAll(PreparePhotoList().getList())
     }
 
-    suspend fun prepareVideo() {
-        val database = MyRoomDatabase.getDatabase(App.context)
-        val videoDao = database.videoDao()
-        videoDao.deleteAll()
-        VideoRepository(videoDao).insertAll(PrepareVideoList().getList())
+    fun prepareVideo() {
+        VideoViewModel.videoInfos.clear()
+        VideoViewModel.videoInfos.addAll(PrepareVideoList().getList())
     }
 }

@@ -2,32 +2,31 @@ package com.vkpapps.sendkr.room.liveViewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
-import com.vkpapps.sendkr.model.VideoInfo
-import com.vkpapps.sendkr.room.database.MyRoomDatabase
-import com.vkpapps.sendkr.room.repository.VideoRepository
+import androidx.lifecycle.MutableLiveData
+import com.vkpapps.sendkr.loader.PrepareDb
+import com.vkpapps.sendkr.model.MediaInfo
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class VideoViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: VideoRepository = VideoRepository(MyRoomDatabase.getDatabase(application).videoDao())
-
-    val videoInfos: LiveData<List<VideoInfo>>
-
-    init {
-        videoInfos = repository.allVideoInfo
+    companion object {
+        val videoInfos = ArrayList<MediaInfo>()
     }
 
-    /**
-     * Launching a new coroutine to insert the data in a non-blocking way
-     */
-    fun insert(videoInfo: VideoInfo) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insert(videoInfo)
+    val videoInfosLiveData = MutableLiveData(videoInfos)
+
+    private fun notifyDataChange() {
+        videoInfosLiveData.postValue(VideoViewModel.videoInfos)
     }
 
-    fun insertAll(videoInfo: List<VideoInfo>) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insertAll(videoInfo)
+    fun refreshData() {
+        CoroutineScope(Dispatchers.IO).launch {
+            PrepareDb().prepareVideo()
+            notifyDataChange()
+        }
     }
+
+
 }

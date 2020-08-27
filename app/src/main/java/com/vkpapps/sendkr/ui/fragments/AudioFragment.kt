@@ -20,14 +20,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
+import com.vkpapps.sendkr.interfaces.OnMediaSelectListener
 import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
-import com.vkpapps.sendkr.loader.PrepareDb
-import com.vkpapps.sendkr.model.AudioInfo
+import com.vkpapps.sendkr.model.MediaInfo
 import com.vkpapps.sendkr.model.RawRequestInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.room.liveViewModel.AudioViewModel
 import com.vkpapps.sendkr.ui.adapter.AudioAdapter
-import com.vkpapps.sendkr.ui.adapter.AudioAdapter.OnAudioSelectedListener
 import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.sendkr.utils.MathUtils
@@ -41,7 +40,7 @@ import kotlinx.coroutines.withContext
 /**
  * @author VIJAY PATIDAR
  */
-class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
+class AudioFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
 
     companion object {
         private var sortBy = FilterDialogFragment.SORT_BY_NAME
@@ -51,8 +50,9 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
     private var selectedCount = 0
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var controller: NavController? = null
-    private val audioInfos: MutableList<AudioInfo> = ArrayList()
+    private val mediaInfos: MutableList<MediaInfo> = ArrayList()
     private var audioAdapter: AudioAdapter? = null
+    private val audioViewModel by lazy { ViewModelProvider(requireActivity()).get(AudioViewModel::class.java) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -63,8 +63,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
         controller = Navigation.findNavController(view)
-
-        audioAdapter = AudioAdapter(audioInfos, this, view.context)
+        audioAdapter = AudioAdapter(mediaInfos, this, view.context)
         audioList.itemAnimator = DefaultItemAnimator()
         audioList.layoutManager = LinearLayoutManager(view.context)
         audioList.adapter = audioAdapter
@@ -79,13 +78,12 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
             }
         }
         swipeRefreshAudioList.setOnRefreshListener(this)
-        swipeRefreshAudioList.setColorSchemeResources(R.color.colorAccent)
-
         //load music
-        val audioViewModel = ViewModelProvider(requireActivity()).get(AudioViewModel::class.java)
-        audioViewModel.audioInfos.observe(requireActivity(), {
+        audioViewModel.mediaInfosLiveData.observe(requireActivity(), {
             Logger.d("on audio changes")
             try {
+                selectedCount = 0
+                swipeRefreshAudioList?.hide()
                 if (it.isNotEmpty()) {
                     CoroutineScope(IO).launch {
                         it.forEach { item ->
@@ -97,8 +95,8 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
                             hideShowSendButton()
                         }
                     }
-                    audioInfos.clear()
-                    audioInfos.addAll(it)
+                    mediaInfos.clear()
+                    mediaInfos.addAll(it)
                     sort()
                     audioAdapter?.notifyDataSetChanged()
                     emptyMusic.visibility = View.GONE
@@ -115,7 +113,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
-                audioInfos.forEach {
+                mediaInfos.forEach {
                     if (it.isSelected) {
                         it.isSelected = false
                         selected.add(RawRequestInfo(
@@ -135,7 +133,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
         selectionView.btnSelectNon.setOnClickListener {
             if (selectedCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
-                audioInfos.forEach {
+                mediaInfos.forEach {
                     it.isSelected = false
                 }
                 selectedCount = 0
@@ -149,7 +147,7 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
         selectionView.btnSelectAll.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectedCount = 0
-                audioInfos.forEach {
+                mediaInfos.forEach {
                     it.isSelected = true
                     selectedCount++
                 }
@@ -171,12 +169,12 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
 
     }
 
-    override fun onAudioLongClickListener(audioinfo: AudioInfo) {
+    override fun onMediaLongClickListener(mediaInfo: MediaInfo) {
         controller?.navigate(object : NavDirections {
             override fun getArguments(): Bundle {
                 return Bundle().apply {
-                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, audioinfo.id)
-                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, audioinfo.uri.toString())
+                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, mediaInfo.id)
+                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, mediaInfo.uri.toString())
                 }
             }
 
@@ -186,12 +184,12 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
         })
     }
 
-    override fun onAudioSelected(audioMode: AudioInfo) {
+    override fun onMediaSelected(mediaInfo: MediaInfo) {
         selectedCount++
         hideShowSendButton()
     }
 
-    override fun onAudioDeselected(audioinfo: AudioInfo) {
+    override fun onMediaDeselected(mediaInfo: MediaInfo) {
         selectedCount--
         hideShowSendButton()
     }
@@ -225,40 +223,35 @@ class AudioFragment : Fragment(), OnAudioSelectedListener, SwipeRefreshLayout.On
     private fun sort() {
         when (sortBy) {
             FilterDialogFragment.SORT_BY_NAME -> {
-                audioInfos.sortBy { audioInfo -> audioInfo.name }
+                mediaInfos.sortBy { audioInfo -> audioInfo.name }
             }
             FilterDialogFragment.SORT_BY_NAME_Z_TO_A -> {
-                audioInfos.sortBy { audioInfo -> audioInfo.name }
-                audioInfos.reverse()
+                mediaInfos.sortBy { audioInfo -> audioInfo.name }
+                mediaInfos.reverse()
             }
             FilterDialogFragment.SORT_BY_OLDEST_FIRST -> {
-                audioInfos.sortBy { audioInfo -> audioInfo.lastModified }
+                mediaInfos.sortBy { audioInfo -> audioInfo.lastModified }
             }
             FilterDialogFragment.SORT_BY_LATEST_FIRST -> {
-                audioInfos.sortBy { audioInfo -> audioInfo.lastModified * -1 }
+                mediaInfos.sortBy { audioInfo -> audioInfo.lastModified * -1 }
             }
             FilterDialogFragment.SORT_BY_SIZE_ASC -> {
-                audioInfos.sortBy { audioInfo -> audioInfo.size }
+                mediaInfos.sortBy { audioInfo -> audioInfo.size }
             }
             FilterDialogFragment.SORT_BY_SIZE_DSC -> {
-                audioInfos.sortBy { audioInfo -> audioInfo.size * -1 }
+                mediaInfos.sortBy { audioInfo -> audioInfo.size * -1 }
             }
         }
     }
 
     override fun onRefresh() {
-        CoroutineScope(IO).launch {
-            PrepareDb().prepareAudio()
-            withContext(Main) {
-                swipeRefreshAudioList.isRefreshing = false
-            }
-        }
+        audioViewModel.refreshData()
     }
 
     override fun onFilterBy(sortBy: Int) {
         AudioFragment.sortBy = sortBy
         CoroutineScope(IO).launch {
-            if (!audioInfos.isNullOrEmpty()) {
+            if (!mediaInfos.isNullOrEmpty()) {
                 sort()
                 withContext(Main) {
                     audioAdapter?.notifyDataSetChanged()

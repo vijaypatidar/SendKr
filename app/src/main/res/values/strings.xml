@@ -62,7 +62,7 @@
     <string name="waiting_for_receiver">Waiting for receiver…</string>
     <string name="ok">OK</string>
     <string name="show_hidden_files">Show hidden files</string>
-    <string name="show_hidden_file_detail">Don\'t show hidden file and folder.</string>
+    <string name="show_hidden_file_detail">No impact on sharing folder.</string>
     <string name="clear_history_detail">This will not delete files from storage.</string>
     <string name="connected_devices">Connected devices</string>
     <string name="scan_connection_code">Scan Connection Code</string>
@@ -73,7 +73,6 @@
     <string name="quick_access">Quick access</string>
     <string name="history_is_clear_message">You have not received any file yet or history is cleared.</string>
     <string name="camera_access_denied">camera access denied</string>
-    <string name="close">Close</string>
     <string name="app_share_message">Hey,I am using SendKr app for sending and receiving files.It can send all types of file and folder.\nDownload app\nhttps://vkp.page.link/SendKr</string>
     <string name="create_new_hotspot">Create new access point</string>
     <string name="use_existing_hotspot">Use existing access point</string>
@@ -92,4 +91,9 @@
     <string name="Continue">Continue</string>
     <string name="please_wait">Please wait…</string>
     <string name="scan_amp_connect"><![CDATA[SCAN & CONNECT]]></string>
+    <string name="title_feedback">Feedback</string>
+    <string name="zip">Zip</string>
+    <string name="documents">Documents</string>
+    <string name="apk">APK</string>
+    <string name="empty">nothing to show</string>
 </resources>

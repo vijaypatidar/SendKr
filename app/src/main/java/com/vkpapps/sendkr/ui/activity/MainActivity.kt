@@ -46,6 +46,7 @@ import com.vkpapps.sendkr.model.RequestInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.model.constant.StatusType
 import com.vkpapps.sendkr.room.liveViewModel.HistoryViewModel
+import com.vkpapps.sendkr.room.liveViewModel.QuickAccessViewModel
 import com.vkpapps.sendkr.room.liveViewModel.RequestViewModel
 import com.vkpapps.sendkr.ui.dialog.DialogsUtils
 import com.vkpapps.sendkr.ui.dialog.PrivacyDialog
@@ -58,6 +59,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -77,6 +79,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     private var transferringCountTextView: AppCompatTextView? = null
     private val requestViewModel: RequestViewModel by lazy { ViewModelProvider(this).get(RequestViewModel::class.java) }
     private val historyViewModel: HistoryViewModel by lazy { ViewModelProvider(this).get(HistoryViewModel::class.java) }
+    private val quickAccessViewModel: QuickAccessViewModel by lazy { ViewModelProvider(this).get(QuickAccessViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,6 +106,13 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         fileToShare()
         updateTransferringProgressBar()
         PrivacyDialog(this).isPolicyAccepted
+        quickAccessViewModel.refreshData()
+
+        if (BuildConfig.DEBUG) {
+            historyViewModel.insert(
+                    HistoryInfo("requestInfo.rid", "requestInfo.name", Uri.parse(""), 1)
+            )
+        }
     }
 
     private fun setProfileActionView() {
@@ -520,21 +530,28 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     private fun fileToShare() {
         if (PermissionUtils.checkStoragePermission(this)) {
-            val toShare = intent.getParcelableArrayListExtra<Parcelable>("shared")
-            if (toShare != null) {
-                val rawRequestInfos = ArrayList<RawRequestInfo>()
-                toShare.forEach {
-                    val uri = it as Uri
-                    val file = DocumentFile.fromSingleUri(this@MainActivity, uri)
-                    file?.run {
-                        try {
-                            rawRequestInfos.add(RawRequestInfo(file.name!!, file.uri, FileTypeResolver.getFileType(file.type), file.length()))
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+            val loading = DialogsUtils(this@MainActivity).alertLoadingDialog()
+            loading.show()
+            CoroutineScope(IO).launch {
+                val toShare = intent.getParcelableArrayListExtra<Parcelable>("shared")
+                if (toShare != null) {
+                    val rawRequestInfos = ArrayList<RawRequestInfo>()
+                    toShare.forEach {
+                        val uri = it as Uri
+                        val file = DocumentFile.fromSingleUri(this@MainActivity, uri)
+                        file?.run {
+                            try {
+                                rawRequestInfos.add(RawRequestInfo(file.name!!, file.uri, FileTypeResolver.getFileType(file.type), file.length()))
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
                         }
                     }
+                    sendFiles(rawRequestInfos)
                 }
-                sendFiles(rawRequestInfos)
+                withContext(Main) {
+                    loading.cancel()
+                }
             }
         } else {
             PermissionUtils.askStoragePermission(this, ASK_PERMISSION_FROM_SHARED_INTENT)

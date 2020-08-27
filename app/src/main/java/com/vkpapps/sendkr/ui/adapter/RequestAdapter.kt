@@ -109,43 +109,48 @@ class RequestAdapter(context: Context, private val onFileStatusChangeListener: O
             StatusType.STATUS_PENDING -> {
                 holder.status.setImageResource(R.drawable.ic_pending)
                 setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
-                setIconType(holder.thumbnail, requestInfo.fileType)
+                setIconType(holder.thumbnail, requestInfo)
             }
             StatusType.STATUS_ONGOING -> {
                 holder.status.setImageResource(R.drawable.ic_action_pause)
-                setIconType(holder.thumbnail, requestInfo.fileType)
+                setIconType(holder.thumbnail, requestInfo)
                 setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
             }
             StatusType.STATUS_COMPLETED -> {
                 holder.status.setImageResource(R.drawable.ic_status_completed)
                 holder.progress.setProgress(100f)
-                try {
-                    MyThumbnailUtils.loadThumbnail(requestInfo.rid, Uri.parse(requestInfo.uri), requestInfo.fileType, holder.thumbnail)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                setIconType(holder.thumbnail, requestInfo)
             }
             StatusType.STATUS_FAILED -> {
-                setIconType(holder.thumbnail, requestInfo.fileType)
+                setIconType(holder.thumbnail, requestInfo)
                 setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
                 holder.status.setImageResource(R.drawable.ic_action_retry)
             }
             StatusType.STATUS_PAUSE -> {
-                setIconType(holder.thumbnail, requestInfo.fileType)
+                setIconType(holder.thumbnail, requestInfo)
                 holder.status.setImageResource(R.drawable.ic_resume)
                 setProgress(holder.progress, requestInfo.transferred, requestInfo.size)
             }
         }
+
     }
 
-    private fun setIconType(thumbnail: AppCompatImageView, type: Int) {
-        when (type) {
-            FileType.FILE_TYPE_APP -> thumbnail.setImageResource(R.drawable.ic_android)
-            FileType.FILE_TYPE_MUSIC -> thumbnail.setImageResource(R.drawable.ic_music)
-            FileType.FILE_TYPE_VIDEO -> thumbnail.setImageResource(R.drawable.ic_movie)
-            FileType.FILE_TYPE_PHOTO -> thumbnail.setImageResource(R.drawable.ic_photo)
-            FileType.FILE_TYPE_FOLDER -> thumbnail.setImageResource(R.drawable.ic_folder)
-            else -> thumbnail.setImageResource(R.drawable.ic_file)
+    private fun setIconType(thumbnail: AppCompatImageView, requestInfo: RequestInfo) {
+        if (requestInfo.send || requestInfo.status == StatusType.STATUS_COMPLETED) {
+            try {
+                MyThumbnailUtils.loadThumbnail(requestInfo.rid, Uri.parse(requestInfo.uri), requestInfo.fileType, thumbnail)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        } else {
+            when (requestInfo.fileType) {
+                FileType.FILE_TYPE_APP -> thumbnail.setImageResource(R.drawable.ic_android)
+                FileType.FILE_TYPE_MUSIC -> thumbnail.setImageResource(R.drawable.ic_music)
+                FileType.FILE_TYPE_VIDEO -> thumbnail.setImageResource(R.drawable.ic_movie)
+                FileType.FILE_TYPE_PHOTO -> thumbnail.setImageResource(R.drawable.ic_photo)
+                FileType.FILE_TYPE_FOLDER -> thumbnail.setImageResource(R.drawable.ic_folder)
+                else -> thumbnail.setImageResource(R.drawable.ic_file)
+            }
         }
     }
 

@@ -41,7 +41,7 @@
                 android:foreground="?android:attr/selectableItemBackground"
                 android:foregroundTintMode="src_in"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_profile_pic"
+                android:src="@drawable/ic_male_avatar"
                 tools:ignore="ContentDescription,UnusedAttribute" />
         </androidx.cardview.widget.CardView>
 
