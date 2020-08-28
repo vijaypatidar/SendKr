@@ -7,7 +7,7 @@
         android:title="@string/title_home" />
     <item
         android:id="@+id/navigation_app"
-        android:icon="@drawable/ic_apps"
+        android:icon="@drawable/ic_android"
         android:title="@string/title_apps" />
     <item
         android:id="@+id/navigation_media"
@@ -19,7 +19,7 @@
         android:title="@string/title_dashboard" />
     <item
         android:id="@+id/navigation_profile"
-        android:icon="@drawable/ic_profile"
         android:checkable="false"
+        android:icon="@drawable/ic_male_avatar"
         android:title="@string/title_profile" />
 </menu>

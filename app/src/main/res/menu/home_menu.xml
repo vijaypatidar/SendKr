@@ -13,6 +13,11 @@
         android:title="@string/title_share"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/menu_feedback"
+        android:icon="@drawable/ic_baseline_feedback"
+        android:title="@string/title_feedback"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/menu_about"
         android:icon="@drawable/ic_about"
         android:title="@string/About"

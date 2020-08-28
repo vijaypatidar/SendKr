@@ -2,13 +2,13 @@
 <resources>
     <color name="colorPrimary">#00324C</color>
     <color name="colorPrimaryDark">#002335</color>
-    <color name="colorAccent">#fc8210</color>
+    <color name="colorAccent">#FF9800</color>
     <color name="white">#ffffff</color>
     <color name="ic_launcher_background">#00324C</color>
     <color name="black">#000000</color>
     <color name="gray">#607D8B</color>
     <color name="profileActivity">#009688</color>
-    <color name="profileActivityDark">#00897b</color>
+    <color name="profileActivityDark">#00796B</color>
     <color name="green">#00de7a</color>
     <color name="darker_gray">#aaa</color>
     <color name="white_alpha">#80FFFFFF</color>

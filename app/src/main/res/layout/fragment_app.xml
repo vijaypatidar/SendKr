@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:cardCornerRadius="@dimen/top_corner_radius"
+    app:cardElevation="0dp"
     tools:context=".ui.fragments.AppFragment">
 
     <RelativeLayout
@@ -17,7 +18,7 @@
             android:layout_height="match_parent"
             tools:listitem="@layout/app_list_item" />
 
-        <com.vkpapps.thunder.ui.views.SelectionView
+        <com.vkpapps.sendkr.ui.views.SelectionView
             android:id="@+id/selectionView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

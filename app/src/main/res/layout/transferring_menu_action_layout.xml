@@ -50,5 +50,6 @@
         android:textAlignment="gravity"
         android:textColor="@color/colorAccent"
         android:textSize="10dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:ignore="SpUsage" />
 </FrameLayout>

@@ -5,7 +5,7 @@
     app:startDestination="@+id/navigation_home">
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.vkpapps.thunder.ui.fragments.HomeFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home">
 
@@ -28,11 +28,7 @@
             app:destination="@id/navigation_app" />
         <action
             android:id="@+id/action_navigation_home_to_files"
-            app:destination="@id/fileFragment"
-            app:enterAnim="@anim/slide_in_from_bottom"
-            app:exitAnim="@anim/slide_out_to_bottom"
-            app:popEnterAnim="@anim/slide_in_from_bottom"
-            app:popExitAnim="@anim/slide_out_to_bottom" />
+            app:destination="@id/fileFragment" />
         <action
             android:id="@+id/action_navigation_home_to_transferringFragment"
             app:destination="@id/transferringFragment"
@@ -46,11 +42,14 @@
         <action
             android:id="@+id/action_navigation_home_to_navigation_dashboard"
             app:destination="@id/navigation_dashboard" />
+        <action
+            android:id="@+id/action_navigation_home_to_quickAccessFragment"
+            app:destination="@id/quickAccessFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/navigation_app"
-        android:name="com.vkpapps.thunder.ui.fragments.AppFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.AppFragment"
         android:label="@string/title_apps"
         tools:layout="@layout/fragment_app">
         <action
@@ -64,7 +63,7 @@
 
     <fragment
         android:id="@+id/navigation_media"
-        android:name="com.vkpapps.thunder.ui.fragments.MediaFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.MediaFragment"
         android:label="@string/media"
         tools:layout="@layout/fragment_media">
         <action
@@ -75,20 +74,14 @@
             app:popEnterAnim="@anim/slide_in_from_bottom"
             app:popExitAnim="@anim/slide_out_to_bottom" />
         <action
-            android:id="@+id/action_navigation_files_to_photoViewFragment"
-            app:destination="@id/photoViewFragment" />
-        <action
             android:id="@+id/action_navigation_media_to_filePropertyDialogFragment"
             app:destination="@id/filePropertyDialogFragment" />
-        <action
-            android:id="@+id/action_navigation_media_to_filterDialogFragment"
-            app:destination="@id/filterDialogFragment" />
     </fragment>
 
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.vkpapps.thunder.ui.fragments.DashboardFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.DashboardFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard">
         <action
@@ -102,13 +95,13 @@
 
     <fragment
         android:id="@+id/navigation_about"
-        android:name="com.vkpapps.thunder.ui.fragments.AboutFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.AboutFragment"
         android:label="@string/about_cap"
         tools:layout="@layout/fragment_about" />
 
     <fragment
         android:id="@+id/navigation_setting"
-        android:name="com.vkpapps.thunder.ui.fragments.SettingsFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.SettingsFragment"
         android:label="Setting"
         tools:layout="@layout/fragment_settings">
         <action
@@ -122,7 +115,7 @@
     </fragment>
     <fragment
         android:id="@+id/fileFragment"
-        android:name="com.vkpapps.thunder.ui.fragments.FileFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.FileFragment"
         android:label="File"
         tools:layout="@layout/fragment_file">
         <action
@@ -143,29 +136,24 @@
         <action
             android:id="@+id/action_fileFragment_to_filePropertyDialogFragment"
             app:destination="@id/filePropertyDialogFragment" />
-        <action
-            android:id="@+id/action_fileFragment_to_filterDialogFragment"
-            app:destination="@id/filterDialogFragment" />
     </fragment>
     <fragment
         android:id="@+id/transferringFragment"
-        android:name="com.vkpapps.thunder.ui.fragments.TransferringFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.TransferringFragment"
         android:label="@string/transferring" />
-    <fragment
-        android:id="@+id/photoViewFragment"
-        android:name="com.vkpapps.thunder.ui.fragments.PhotoViewFragment"
-        android:label=""
-        tools:layout="@layout/fragment_photo_view" />
 
     <dialog
-        android:id="@+id/filterDialogFragment"
-        android:name="com.vkpapps.thunder.ui.fragments.dialog.FilterDialogFragment"
-        android:label="Filter&amp;Sort by"
-        tools:layout="@layout/fragment_filter_dialog" />
-    <dialog
         android:id="@+id/filePropertyDialogFragment"
-        android:name="com.vkpapps.thunder.ui.fragments.dialog.FilePropertyDialogFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment"
         android:label="Property"
         tools:layout="@layout/fragment_file_property_dialog" />
+    <fragment
+        android:id="@+id/quickAccessFragment"
+        android:name="com.vkpapps.sendkr.ui.fragments.QuickAccessFragment"
+        android:label="QuickAccessFragment">
+        <action
+            android:id="@+id/action_quickAccessFragment_to_transferringFragment"
+            app:destination="@id/transferringFragment" />
+    </fragment>
 
 </navigation>

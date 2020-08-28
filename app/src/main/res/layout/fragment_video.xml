@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    app:cardElevation="0dp"
     app:cardCornerRadius="@dimen/top_corner_radius">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/videoList"
+        <com.vkpapps.sendkr.ui.views.MySwipeRefreshLayout
+            android:id="@+id/swipeRefreshVideoList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:spanCount="3"
-            tools:listitem="@layout/video_list_item" />
+            android:layout_centerInParent="true">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/videoList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/video_list_item" />
+        </com.vkpapps.sendkr.ui.views.MySwipeRefreshLayout>
 
         <RelativeLayout
             android:id="@+id/emptyVideo"
@@ -35,7 +40,7 @@
                 android:textSize="16sp" />
         </RelativeLayout>
 
-        <com.vkpapps.thunder.ui.views.SelectionView
+        <com.vkpapps.sendkr.ui.views.SelectionView
             android:id="@+id/selectionView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

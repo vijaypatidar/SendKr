@@ -5,17 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:cardCornerRadius="@dimen/top_corner_radius"
+    app:cardElevation="0dp"
     tools:context=".ui.fragments.AudioFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/audioList"
+        <com.vkpapps.sendkr.ui.views.MySwipeRefreshLayout
+            android:id="@+id/swipeRefreshAudioList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/app_list_item" />
+            android:layout_centerVertical="true">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/audioList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/app_list_item" />
+        </com.vkpapps.sendkr.ui.views.MySwipeRefreshLayout>
 
 
         <RelativeLayout
@@ -34,7 +42,7 @@
                 android:textSize="16sp" />
         </RelativeLayout>
 
-        <com.vkpapps.thunder.ui.views.SelectionView
+        <com.vkpapps.sendkr.ui.views.SelectionView
             android:id="@+id/selectionView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

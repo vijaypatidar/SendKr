@@ -2,9 +2,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
     android:background="@drawable/round_on_top"
     android:orientation="vertical"
-    android:layout_gravity="bottom"
     android:paddingStart="5dp"
     android:paddingTop="10dp"
     android:paddingEnd="5dp"
@@ -15,7 +15,7 @@
         android:layout_height="2dp"
         android:layout_gravity="center"
         android:background="@drawable/round"
-        android:backgroundTint="@color/colorPrimary" />
+        android:backgroundTint="@color/darker_gray" />
 
     <TextView
         android:layout_width="wrap_content"

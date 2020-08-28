@@ -22,6 +22,7 @@
             android:scrollbars="horizontal"
             app:layout_scrollFlags="scroll|enterAlways"
             app:tabIndicatorHeight="2dp"
+            android:elevation="0dp"
             app:tabSelectedTextColor="@color/colorAccent"
             app:tabTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -30,6 +31,7 @@
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:elevation="0dp"
         android:layout_below="@+id/tabLayout"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

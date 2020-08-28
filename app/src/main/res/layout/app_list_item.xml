@@ -13,10 +13,10 @@
         android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
-        app:cardCornerRadius="@dimen/home_card_radius"
         android:clickable="true"
         android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground">
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardCornerRadius="@dimen/home_card_radius">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -55,7 +55,7 @@
                         android:ellipsize="end"
                         android:textColor="@color/black"
                         android:textSize="16sp"
-                        tools:text="thunder" />
+                        tools:text="sendkr" />
 
                     <TextView
                         android:id="@+id/packageName"
@@ -117,7 +117,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
-                            android:text="thunder"
+                            android:text="sendkr"
                             android:textColor="@color/black"
                             android:textSize="14sp" />
 
