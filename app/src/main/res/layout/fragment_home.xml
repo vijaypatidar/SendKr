@@ -222,7 +222,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#1a2196f3"
+                            android:background="#2196f3"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -231,7 +231,8 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:scaleType="centerCrop"
-                                android:src="@drawable/ic_photo" />
+                                android:src="@drawable/ic_photo"
+                                android:tint="@color/white" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -239,7 +240,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/photo"
-                                android:textColor="#2196f3"
+                                android:textColor="@color/white"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -262,7 +263,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#1ae91e63"
+                            android:background="#e91e63"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -270,7 +271,8 @@
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_music" />
+                                android:src="@drawable/ic_music"
+                                android:tint="@color/white" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -278,7 +280,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/audio"
-                                android:textColor="#e91e63"
+                                android:textColor="@color/white"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -310,7 +312,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#1a009688"
+                            android:background="#009688"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -318,7 +320,8 @@
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_movie" />
+                                android:src="@drawable/ic_movie"
+                                android:tint="@color/white" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -326,7 +329,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/video"
-                                android:textColor="#009688"
+                                android:textColor="@color/white"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -351,7 +354,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#1a673AB7"
+                            android:background="#7C4DFF"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -359,8 +362,8 @@
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_movie"
-                                android:tint="#673AB7" />
+                                android:src="@drawable/ic_file"
+                                android:tint="@color/white" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -368,7 +371,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/zip"
-                                android:textColor="#673AB7"
+                                android:textColor="@color/white"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -400,7 +403,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#1aFF5722"
+                            android:background="#FF5722"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -409,7 +412,7 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_file"
-                                android:tint="#FF5722" />
+                                android:tint="@color/white" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -417,7 +420,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/documents"
-                                android:textColor="#FF5722"
+                                android:textColor="@color/white"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -443,7 +446,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#1aCDDC39"
+                            android:background="#4CAF50"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -452,7 +455,7 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_android"
-                                android:tint="#CDDC39" />
+                                android:tint="@color/white" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -460,7 +463,7 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
                                 android:text="@string/apk"
-                                android:textColor="#CDDC39"
+                                android:textColor="@color/white"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>

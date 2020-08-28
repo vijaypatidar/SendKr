@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.vkpapps.sendkr.BuildConfig
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
+import com.vkpapps.sendkr.ui.dialog.PrivacyDialog
 
 /***
  * @author VIJAY PATIDAR
@@ -30,7 +31,7 @@ class AboutFragment : Fragment() {
         versionCode.text = BuildConfig.VERSION_NAME
         val btnPrivacyPolicy = view.findViewById<LinearLayout>(R.id.btnPrivacyPolicy)
         btnPrivacyPolicy.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_url))))
+            PrivacyDialog(requireActivity()).promptUser()
         }
         val btnDeveloper = view.findViewById<LinearLayout>(R.id.btnDeveloper)
         btnDeveloper.setOnClickListener {

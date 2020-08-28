@@ -7,7 +7,6 @@ import android.provider.Settings
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.vkpapps.sendkr.BuildConfig
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFailureListener
@@ -60,11 +59,9 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, O
         Logger.d("[CreateAccessPointActivity][onResume]")
         createHotspot()
 
-        if (BuildConfig.DEBUG) {
-            useExistingSection.visibility = if (WifiApUtils.isWifiApEnabled()) View.VISIBLE else View.GONE
-            useRouterSection.visibility = if (WifiApUtils.wifiManager.isWifiEnabled
-                    && IPManager(this@CreateAccessPointActivity).deviceIp() != "0.0.0.0") View.VISIBLE else View.GONE
-        }
+        useExistingSection.visibility = if (WifiApUtils.isWifiApEnabled()) View.VISIBLE else View.GONE
+        useRouterSection.visibility = if (WifiApUtils.wifiManager.isWifiEnabled
+                && IPManager(this@CreateAccessPointActivity).deviceIp() != "0.0.0.0") View.VISIBLE else View.GONE
     }
 
     private fun createHotspot() {

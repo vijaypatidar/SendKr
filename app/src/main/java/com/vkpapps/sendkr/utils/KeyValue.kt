@@ -32,6 +32,12 @@ class KeyValue(context: Context) {
             sharedPreferences.edit().putString("externalStoragePath", policy).apply()
         }
 
+    var customStoragePath: String?
+        get() = sharedPreferences.getString("customStoragePath", null)
+        set(policy) {
+            sharedPreferences.edit().putString("customStoragePath", policy).apply()
+        }
+
     var showHiddenFile: Boolean
         get() = sharedPreferences.getBoolean("showHiddenFile", true)
         set(policy) {

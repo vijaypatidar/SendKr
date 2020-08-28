@@ -1,18 +1,18 @@
 package com.vkpapps.sendkr.ui.dialog
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.utils.KeyValue
 
 /***
  * @author VIJAY PATIDAR
  */
-class PrivacyDialog(private val activity: AppCompatActivity) {
+class PrivacyDialog(private val activity: Activity) {
     val isPolicyAccepted: Boolean
         get() {
             if (KeyValue(activity).policy) {
@@ -23,7 +23,7 @@ class PrivacyDialog(private val activity: AppCompatActivity) {
             return false
         }
 
-    private fun promptUser() {
+    fun promptUser() {
         val builder = AlertDialog.Builder(activity)
         val view = activity.layoutInflater.inflate(R.layout.dialog_accept_policy, null, false)
         builder.setView(view)
@@ -33,6 +33,7 @@ class PrivacyDialog(private val activity: AppCompatActivity) {
         create.show()
         view.findViewById<TextView>(R.id.message).movementMethod = LinkMovementMethod.getInstance()
         view.findViewById<TextView>(R.id.btnCancel).setOnClickListener {
+            KeyValue(activity).policy = false
             activity.finish()
         }
         view.findViewById<TextView>(R.id.btnAgree).setOnClickListener {

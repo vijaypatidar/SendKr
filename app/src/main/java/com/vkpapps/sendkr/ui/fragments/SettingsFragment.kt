@@ -8,11 +8,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import com.vkpapps.sendkr.R
+import com.vkpapps.sendkr.interfaces.OnSuccessListener
 import com.vkpapps.sendkr.room.liveViewModel.HistoryViewModel
 import com.vkpapps.sendkr.ui.dialog.DialogsUtils
 import com.vkpapps.sendkr.utils.KeyValue
 import com.vkpapps.sendkr.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_settings.*
+import java.io.File
 
 
 /***
@@ -33,14 +35,20 @@ class SettingsFragment : Fragment() {
         customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
 
         btnClearHistory.setOnClickListener {
-            DialogsUtils(requireContext()).clearHistoryDialog(View.OnClickListener {
+            DialogsUtils(requireContext()).clearHistoryDialog({
                 ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java).deleteAll()
                 Toast.makeText(requireContext(), getString(R.string.history_cleared_message), Toast.LENGTH_LONG).show()
             }, null)
         }
 
         btnChangeCustomPath.setOnClickListener {
-
+            DialogsUtils(requireContext()).selectDir(object : OnSuccessListener<File> {
+                override fun onSuccess(t: File) {
+                    keyValue.customStoragePath = File(t, "SendKr").absolutePath
+                    customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
+                    Toast.makeText(requireContext(), "Download location changed", Toast.LENGTH_SHORT).show()
+                }
+            }, null)
         }
 
         btnAbout.setOnClickListener {

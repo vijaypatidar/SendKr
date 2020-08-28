@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="@dimen/top_corner_radius">
 
-    <androidx.cardview.widget.CardView xmlns:tools="http://schemas.android.com/tools"
+    <androidx.cardview.widget.CardView
         android:layout_width="@dimen/alert_dialog_width"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -20,55 +20,61 @@
             android:layout_marginBottom="10dp"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                app:srcCompat="@drawable/ic_wifi_tethering" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="5dp"
-                android:text="@string/create_hotspot"
+                android:layout_marginHorizontal="10dp"
+                android:text="@string/select_directory"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
 
-            <TextView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/dirList"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="5dp"
-                android:text="@string/dialog_create_hotspot_detail"
+                android:layout_height="350dp"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginVertical="5dp"
+                android:text="@string/clear_transferring_history_detail"
                 android:textSize="14sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:layout_margin="5dp"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btnOk"
+                    android:id="@+id/btnCancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/round"
+                    android:elevation="0dp"
+                    android:gravity="center"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:text="@string/cancel"
+                    android:textAlignment="gravity"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorAccent" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnChoose"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/round"
                     android:backgroundTint="@color/colorAccent"
                     android:elevation="0dp"
-                    android:foreground="?android:attr/selectableItemBackground"
                     android:gravity="center"
                     android:paddingStart="15dp"
                     android:paddingEnd="15dp"
-                    android:text="@string/ok"
+                    android:text="@string/choose"
                     android:textAlignment="gravity"
                     android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    tools:ignore="UnusedAttribute" />
+                    android:textColor="@color/white" />
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

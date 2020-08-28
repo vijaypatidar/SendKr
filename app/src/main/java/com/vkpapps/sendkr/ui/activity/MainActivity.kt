@@ -464,10 +464,11 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         } else {
             pendingRequest.addAll(requests)
             requestViewModel.notifyPendingCountChange()
-            if (requests.isNotEmpty())
+            if (requests.isNotEmpty()) {
                 CoroutineScope(Main).launch {
                     DialogsUtils(this@MainActivity).waitingForReceiver(pendingRequest.size)
                 }
+            }
         }
     }
 
@@ -614,7 +615,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         const val CREATE_AP_ACTIVITY_RESULT = 6
 
         @JvmStatic
-        private val pendingRequest = ArrayList<RawRequestInfo>()
+        val pendingRequest = ArrayList<RawRequestInfo>()
 
         @JvmStatic
         var connected: Boolean = false

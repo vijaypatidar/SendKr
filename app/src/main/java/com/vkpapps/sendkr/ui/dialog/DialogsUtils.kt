@@ -10,11 +10,15 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.net.toFile
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.interfaces.OnFailureListener
 import com.vkpapps.sendkr.interfaces.OnSuccessListener
+import com.vkpapps.sendkr.ui.adapter.DirectoryPickerAdapter
 import com.vkpapps.sendkr.utils.StorageManager
 import java.io.File
 
@@ -38,18 +42,6 @@ class DialogsUtils(private val context: Context) {
         }
     }
 
-    fun createHotspot() {
-        val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_create_hotspot, null)
-        ab.setView(view)
-        ab.setCancelable(false)
-        val alertDialog = ab.create()
-        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        alertDialog.show()
-        view.findViewById<View>(R.id.btnOk).setOnClickListener {
-            alertDialog.cancel()
-        }
-    }
 
     fun displayQRCode() {
         val ab = AlertDialog.Builder(context)
@@ -94,6 +86,30 @@ class DialogsUtils(private val context: Context) {
         alertDialog.show()
         view.findViewById<View>(R.id.btnClear).setOnClickListener {
             clear.onClick(it)
+            alertDialog.cancel()
+        }
+        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+            cancel?.onClick(it)
+            alertDialog.cancel()
+        }
+    }
+
+    fun selectDir(onSelect: OnSuccessListener<File>, cancel: View.OnClickListener?) {
+        val ab = AlertDialog.Builder(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.alert_picker_directory, null)
+        ab.setView(view)
+        ab.setCancelable(false)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+        val directoryPickerAdapter = DirectoryPickerAdapter()
+        val dirListView = view.findViewById<RecyclerView>(R.id.dirList)
+        dirListView.layoutManager = LinearLayoutManager(context)
+        dirListView.adapter = directoryPickerAdapter
+        view.findViewById<View>(R.id.btnChoose).setOnClickListener {
+            directoryPickerAdapter.dirSelected?.run {
+                onSelect.onSuccess(this.uri.toFile())
+            }
             alertDialog.cancel()
         }
         view.findViewById<View>(R.id.btnCancel).setOnClickListener {

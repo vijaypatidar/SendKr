@@ -143,7 +143,7 @@ class FileService(private val send: Boolean,
     companion object {
         @JvmField
         var HOST_ADDRESS: String? = null
-        private const val MAX_WAIT_TIME = 6000
+        private const val MAX_WAIT_TIME = 7000
         private const val PORT = 7511
         private const val BUFFER_SIZE = 10000
         val BUFFER = ByteArray(BUFFER_SIZE)

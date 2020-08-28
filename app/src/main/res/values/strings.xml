@@ -10,20 +10,20 @@
     <string name="join_party">JOIN GROUP</string>
     <string name="about_cap">About</string>
     <string name="developer">Developer Profile</string>
-    <string name="app_description">An app for sending and receiving files with other without internet.</string>
+    <string name="app_description">An app for sending and receiving files without internet via Wi-Fi network.</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="privacy_policy_url">https://vkp.page.link/skpp</string>
-    <string name="accept_policy">By using the app you agree to the SendKr <a href="https://vkp.page.link/skpp">privacy policy</a></string>
+    <string name="accept_policy">You can read actual privacy policy by visiting to below link but the gist is that i am not collecting your private information (i.e name,email,…) neither i need them for improving my application stability and performance.By using the app you agree to the SendKr <a href="https://vkp.page.link/skpp">privacy policy</a></string>
     <string name="cancel">Cancel</string>
     <string name="i_agree">I Agree</string>
     <string name="github_url">https://github.com/vijaypatidar</string>
     <string name="empty_directory">Directory is empty</string>
     <string name="title_apps">Apps</string>
     <string name="made_in_india">Made with ❤ in India</string>
-    <string name="empty_photo">No picture found</string>
-    <string name="empty_video">no video found</string>
+    <string name="empty_photo">No images found</string>
+    <string name="empty_video">No videos found</string>
     <string name="Setting">Settings</string>
-    <string name="empty_music">no song found</string>
+    <string name="empty_music">No audio found</string>
     <string name="empty_request">Oops!You have not transfer anything yet.</string>
     <string name="transferring">Transferring</string>
     <string name="history">History</string>
@@ -48,10 +48,9 @@
     <string name="clear_history">Clear history</string>
     <string name="privacy">Privacy</string>
     <string name="create_hotspot">Create Hotspot</string>
-    <string name="dialog_create_hotspot_detail"><![CDATA[Please turn on your Mobile Hotspot, So that other device can connect to your device and join group for sending and receiving file.\nHow to turn on Mobile Hotspot?\nOpen Settings > Connections > Mobile Hotspot and Tethering > Mobile Hotspot]]></string>
     <string name="retry">Retry</string>
     <string name="create_group">Create Group</string>
-    <string name="alert_dialog_connection_failed_detail"><![CDATA[Make sure your device WI-Fi is connected to Hotspot created by group owner device.\nHow to connect your device to WI-FI?\nOpen Settings > Connections > WI-Fi > Select and connect to specific Hotspot.]]></string>
+    <string name="alert_dialog_connection_failed_detail">Error occurred while joining group.</string>
     <string name="clear_transferring_history">Clear history</string>
     <string name="clear_transferring_history_detail">"This will not delete the actual file from storage."</string>
     <string name="exit_app_message">Ongoing transferring of files will get cancel.</string>
@@ -85,7 +84,7 @@
     <string name="disable_wi_fi">Disable Wi-Fi</string>
     <string name="disable_wifi_description">Please turn off Wi-Fi to continue.</string>
     <string name="turn_off_hotspot">Turn off Hotspot</string>
-    <string name="turn_off_hotspot_description">Please turn off Hotspot tethering to continue</string>
+    <string name="turn_off_hotspot_description">Please turn off Hotspot tethering to continue.</string>
     <string name="turn_off">Turn Off</string>
     <string name="camera_permission_required_description">Camera permission required for scanning QR code.</string>
     <string name="Continue">Continue</string>
@@ -94,6 +93,8 @@
     <string name="title_feedback">Feedback</string>
     <string name="zip">Zip</string>
     <string name="documents">Documents</string>
-    <string name="apk">APK</string>
+    <string name="apk">APK+OBB</string>
     <string name="empty">nothing to show</string>
+    <string name="choose">Choose</string>
+    <string name="select_directory">Select directory</string>
 </resources>

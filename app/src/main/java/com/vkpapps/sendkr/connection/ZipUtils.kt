@@ -53,8 +53,6 @@ class ZipUtils(private val requestInfo: RequestInfo) {
                 fos.write(FileService.BUFFER, 0, read)
                 requestInfo.transferred += read
             }
-            fos.flush()
-            fos.close()
             zis.closeEntry()
             entry = zis.nextEntry
         }

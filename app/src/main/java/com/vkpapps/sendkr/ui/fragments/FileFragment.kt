@@ -110,9 +110,9 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogF
                 listFiles.forEach {
                     if (showHiddenFile || it.name?.startsWith(".") == false) {
                         if (it.isDirectory) {
-                            folders.add(FileInfo(it, MathUtils.getFileSize(it)))
+                            folders.add(FileInfo(it))
                         } else {
-                            files.add(FileInfo(it, MathUtils.getFileSize(it)))
+                            files.add(FileInfo(it))
                         }
                     }
                 }

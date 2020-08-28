@@ -80,6 +80,7 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
                     MainActivity.clientHelper.shutDown()
                 }
                 MainActivity.connected = false
+                MainActivity.pendingRequest.clear()
                 requireActivity().recreate()
             }, null)
         }
@@ -96,7 +97,6 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
                 override fun getArguments(): Bundle {
                     return Bundle()
                 }
-
                 override fun getActionId(): Int {
                     return R.id.action_navigation_dashboard_to_transferringFragment
                 }

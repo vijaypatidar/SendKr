@@ -66,34 +66,55 @@ class QuickAccessViewModel(application: Application) : AndroidViewModel(applicat
                     scan(it)
                 }
             } else {
-                file.type?.run {
+                file.name?.run {
                     when {
-                        this == "application/pdf" -> {
-                            documents.add(FileInfo(file, file.length()))
+                        this.endsWith(".pdf", true) -> {
+                            documents.add(FileInfo(file))
                         }
-                        this == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> {
-                            documents.add(FileInfo(file, file.length()))
+                        this.endsWith(".docx", true) -> {
+                            documents.add(FileInfo(file))
                         }
-                        this == "application/vnd.openxmlformats-officedocument.presentationml.presentation" -> {
-                            documents.add(FileInfo(file, file.length()))
+                        this.endsWith(".doc", true) -> {
+                            documents.add(FileInfo(file))
                         }
-                        this == "application/vnd.ms-powerpoint" -> {
-                            documents.add(FileInfo(file, file.length()))
+                        this.endsWith(".odt", true) -> {
+                            documents.add(FileInfo(file))
                         }
-                        this == "application/vnd.android.package-archive" -> {
-                            apks.add(FileInfo(file, file.length()))
+                        this.endsWith(".xls", true) -> {
+                            documents.add(FileInfo(file))
                         }
-                        this == "application/zip" -> {
-                            zips.add(FileInfo(file, file.length()))
+                        this.endsWith(".xlsx", true) -> {
+                            documents.add(FileInfo(file))
                         }
-                        this == "application/x-7z-compressed" -> {
-                            zips.add(FileInfo(file, file.length()))
+                        this.endsWith(".ods", true) -> {
+                            documents.add(FileInfo(file))
                         }
-                        this == "application/x-tar" -> {
-                            zips.add(FileInfo(file, file.length()))
+                        this.endsWith(".ppt", true) -> {
+                            documents.add(FileInfo(file))
                         }
-                        this == "application/x-rar-compressed" -> {
-                            zips.add(FileInfo(file, file.length()))
+                        this.endsWith(".pptx", true) -> {
+                            documents.add(FileInfo(file))
+                        }
+                        this.endsWith(".txt", true) -> {
+                            documents.add(FileInfo(file))
+                        }
+                        this.endsWith(".apk", true) -> {
+                            apks.add(FileInfo(file))
+                        }
+                        this.endsWith(".obb", true) -> {
+                            apks.add(FileInfo(file))
+                        }
+                        this.endsWith(".zip", true) -> {
+                            zips.add(FileInfo(file))
+                        }
+                        this.endsWith(".7z", true) -> {
+                            zips.add(FileInfo(file))
+                        }
+                        this.endsWith(".tar", true) -> {
+                            zips.add(FileInfo(file))
+                        }
+                        this.endsWith(".rar", true) -> {
+                            zips.add(FileInfo(file))
                         }
                         else -> {
 

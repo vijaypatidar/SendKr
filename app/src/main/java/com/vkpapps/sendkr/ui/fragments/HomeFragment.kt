@@ -28,6 +28,7 @@ import com.vkpapps.sendkr.model.RawRequestInfo
 import com.vkpapps.sendkr.room.liveViewModel.HistoryViewModel
 import com.vkpapps.sendkr.ui.adapter.HistoryAdapter
 import com.vkpapps.sendkr.utils.AdsUtils
+import com.vkpapps.sendkr.utils.KeyValue
 import com.vkpapps.sendkr.utils.MathUtils
 import com.vkpapps.sendkr.utils.StorageManager
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -137,6 +138,12 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                     externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSizeGb(statFs.totalBytes.toDouble())}GB"
                     val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
                     progressBarExternal.progress = progress
+                    KeyValue(requireContext()).externalStoragePath = externalStoragePath
+                } else {
+                    KeyValue(requireContext()).externalStoragePath = null
+                    if (!DocumentFile.fromFile(StorageManager(requireContext()).downloadDir).exists()) {
+                        KeyValue(requireContext()).customStoragePath = null
+                    }
                 }
             }
         } catch (e: Exception) {

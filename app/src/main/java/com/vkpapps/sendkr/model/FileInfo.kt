@@ -5,8 +5,9 @@ import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.utils.FileTypeResolver
 import com.vkpapps.sendkr.utils.HashUtils
+import com.vkpapps.sendkr.utils.MathUtils
 
-class FileInfo(var file: DocumentFile, val size: Long) {
+class FileInfo(var file: DocumentFile) {
 
     val id: String by lazy {
         HashUtils.getHashValue(file.uri.path!!.toByteArray())
@@ -15,6 +16,7 @@ class FileInfo(var file: DocumentFile, val size: Long) {
     var isSelected: Boolean = false
     val uri: Uri = file.uri
 
+    val size by lazy { MathUtils.getFileSize(file) }
     val name: String by lazy {
         file.name ?: ""
     }
