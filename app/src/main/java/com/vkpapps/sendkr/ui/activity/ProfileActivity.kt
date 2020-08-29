@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView.ScaleType
-import androidx.appcompat.app.AppCompatActivity
 import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.sendkr.App.Companion.user
 import com.vkpapps.sendkr.R
@@ -22,7 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-public class ProfileActivity : AppCompatActivity() {
+class ProfileActivity : MyAppCompatActivity() {
     private var picChange = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

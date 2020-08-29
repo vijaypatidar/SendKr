@@ -9,27 +9,20 @@
     app:cardCornerRadius="@dimen/top_corner_radius"
     tools:context=".ui.fragments.DashboardFragment">
 
-    <LinearLayout
+    <com.vkpapps.sendkr.ui.views.SquareImageView
+        android:id="@+id/barCodeImage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/white"
+        android:cropToPadding="true"
+        android:scaleType="fitXY" />
 
-        <com.vkpapps.sendkr.ui.views.SquareImageView
-            android:id="@+id/barCodeImage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="@color/white"
-            android:cropToPadding="true"
-            android:scaleType="fitXY" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="-20dp"
-            android:layout_marginBottom="5dp"
-            android:text="@string/scan_amp_connect"
-            android:textSize="16sp" />
-    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="5dp"
+        android:text="@string/scan_amp_connect"
+        android:textSize="16sp" />
 </androidx.cardview.widget.CardView>

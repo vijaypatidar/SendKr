@@ -7,7 +7,6 @@ import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.R
@@ -24,7 +23,7 @@ import kotlinx.coroutines.withContext
 /***
  * @author VIJAY PATIDAR
  */
-public class SplashActivity : AppCompatActivity() {
+class SplashActivity : MyAppCompatActivity() {
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "NOTIFICATION_CHANNEL_ID"
     }

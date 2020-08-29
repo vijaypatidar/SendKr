@@ -29,7 +29,8 @@ class VideoAdapter(private val videoInfos: List<MediaInfo>?, private val onMedia
         holder.title.text = videoInfo.name
         holder.size.text = MathUtils.longToStringSize(videoInfo.size.toDouble())
         holder.btnSelected.isChecked = videoInfo.isSelected
-        holder.btnSelected.setOnClickListener {
+
+        val onClick = View.OnClickListener {
             videoInfo.isSelected = !videoInfo.isSelected
             holder.btnSelected.isChecked = videoInfo.isSelected
             if (videoInfo.isSelected) {
@@ -38,6 +39,8 @@ class VideoAdapter(private val videoInfos: List<MediaInfo>?, private val onMedia
                 onMediaSelectListener.onMediaDeselected(videoInfo)
             }
         }
+        holder.btnSelected.setOnClickListener(onClick)
+        holder.itemView.setOnClickListener(onClick)
         holder.picture.setOnClickListener {
             IntentUtils.startActionViewIntent(it.context, videoInfo.uri)
         }

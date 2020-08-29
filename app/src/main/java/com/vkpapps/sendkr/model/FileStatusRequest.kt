@@ -1,8 +1,9 @@
 package com.vkpapps.sendkr.model
 
 import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 
 /***
  * @author VIJAY PATIDAR
  */
-class FileStatusRequest(@Expose var status: Int, @Expose var rid: String)
+class FileStatusRequest(@Expose @SerializedName(value = "status") var status: Int, @Expose @SerializedName(value = "rid") var rid: String)

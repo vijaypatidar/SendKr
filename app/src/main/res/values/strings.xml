@@ -13,7 +13,7 @@
     <string name="app_description">An app for sending and receiving files without internet via Wi-Fi network.</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="privacy_policy_url">https://vkp.page.link/skpp</string>
-    <string name="accept_policy">You can read actual privacy policy by visiting to below link but the gist is that i am not collecting your private information (i.e name,email,…) neither i need them for improving my application stability and performance.By using the app you agree to the SendKr <a href="https://vkp.page.link/skpp">privacy policy</a></string>
+    <string name="accept_policy">By using the app you agree to the SendKr <a href="https://vkp.page.link/skpp">privacy policy</a></string>
     <string name="cancel">Cancel</string>
     <string name="i_agree">I Agree</string>
     <string name="github_url">https://github.com/vijaypatidar</string>
@@ -97,4 +97,5 @@
     <string name="empty">nothing to show</string>
     <string name="choose">Choose</string>
     <string name="select_directory">Select directory</string>
+    <string name="privacy_policy_and_developer">Privacy policy and developer</string>
 </resources>

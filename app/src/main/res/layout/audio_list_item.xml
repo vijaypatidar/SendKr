@@ -8,10 +8,8 @@
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
     android:orientation="horizontal"
-    android:paddingStart="10dp"
-    android:paddingTop="5dp"
-    android:paddingEnd="10dp"
-    android:paddingBottom="5dp"
+    android:paddingHorizontal="15dp"
+    android:paddingVertical="5dp"
     tools:ignore="UnusedAttribute">
 
     <androidx.cardview.widget.CardView
@@ -28,13 +26,14 @@
             android:src="@drawable/ic_default_audio_icon" />
     </androidx.cardview.widget.CardView>
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/audio_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="2dp"
         android:layout_weight="1"
+        android:ellipsize="end"
         android:lines="1"
         android:orientation="vertical"
         android:padding="5dp"
@@ -44,7 +43,7 @@
 
     <RadioButton
         android:id="@+id/btnSelect"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_vertical" />
 </LinearLayout>

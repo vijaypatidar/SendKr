@@ -13,7 +13,6 @@ import com.vkpapps.sendkr.ui.activity.MainActivity
 import com.vkpapps.sendkr.utils.DownloadPathResolver
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.ServerSocket
@@ -29,7 +28,7 @@ class FileService(private val send: Boolean,
                   private val requestInfo: RequestInfo,
                   private val clientHelper: ClientHelper) : Runnable {
 
-    @Throws(IOException::class)
+    @Throws(Exception::class)
     private fun getSocket(): Socket {
         lateinit var socket: Socket
         if (MainActivity.isHost) {
@@ -41,6 +40,11 @@ class FileService(private val send: Boolean,
             socket = Socket()
             ConnectionActivity.network?.bindSocket(socket)
             socket.connect(InetSocketAddress(HOST_ADDRESS, PORT))
+        }
+        //confirm user is same as for which rid is created
+        if (socket.inetAddress.hostAddress != clientHelper.hostAddress) {
+            socket.close()
+            throw Exception("invalid request for file")
         }
         return socket
     }

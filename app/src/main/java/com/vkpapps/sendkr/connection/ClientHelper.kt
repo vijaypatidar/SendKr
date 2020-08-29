@@ -27,6 +27,8 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
         }.create()
     }
 
+    val hostAddress: String = socket.inetAddress.hostAddress
+
     private var outputStream: ObjectOutputStream? = null
     var connected: Boolean = true
 

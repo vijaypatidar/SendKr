@@ -6,7 +6,7 @@
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    ads:cardBackgroundColor="@color/backgroundColor"
     android:fitsSystemWindows="false"
     app:cardCornerRadius="@dimen/top_corner_radius"
     app:cardElevation="0dp"
@@ -20,7 +20,7 @@
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            android:background="@color/backgroundColor"
             android:fitsSystemWindows="true"
             app:elevation="0dp">
 
@@ -29,6 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="5dp"
                 android:elevation="0dp"
                 android:orientation="vertical"
                 android:scrollbars="horizontal"
@@ -43,7 +44,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
                     android:text="@string/storage_devices"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/textCategory"
                     android:textSize="14sp" />
 
                 <LinearLayout
@@ -55,10 +56,8 @@
                         android:id="@+id/internal"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginHorizontal="10dp"
+                        android:layout_marginVertical="5dp"
                         android:layout_weight="1"
                         android:clickable="true"
                         android:focusable="true"
@@ -85,7 +84,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
-                                android:layout_marginEnd="5dp"
+                                android:layout_marginEnd="10dp"
                                 android:orientation="vertical">
 
                                 <androidx.appcompat.widget.AppCompatTextView
@@ -155,7 +154,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginStart="5dp"
-                                android:layout_marginEnd="5dp"
+                                android:layout_marginEnd="10dp"
                                 android:orientation="vertical">
 
                                 <androidx.appcompat.widget.AppCompatTextView
@@ -197,7 +196,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
                     android:text="@string/quick_access"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/textCategory"
                     android:textSize="14sp" />
 
                 <LinearLayout
@@ -231,6 +230,7 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:scaleType="centerCrop"
+                                android:layout_marginStart="3dp"
                                 android:src="@drawable/ic_photo"
                                 android:tint="@color/white" />
 
@@ -270,6 +270,7 @@
                             <androidx.appcompat.widget.AppCompatImageView
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
+                                android:layout_marginStart="3dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_music"
                                 android:tint="@color/white" />
@@ -319,6 +320,7 @@
                             <androidx.appcompat.widget.AppCompatImageView
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
+                                android:layout_marginStart="3dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_movie"
                                 android:tint="@color/white" />
@@ -361,6 +363,7 @@
                             <androidx.appcompat.widget.AppCompatImageView
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
+                                android:layout_marginStart="3dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_file"
                                 android:tint="@color/white" />
@@ -412,6 +415,7 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_file"
+                                android:layout_marginStart="3dp"
                                 android:tint="@color/white" />
 
                             <androidx.appcompat.widget.AppCompatTextView
@@ -453,6 +457,7 @@
                             <androidx.appcompat.widget.AppCompatImageView
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
+                                android:layout_marginStart="3dp"
                                 android:layout_gravity="center_vertical"
                                 android:src="@drawable/ic_android"
                                 android:tint="@color/white" />
@@ -484,7 +489,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
                     android:text="@string/history"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/textCategory"
                     android:textSize="14sp" />
 
             </LinearLayout>
@@ -494,6 +499,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginHorizontal="15dp"
+            android:background="@null"
             android:layout_below="@+id/tabLayout"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -501,14 +508,15 @@
                 android:id="@+id/history"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@null"
                 tools:listitem="@layout/history_list_item" />
 
             <RelativeLayout
                 android:id="@+id/noHistory"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/white"
-                android:visibility="visible">
+                android:background="@color/backgroundColor"
+                android:visibility="gone">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/bi"

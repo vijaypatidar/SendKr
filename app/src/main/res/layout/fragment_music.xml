@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     app:cardCornerRadius="@dimen/top_corner_radius"
     app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/backgroundColor"
+    app:cardPreventCornerOverlap="true"
     tools:context=".ui.fragments.AudioFragment">
 
     <RelativeLayout
@@ -31,7 +33,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:background="@drawable/round_on_top"
             android:visibility="gone">
 
             <TextView

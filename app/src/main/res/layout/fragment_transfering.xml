@@ -6,13 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:cardCornerRadius="@dimen/top_corner_radius"
+    ads:cardBackgroundColor="@color/backgroundColor"
+    ads:cardPreventCornerOverlap="true"
     app:cardElevation="0dp">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
         android:fitsSystemWindows="false"
         tools:context=".ui.fragments.HomeFragment">
 
@@ -20,7 +21,6 @@
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
             android:fitsSystemWindows="true"
             app:elevation="0dp">
 

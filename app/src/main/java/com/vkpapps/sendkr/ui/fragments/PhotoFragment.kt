@@ -16,6 +16,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.vkpapps.sendkr.App.Companion.isPhone
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.sendkr.interfaces.OnMediaSelectListener
@@ -61,7 +62,12 @@ class PhotoFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRe
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
         controller = Navigation.findNavController(view)
-        photoList.layoutManager = GridLayoutManager(requireContext(), 3)
+        val spanCount = if (isPhone) {
+            3
+        } else {
+            6
+        }
+        photoList.layoutManager = GridLayoutManager(requireContext(), spanCount)
         photoAdapter = PhotoAdapter(photoInfos, this)
         photoList.adapter = photoAdapter
         photoList.onFlingListener = object : OnFlingListener() {

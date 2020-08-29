@@ -13,11 +13,22 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0.0"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation":"$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable false
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             debuggable true
         }
@@ -29,13 +40,8 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-//    // For Kotlin projects
     kotlinOptions {
         jvmTarget = "1.8"
-    }
-    packagingOptions {
-        exclude 'META-INF/atomicfu.kotlin_module'
     }
     lintOptions {
         checkReleaseBuilds false
@@ -53,6 +59,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation "androidx.core:core-ktx:1.3.1"
     implementation 'com.google.android.material:material:1.2.0'
@@ -60,6 +67,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:17.5.0'
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'com.google.android.gms:play-services-ads:19.3.0'
+    implementation 'com.google.firebase:firebase-config:19.2.0'
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'me.dm7.barcodescanner:zxing:1.9.13'
@@ -71,12 +79,9 @@ dependencies {
     androidTestImplementation "androidx.room:room-testing:$rootProject.roomVersion"
 
     // Lifecycle components
-    implementation "androidx.navigation:navigation-runtime-ktx:2.3.0"
     implementation "androidx.lifecycle:lifecycle-extensions:$rootProject.archLifecycleVersion"
-    implementation "androidx.fragment:fragment-ktx:1.2.5"
-    implementation "androidx.navigation:navigation-ui-ktx:2.3.0"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     kapt "androidx.lifecycle:lifecycle-common-java8:$rootProject.archLifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.archLifecycleVersion"
 
     // Kotlin components
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"

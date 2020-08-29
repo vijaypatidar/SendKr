@@ -4,8 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    app:cardBackgroundColor="@color/backgroundColor"
     app:cardCornerRadius="@dimen/top_corner_radius"
     app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="true"
     tools:context=".ui.fragments.SettingsFragment">
 
     <ScrollView
@@ -25,8 +27,9 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="10dp"
                 android:text="@string/Setting"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/textCategory"
                 android:textSize="14sp" />
+
 
             <LinearLayout
                 android:id="@+id/btnChangeCustomPath"
@@ -123,7 +126,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="10dp"
                 android:text="@string/privacy"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/textCategory"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -178,7 +181,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="15dp"
                 android:text="@string/About"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/textCategory"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -212,7 +215,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/made_in_india"
+                        android:text="@string/privacy_policy_and_developer"
                         android:textSize="12sp" />
                 </LinearLayout>
 

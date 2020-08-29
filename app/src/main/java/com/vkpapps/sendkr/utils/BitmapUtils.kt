@@ -20,6 +20,7 @@ object BitmapUtils {
         view.draw(canvas)
         val bos = ByteArrayOutputStream()
         picBitmap.compress(Bitmap.CompressFormat.PNG, 90, bos)
+        picBitmap.recycle()
         return bos.toByteArray()
     }
 

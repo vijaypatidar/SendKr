@@ -1,21 +1,26 @@
 package com.vkpapps.sendkr.model
 
 import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 
 class RequestInfo {
     @Expose
+    @SerializedName(value = "rid")
     var rid: String = ""
 
     var cid: String = ""
 
     @Expose
+    @SerializedName(value = "name")
     var name: String = ""
 
     //used to decide destination folder
     @Expose
+    @SerializedName(value = "fileType")
     var fileType = 0
 
     @Expose
+    @SerializedName(value = "size")
     var size: Long = 0
 
     var send: Boolean = false

@@ -15,14 +15,18 @@ import com.vkpapps.sendkr.interfaces.OnSuccessListener
 import java.io.File
 import java.lang.reflect.Method
 
+/**
+ * @author VIJAY PATIDAR
+ */
 
 object WifiApUtils {
-    var ssid: String = "Android_share214"
-    var password: String = HashUtils.getRandomId(10)
+    var ssid: String = "SendKr214"
+    var password: String = HashUtils.getRandomId().subSequence(0, 10).toString()
     const val ERROR_ENABLE_GPS_PROVIDER = 0
     const val ERROR_LOCATION_PERMISSION_DENIED = 4
     const val ERROR_DISABLE_HOTSPOT = 1
     const val ERROR_DISABLE_WIFI = 5
+    const val ERROR_WRITE_PERMITSiON_REQUIRED = 6
     const val ERROR_UNKNOWN = 3
 
     val wifiManager = App.context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -77,13 +81,18 @@ object WifiApUtils {
                 onFailureListener.onFailure(ERROR_LOCATION_PERMISSION_DENIED)
             }
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !PermissionUtils.checkLocationPermission(App.context)) {
-                if (!providerEnabled) {
-                    onFailureListener.onFailure(ERROR_ENABLE_GPS_PROVIDER)
-                } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!PermissionUtils.checkLocationPermission(App.context)) {
                     onFailureListener.onFailure(ERROR_LOCATION_PERMISSION_DENIED)
+                    return
                 }
-                return
+                if (!PermissionUtils.checkWriteSettingPermission(activity)) {
+                    onFailureListener.onFailure(ERROR_WRITE_PERMITSiON_REQUIRED)
+                    Logger.d("[WifiApUtils][checkWriteSettingPermission] denied")
+                    return
+                } else {
+                    Logger.d("[WifiApUtils][checkWriteSettingPermission] allow")
+                }
             }
             try {
                 val wifiConfiguration = WifiConfiguration()
@@ -95,7 +104,7 @@ object WifiApUtils {
                 onSuccessListener.onSuccess("created")
             } catch (e: Exception) {
                 e.printStackTrace()
-                onFailureListener.onFailure(0)
+                onFailureListener.onFailure(ERROR_LOCATION_PERMISSION_DENIED)
             }
         }
     }

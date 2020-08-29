@@ -91,6 +91,8 @@ class RequestAdapter(context: Context, private val onFileStatusChangeListener: O
                         }
                     }
                 }
+            } else {
+                holder.thumbnail.setOnClickListener(null)
             }
         }
     }

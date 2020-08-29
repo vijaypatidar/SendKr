@@ -40,5 +40,4 @@ public class MyPagerAdapter extends FragmentStatePagerAdapter {
         fragmentList.add(fragment);
         names.add(name);
     }
-
 }

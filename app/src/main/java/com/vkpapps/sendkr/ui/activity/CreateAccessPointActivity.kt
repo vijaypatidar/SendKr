@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import com.vkpapps.sendkr.BuildConfig
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
@@ -20,7 +19,7 @@ import com.vkpapps.sendkr.utils.PermissionUtils
 import com.vkpapps.sendkr.utils.WifiApUtils
 import kotlinx.android.synthetic.main.activity_create_access_point.*
 
-class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, OnSuccessListener<String> {
+class CreateAccessPointActivity : MyAppCompatActivity(), OnFailureListener<Int>, OnSuccessListener<String> {
     private var progressDialog: AlertDialog? = null
     private var alertGpsProviderRequire: AlertDialog? = null
     private var alertDisableHotspot: AlertDialog? = null
@@ -77,7 +76,7 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, O
     private fun createHotspot() {
         Logger.d("[CreateAccessPointActivity][createHotspot]")
         progressDialog?.show()
-        if (!WifiApUtils.isWifiApEnabled() && !WifiApUtils.wifiManager.isWifiEnabled) {
+        if (!WifiApUtils.isWifiApEnabled() && !(WifiApUtils.wifiManager.isWifiEnabled && IPManager(this@CreateAccessPointActivity).deviceIp() != "0.0.0.0")) {
             WifiApUtils.turnOnHotspot(this, this, this)
         } else if (WifiApUtils.isWifiApEnabled()) {
             onFailure(WifiApUtils.ERROR_DISABLE_HOTSPOT)
@@ -101,6 +100,11 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, O
             }
             WifiApUtils.ERROR_ENABLE_GPS_PROVIDER -> {
                 alertGpsProviderRequire?.show()
+            }
+            WifiApUtils.ERROR_WRITE_PERMITSiON_REQUIRED -> {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    PermissionUtils.askWriteSettingPermission(this, 11111)
+                }
             }
             WifiApUtils.ERROR_DISABLE_HOTSPOT -> {
                 alertDisableHotspot?.show()

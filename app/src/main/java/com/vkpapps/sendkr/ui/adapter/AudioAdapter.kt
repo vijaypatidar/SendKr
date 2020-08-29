@@ -37,7 +37,8 @@ class AudioAdapter(private val mediaInfos: MutableList<MediaInfo>, private val o
 
         holder.audioTitle.text = audioinfo.name
         holder.btnSelect.isChecked = audioinfo.isSelected
-        holder.btnSelect.setOnClickListener {
+
+        val onClick = View.OnClickListener {
             audioinfo.isSelected = !audioinfo.isSelected
             holder.btnSelect.isChecked = audioinfo.isSelected
             if (audioinfo.isSelected) {
@@ -46,6 +47,8 @@ class AudioAdapter(private val mediaInfos: MutableList<MediaInfo>, private val o
                 onMediaSelectListener.onMediaDeselected(audioinfo)
             }
         }
+        holder.itemView.setOnClickListener(onClick)
+        holder.btnSelect.setOnClickListener(onClick)
         holder.audioIcon.setOnClickListener {
             IntentUtils.startActionViewIntent(it.context, audioinfo.uri)
             try {

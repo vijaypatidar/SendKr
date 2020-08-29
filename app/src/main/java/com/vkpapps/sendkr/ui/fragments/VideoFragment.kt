@@ -13,9 +13,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.vkpapps.sendkr.App.Companion.isPhone
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
@@ -62,7 +63,9 @@ class VideoFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRe
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
         controller = Navigation.findNavController(view)
-        videoList.layoutManager = LinearLayoutManager(requireContext())
+
+        val spanCount = if (isPhone) 1 else 2
+        videoList.layoutManager = GridLayoutManager(requireContext(), spanCount)
         adapter = VideoAdapter(videoInfos, this)
         videoList.adapter = adapter
         videoList.onFlingListener = object : OnFlingListener() {

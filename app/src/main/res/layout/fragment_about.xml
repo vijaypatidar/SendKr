@@ -4,6 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/backgroundColor"
+    app:cardPreventCornerOverlap="true"
     app:cardCornerRadius="@dimen/top_corner_radius">
 
     <LinearLayout xmlns:tools="http://schemas.android.com/tools"
@@ -139,7 +141,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="20dp"
             android:gravity="center_horizontal"
             android:text="@string/made_in_india"
             android:textAlignment="gravity"

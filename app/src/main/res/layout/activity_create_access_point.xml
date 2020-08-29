@@ -9,20 +9,20 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:cardBackgroundColor="@color/backgroundColor"
         app:cardCornerRadius="@dimen/top_corner_radius"
         app:cardElevation="0dp"
+        app:cardPreventCornerOverlap="true"
         tools:context=".ui.activity.CreateAccessPointActivity">
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white">
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:id="@+id/container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
                 android:orientation="vertical"
                 android:paddingHorizontal="5dp"
                 android:paddingVertical="10dp"
@@ -38,7 +38,7 @@
                     android:layout_marginHorizontal="10dp"
                     android:orientation="horizontal"
                     android:text="@string/create_new_hotspot"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/textCategory"
                     android:textSize="14sp" />
 
 
@@ -51,7 +51,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:selectableItemBackground"
-                    app:cardCornerRadius="20dp"
+                    app:cardCornerRadius="@dimen/home_card_radius"
                     app:cardElevation="2dp">
 
                     <LinearLayout
@@ -68,11 +68,12 @@
                             android:layout_gravity="center_vertical"
                             android:layout_weight="1"
                             android:text="@string/create_group"
-                            android:textColor="@color/black" />
+                            android:textColor="@color/black"
+                            android:textSize="16sp" />
 
                         <androidx.appcompat.widget.AppCompatImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:layout_gravity="center_vertical|end"
                             app:srcCompat="@drawable/ic_wifi_tethering" />
                     </LinearLayout>
@@ -94,7 +95,7 @@
                         android:layout_marginTop="10dp"
                         android:orientation="horizontal"
                         android:text="@string/use_existing_hotspot"
-                        android:textColor="@color/colorAccent"
+                        android:textColor="@color/textCategory"
                         android:textSize="14sp" />
 
                     <androidx.cardview.widget.CardView
@@ -106,7 +107,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?android:selectableItemBackground"
-                        app:cardCornerRadius="20dp"
+                        app:cardCornerRadius="@dimen/home_card_radius"
                         app:cardElevation="2dp">
 
                         <LinearLayout
@@ -123,11 +124,12 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_weight="1"
                                 android:text="@string/create_group"
-                                android:textColor="@color/black" />
+                                android:textColor="@color/black"
+                                android:textSize="16sp" />
 
                             <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
                                 android:layout_gravity="center_vertical|end"
                                 app:srcCompat="@drawable/ic_wifi_tethering" />
                         </LinearLayout>
@@ -150,7 +152,7 @@
                         android:layout_marginTop="10dp"
                         android:orientation="horizontal"
                         android:text="@string/via_router"
-                        android:textColor="@color/colorAccent"
+                        android:textColor="@color/textCategory"
                         android:textSize="14sp" />
 
 
@@ -163,7 +165,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?android:selectableItemBackground"
-                        app:cardCornerRadius="20dp"
+                        app:cardCornerRadius="@dimen/home_card_radius"
                         app:cardElevation="2dp">
 
                         <LinearLayout
@@ -180,11 +182,12 @@
                                 android:layout_gravity="center_vertical"
                                 android:layout_weight="1"
                                 android:text="@string/create_group"
-                                android:textColor="@color/black" />
+                                android:textColor="@color/black"
+                                android:textSize="16sp" />
 
                             <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
                                 android:layout_gravity="center_vertical|end"
                                 app:srcCompat="@drawable/ic_baseline_wifi" />
                         </LinearLayout>

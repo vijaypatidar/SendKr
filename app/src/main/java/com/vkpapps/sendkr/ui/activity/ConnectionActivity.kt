@@ -20,7 +20,6 @@ import android.provider.Settings
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
 import com.google.zxing.BarcodeFormat
 import com.vkpapps.sendkr.App
@@ -40,7 +39,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
-public class ConnectionActivity : AppCompatActivity() {
+class ConnectionActivity : MyAppCompatActivity() {
     companion object {
         var network: Network? = null
         const val PARAM_CONNECTION_TYPE = "com.vkpapps.sendkr.PARAM_CONNECTION_TYPE"
@@ -50,6 +49,7 @@ public class ConnectionActivity : AppCompatActivity() {
     private val wifiManager = App.context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
     private val connectivityManager = App.context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private var alertEnableWifi: AlertDialog? = null
+    private val maxWaitTime = 12000//sec
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -160,7 +160,7 @@ public class ConnectionActivity : AppCompatActivity() {
                         override fun onUnavailable() {
                             scanner.startCamera()
                         }
-                    }, 7000)
+                    }, maxWaitTime)
                 } else {
                     val configuration = WifiConfiguration()
                     configuration.SSID = "\"${connectionBarCode.ssid}\""
@@ -206,11 +206,11 @@ public class ConnectionActivity : AppCompatActivity() {
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            connectivityManager.requestNetwork(networkRequest, networkCallback, 5000)
+            connectivityManager.requestNetwork(networkRequest, networkCallback, maxWaitTime)
         } else {
             connectivityManager.requestNetwork(networkRequest, networkCallback)
             CoroutineScope(Main).launch {
-                delay(5000)
+                delay(maxWaitTime.toLong())
                 networkCallback.onUnavailable()
             }
         }

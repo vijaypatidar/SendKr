@@ -3,6 +3,8 @@ package com.vkpapps.sendkr.ui.fragments
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
@@ -44,9 +46,14 @@ class SettingsFragment : Fragment() {
         btnChangeCustomPath.setOnClickListener {
             DialogsUtils(requireContext()).selectDir(object : OnSuccessListener<File> {
                 override fun onSuccess(t: File) {
-                    keyValue.customStoragePath = File(t, "SendKr").absolutePath
-                    customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
-                    Toast.makeText(requireContext(), "Download location changed", Toast.LENGTH_SHORT).show()
+                    keyValue.customStoragePath = DocumentFile.fromFile(File(t, "SendKr")).uri.toFile().absolutePath
+                    if (!DocumentFile.fromFile(StorageManager(requireContext()).downloadDir).exists()) {
+                        KeyValue(requireContext()).customStoragePath = null
+                        Toast.makeText(requireContext(), "Invalid Download location", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Download location changed", Toast.LENGTH_SHORT).show()
+                        customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
+                    }
                 }
             }, null)
         }

@@ -1,21 +1,27 @@
 package com.vkpapps.sendkr.model
 
 import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 
 class Signal {
     @Expose
+    @SerializedName(value = "type")
     var type = -1
 
     @Expose
+    @SerializedName(value = "requestInfo")
     var requestInfo: RequestInfo? = null
 
     @Expose
+    @SerializedName(value = "fileRequest")
     var fileRequest: FileRequest? = null
 
     @Expose
+    @SerializedName(value = "user")
     var user: User? = null
 
     @Expose
+    @SerializedName(value = "fileStatusRequest")
     var fileStatusRequest: FileStatusRequest? = null
 
     constructor(requestInfo: RequestInfo) {

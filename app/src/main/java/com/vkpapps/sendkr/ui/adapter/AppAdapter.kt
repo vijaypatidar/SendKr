@@ -31,7 +31,8 @@ class AppAdapter(appInfos: ArrayList<AppInfo>, onAppSelectListener: OnAppSelectL
         loadApkThumbnail(appInfo.id, appInfo.uri, appHolder.appIcon)
         appHolder.btnSelected.isChecked = appInfo.isSelected
         appHolder.packageName.text = MathUtils.longToStringSize(appInfo.uri.toFile().length().toDouble())
-        appHolder.btnSelected.setOnClickListener {
+        //onClick event handling
+        val onClick = View.OnClickListener {
             appInfo.isSelected = !appInfo.isSelected
             if (appInfo.obbUri != null && appInfo.isSelected != appInfo.isObbSelected) {
                 appInfo.isObbSelected = appInfo.isSelected
@@ -41,6 +42,9 @@ class AppAdapter(appInfos: ArrayList<AppInfo>, onAppSelectListener: OnAppSelectL
             selectionChange(appInfo, appInfo.isSelected)
             appHolder.btnSelected.isChecked = appInfo.isSelected
         }
+        appHolder.appItem.setOnClickListener(onClick)
+        appHolder.btnSelected.setOnClickListener(onClick)
+
         if (appInfo.obbUri != null) {
             appHolder.obb.visibility = View.VISIBLE
             appHolder.obbName.text = appInfo.obbName
@@ -74,25 +78,15 @@ class AppAdapter(appInfos: ArrayList<AppInfo>, onAppSelectListener: OnAppSelectL
     }
 
     class AppHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var appTitle: TextView
-        var packageName: TextView
-        var obbName: TextView
-        var obbSize: TextView
-        var appIcon: AppCompatImageView
-        var btnSelected: RadioButton
-        var btnObbSelected: RadioButton
-        var obb: View
-
-        init {
-            appTitle = itemView.findViewById(R.id.appName)
-            appIcon = itemView.findViewById(R.id.appIcon)
-            btnSelected = itemView.findViewById(R.id.btnSelect)
-            btnObbSelected = itemView.findViewById(R.id.btnSelectObb)
-            packageName = itemView.findViewById(R.id.packageName)
-            obbName = itemView.findViewById(R.id.obbName)
-            obbSize = itemView.findViewById(R.id.obbSize)
-            obb = itemView.findViewById(R.id.obbContainer)
-        }
+        var appTitle: TextView = itemView.findViewById(R.id.appName)
+        var packageName: TextView = itemView.findViewById(R.id.packageName)
+        var obbName: TextView = itemView.findViewById(R.id.obbName)
+        var obbSize: TextView = itemView.findViewById(R.id.obbSize)
+        var appIcon: AppCompatImageView = itemView.findViewById(R.id.appIcon)
+        var btnSelected: RadioButton = itemView.findViewById(R.id.btnSelect)
+        var btnObbSelected: RadioButton = itemView.findViewById(R.id.btnSelectObb)
+        var obb: View = itemView.findViewById(R.id.obbContainer)
+        var appItem: View = itemView.findViewById(R.id.appItem)
     }
 
     init {

@@ -14,7 +14,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.sendkr.R
@@ -65,7 +65,10 @@ class AudioFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRe
         controller = Navigation.findNavController(view)
         audioAdapter = AudioAdapter(mediaInfos, this, view.context)
         audioList.itemAnimator = DefaultItemAnimator()
-        audioList.layoutManager = LinearLayoutManager(view.context)
+
+        val isPhone = resources.getBoolean(R.bool.isPhone)
+        val spanCount = if (isPhone) 1 else 2
+        audioList.layoutManager = GridLayoutManager(requireContext(), spanCount)
         audioList.adapter = audioAdapter
         audioList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {

@@ -35,11 +35,11 @@ class DialogsUtils(private val context: Context) {
         alertDialog.show()
         view.findViewById<View>(R.id.btnCreateGroup).setOnClickListener {
             createGroup.onClick(it)
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
         view.findViewById<View>(R.id.btnJoinGroup).setOnClickListener {
             joinGroup.onClick(it)
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
     }
 
@@ -87,11 +87,11 @@ class DialogsUtils(private val context: Context) {
         alertDialog.show()
         view.findViewById<View>(R.id.btnClear).setOnClickListener {
             clear.onClick(it)
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
         view.findViewById<View>(R.id.btnCancel).setOnClickListener {
             cancel?.onClick(it)
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
     }
 
@@ -111,11 +111,11 @@ class DialogsUtils(private val context: Context) {
             directoryPickerAdapter.dirSelected?.run {
                 onSelect.onSuccess(this.uri.toFile())
             }
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
         view.findViewById<View>(R.id.btnCancel).setOnClickListener {
             cancel?.onClick(it)
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
     }
 
@@ -130,10 +130,10 @@ class DialogsUtils(private val context: Context) {
         view.findViewById<AppCompatTextView>(R.id.message).text = message
         view.findViewById<View>(R.id.btnClear).setOnClickListener {
             clear.onClick(it)
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
         view.findViewById<View>(R.id.btnCancel).setOnClickListener {
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
     }
 
@@ -147,11 +147,11 @@ class DialogsUtils(private val context: Context) {
         alertDialog.show()
         view.findViewById<View>(R.id.btnExit).setOnClickListener {
             exit.onClick(it)
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
         view.findViewById<View>(R.id.btnCancel).setOnClickListener {
             cancel?.onClick(it)
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
     }
 
@@ -166,7 +166,7 @@ class DialogsUtils(private val context: Context) {
         alertDialog.show()
         view.findViewById<AppCompatTextView>(R.id.message).text = String.format(context.getString(R.string.waiting_for_receiver_detail), count)
         view.findViewById<View>(R.id.btnOk).setOnClickListener {
-            alertDialog.cancel()
+            alertDialog.dismiss()
         }
     }
 
@@ -179,11 +179,11 @@ class DialogsUtils(private val context: Context) {
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
         view.findViewById<View>(R.id.btnAsk).setOnClickListener {
-            alertDialog.cancel()
+            alertDialog.dismiss()
             ask.onClick(it)
         }
         view.findViewById<View>(R.id.btnCancel).setOnClickListener {
-            alertDialog.cancel()
+            alertDialog.dismiss()
             cancel?.onClick(it)
         }
     }

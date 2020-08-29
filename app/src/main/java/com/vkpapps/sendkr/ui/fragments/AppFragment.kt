@@ -10,8 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
+import com.vkpapps.sendkr.App.Companion.isPhone
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
@@ -23,7 +24,6 @@ import com.vkpapps.sendkr.ui.adapter.AppAdapter
 import com.vkpapps.sendkr.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_app.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -51,7 +51,8 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
         setHasOptionsMenu(true)
         navController = Navigation.findNavController(view)
         appList.adapter = adapter
-        appList.layoutManager = LinearLayoutManager(requireContext())
+        val spanCount = if (isPhone) 1 else 2
+        appList.layoutManager = GridLayoutManager(requireContext(), spanCount)
         appList.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
                 if (selectedCount == 0)
@@ -82,7 +83,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                     if (it.obbUri != null && it.isObbSelected) {
                         it.isObbSelected = false
                         selected.add(RawRequestInfo(
-                                it.obbName!!, it.obbUri!!, FileType.FILE_TYPE_ANY, MathUtils.getFileSize(DocumentFile.fromFile(it.obbUri!!.toFile())
+                                it.obbName!!, it.obbUri!!, FileType.FILE_TYPE_APP, MathUtils.getFileSize(DocumentFile.fromFile(it.obbUri!!.toFile())
                         )))
                     }
 
@@ -106,7 +107,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                     }
                 }
                 selectedCount = 0
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     adapter.notifyDataSetChanged()
                     hideShowSendButton()
                 }
@@ -124,7 +125,7 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
                         selectedCount++
                     }
                 }
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     adapter.notifyDataSetChanged()
                     hideShowSendButton()
                 }

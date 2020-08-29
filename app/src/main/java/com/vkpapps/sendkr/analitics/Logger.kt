@@ -8,7 +8,7 @@ import android.util.Log
 
 object Logger {
     var logger = true
-    private const val TAG = "ThunderLogger"
+    private const val TAG = "SendKrLogger"
 
     /***
      * @param message text to be logged as debug on logcat

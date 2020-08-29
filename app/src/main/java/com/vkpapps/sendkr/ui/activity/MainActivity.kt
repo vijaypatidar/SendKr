@@ -13,7 +13,6 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.net.toFile
@@ -50,13 +49,11 @@ import com.vkpapps.sendkr.room.liveViewModel.HistoryViewModel
 import com.vkpapps.sendkr.room.liveViewModel.QuickAccessViewModel
 import com.vkpapps.sendkr.room.liveViewModel.RequestViewModel
 import com.vkpapps.sendkr.ui.dialog.DialogsUtils
+import com.vkpapps.sendkr.ui.dialog.PrivacyDialog
 import com.vkpapps.sendkr.ui.fragments.DashboardFragment
 import com.vkpapps.sendkr.ui.fragments.destinations.FragmentDestinationListener
-import com.vkpapps.sendkr.utils.BitmapUtils
-import com.vkpapps.sendkr.utils.FileTypeResolver
+import com.vkpapps.sendkr.utils.*
 import com.vkpapps.sendkr.utils.HashUtils.getRandomId
-import com.vkpapps.sendkr.utils.IPManager
-import com.vkpapps.sendkr.utils.PermissionUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -72,7 +69,7 @@ import kotlin.collections.ArrayList
 /**
  * @author VIJAY PATIDAR
  */
-class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUserListRequestListener,
+class MainActivity : MyAppCompatActivity(), OnNavigationVisibilityListener, OnUserListRequestListener,
         OnFragmentAttachStatusListener, OnFileRequestListener, OnFileRequestPrepareListener,
         OnFileRequestReceiverListener, OnClientConnectionStateListener, OnFileStatusChangeListener {
 
@@ -103,12 +100,12 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
         if (!connected || (!isHost && !clientHelper.connected)) {
             choice()
-//            UpdateManager().checkForUpdate(this)
+            UpdateManager().checkForUpdate(this)
             quickAccessViewModel.refreshData()
         }
         fileToShare()
         updateTransferringProgressBar()
-//        PrivacyDialog(this).isPolicyAccepted
+        PrivacyDialog(this).isPolicyAccepted
     }
 
     private fun setProfileActionView() {
@@ -554,6 +551,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 withContext(Main) {
                     loading.cancel()
                 }
+                intent.putExtra("shared", ArrayList<Parcelable>())
             }
         } else {
             PermissionUtils.askStoragePermission(this, ASK_PERMISSION_FROM_SHARED_INTENT)
