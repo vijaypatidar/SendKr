@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class ProfileActivity : AppCompatActivity() {
+public class ProfileActivity : AppCompatActivity() {
     private var picChange = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

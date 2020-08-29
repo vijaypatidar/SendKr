@@ -29,6 +29,16 @@
                 android:textColor="@color/black"
                 android:textSize="18sp" />
 
+            <TextView
+                android:id="@+id/currentDir"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:ellipsize="start"
+                android:singleLine="true"
+                android:text="@string/select_directory"
+                android:textSize="14sp" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/dirList"
                 android:layout_width="match_parent"

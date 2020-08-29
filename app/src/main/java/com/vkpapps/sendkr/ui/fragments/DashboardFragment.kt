@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -72,7 +71,7 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
 
         btnShutDown.setOnClickListener {
             DialogsUtils(requireContext()).closeGroup({
-                findNavController().popBackStack()
+                navController?.popBackStack()
                 if (MainActivity.isHost) {
                     WifiApUtils.disableWifiAp()
                     MainActivity.serverHelper.shutDown()

@@ -42,14 +42,12 @@ object PrepareAppList {
                 appInfos.add(appInfo)
             }
         }
-
+        appInfos.sortBy { appInfo -> appInfo.name }
         Thread {
             appInfos.forEach {
                 MyThumbnailUtils.loadApkThumbnail(it.id, it.uri, null)
             }
         }.start()
-
-        appInfos.sortBy { appInfo -> appInfo.name }
         appInfos
     }
 

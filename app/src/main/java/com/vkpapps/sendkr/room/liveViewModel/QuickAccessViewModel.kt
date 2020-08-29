@@ -26,9 +26,9 @@ class QuickAccessViewModel(application: Application) : AndroidViewModel(applicat
 
     val documentsLiveData = MutableLiveData(documents)
     val apkLiveData = MutableLiveData(apks)
-    val zipsLiveData = MutableLiveData(apks)
+    val zipsLiveData = MutableLiveData(zips)
 
-    fun clear() {
+    private fun clearList() {
         documents.clear()
         apks.clear()
         zips.clear()
@@ -38,7 +38,7 @@ class QuickAccessViewModel(application: Application) : AndroidViewModel(applicat
         if (!loading) {
             loading = true
             CoroutineScope(IO).launch {
-                clear()
+                clearList()
                 scan(DocumentFile.fromFile(StorageManager(App.context).internal))
                 try {
                     external?.run {
@@ -59,7 +59,7 @@ class QuickAccessViewModel(application: Application) : AndroidViewModel(applicat
         documentsLiveData.postValue(documents)
     }
 
-    fun scan(file: DocumentFile) {
+    private fun scan(file: DocumentFile) {
         try {
             if (file.isDirectory) {
                 file.listFiles().forEach {

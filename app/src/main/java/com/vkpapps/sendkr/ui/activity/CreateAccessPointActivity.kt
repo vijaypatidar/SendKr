@@ -7,6 +7,7 @@ import android.provider.Settings
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.vkpapps.sendkr.BuildConfig
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFailureListener
@@ -24,6 +25,14 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, O
     private var alertGpsProviderRequire: AlertDialog? = null
     private var alertDisableHotspot: AlertDialog? = null
     private var alertDisableWifi: AlertDialog? = null
+
+    override fun onDestroy() {
+        super.onDestroy()
+        progressDialog?.dismiss()
+        alertGpsProviderRequire?.dismiss()
+        alertDisableHotspot?.dismiss()
+        alertDisableWifi?.dismiss()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Logger.d("[CreateAccessPointActivity][onCreate]")
@@ -58,10 +67,11 @@ class CreateAccessPointActivity : AppCompatActivity(), OnFailureListener<Int>, O
         super.onResume()
         Logger.d("[CreateAccessPointActivity][onResume]")
         createHotspot()
-
-        useExistingSection.visibility = if (WifiApUtils.isWifiApEnabled()) View.VISIBLE else View.GONE
-        useRouterSection.visibility = if (WifiApUtils.wifiManager.isWifiEnabled
-                && IPManager(this@CreateAccessPointActivity).deviceIp() != "0.0.0.0") View.VISIBLE else View.GONE
+        if (BuildConfig.DEBUG) {
+            useExistingSection.visibility = if (WifiApUtils.isWifiApEnabled()) View.VISIBLE else View.GONE
+            useRouterSection.visibility = if (WifiApUtils.wifiManager.isWifiEnabled
+                    && IPManager(this@CreateAccessPointActivity).deviceIp() != "0.0.0.0") View.VISIBLE else View.GONE
+        }
     }
 
     private fun createHotspot() {

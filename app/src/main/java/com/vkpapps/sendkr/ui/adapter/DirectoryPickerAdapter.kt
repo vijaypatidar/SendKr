@@ -4,18 +4,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.utils.StorageManager
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
 /***
  * @author VIJAY PATIDAR
  */
-class DirectoryPickerAdapter : RecyclerView.Adapter<DirectoryPickerAdapter.DirHolder>() {
+class DirectoryPickerAdapter(val currentSelection: AppCompatTextView) : RecyclerView.Adapter<DirectoryPickerAdapter.DirHolder>() {
     var dirSelected: DocumentFile? = null
     private var currentTree = ArrayList<DocumentFile>()
     val stack = Stack<ArrayList<DocumentFile>>().apply {
@@ -28,6 +31,7 @@ class DirectoryPickerAdapter : RecyclerView.Adapter<DirectoryPickerAdapter.DirHo
                 currentTree.add(DocumentFile.fromFile(this))
             }
             stack.push(currentTree)
+            displayCurrentPath()
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }
@@ -46,25 +50,37 @@ class DirectoryPickerAdapter : RecyclerView.Adapter<DirectoryPickerAdapter.DirHo
                         stack.pop()
                         currentTree = stack.peek()
                         notifyDataSetChanged()
+                        dirSelected = dirSelected?.parentFile
+                        displayCurrentPath()
                     }
                 }
             } else {
                 val file = currentTree[position - 1]
                 dirHolder.dirTitle.text = file.name
                 dirHolder.itemView.setOnClickListener {
-                    val nextTree = ArrayList<DocumentFile>()
                     dirSelected = file
+                    val nextTree = ArrayList<DocumentFile>()
                     file.listFiles().forEach {
-                        if (it.isDirectory)
+                        if (it.isDirectory && !it.name!!.startsWith("."))
                             nextTree.add(it)
                     }
                     nextTree.sortBy { it.name }
                     stack.push(nextTree)
                     currentTree = nextTree
                     notifyDataSetChanged()
+                    displayCurrentPath()
                 }
             }
         } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun displayCurrentPath() {
+        try {
+            currentSelection.text = File(dirSelected!!.uri.toFile(), "SendKr").absolutePath
+        } catch (e: java.lang.Exception) {
+            currentSelection.text = StorageManager(currentSelection.context).downloadDir.absolutePath
             e.printStackTrace()
         }
     }

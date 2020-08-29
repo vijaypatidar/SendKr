@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
 /***
  * @author VIJAY PATIDAR
  */
-class SplashActivity : AppCompatActivity() {
+public class SplashActivity : AppCompatActivity() {
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "NOTIFICATION_CHANNEL_ID"
     }

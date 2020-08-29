@@ -40,7 +40,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
-class ConnectionActivity : AppCompatActivity() {
+public class ConnectionActivity : AppCompatActivity() {
     companion object {
         var network: Network? = null
         const val PARAM_CONNECTION_TYPE = "com.vkpapps.sendkr.PARAM_CONNECTION_TYPE"

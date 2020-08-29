@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.R
+import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFailureListener
 import com.vkpapps.sendkr.interfaces.OnSuccessListener
 import com.vkpapps.sendkr.ui.adapter.DirectoryPickerAdapter
@@ -102,7 +103,7 @@ class DialogsUtils(private val context: Context) {
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
-        val directoryPickerAdapter = DirectoryPickerAdapter()
+        val directoryPickerAdapter = DirectoryPickerAdapter(view.findViewById(R.id.currentDir))
         val dirListView = view.findViewById<RecyclerView>(R.id.dirList)
         dirListView.layoutManager = LinearLayoutManager(context)
         dirListView.adapter = directoryPickerAdapter
@@ -155,6 +156,7 @@ class DialogsUtils(private val context: Context) {
     }
 
     fun waitingForReceiver(count: Int) {
+        Logger.d("[DialogUtils][waitingForReceiver]")
         val ab = AlertDialog.Builder(context)
         val view = LayoutInflater.from(context).inflate(R.layout.alert_waiting_for_receiver, null)
         ab.setView(view)

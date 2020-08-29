@@ -31,6 +31,7 @@ import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.App.Companion.user
 import com.vkpapps.sendkr.BuildConfig
 import com.vkpapps.sendkr.R
+import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.analitics.Logger.d
 import com.vkpapps.sendkr.connection.ClientHelper
 import com.vkpapps.sendkr.connection.FileService
@@ -49,11 +50,13 @@ import com.vkpapps.sendkr.room.liveViewModel.HistoryViewModel
 import com.vkpapps.sendkr.room.liveViewModel.QuickAccessViewModel
 import com.vkpapps.sendkr.room.liveViewModel.RequestViewModel
 import com.vkpapps.sendkr.ui.dialog.DialogsUtils
-import com.vkpapps.sendkr.ui.dialog.PrivacyDialog
 import com.vkpapps.sendkr.ui.fragments.DashboardFragment
 import com.vkpapps.sendkr.ui.fragments.destinations.FragmentDestinationListener
-import com.vkpapps.sendkr.utils.*
+import com.vkpapps.sendkr.utils.BitmapUtils
+import com.vkpapps.sendkr.utils.FileTypeResolver
 import com.vkpapps.sendkr.utils.HashUtils.getRandomId
+import com.vkpapps.sendkr.utils.IPManager
+import com.vkpapps.sendkr.utils.PermissionUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -83,7 +86,9 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Logger.d("[MainActivity][onCreate]")
         setContentView(R.layout.activity_main)
+        Logger.d("[MainActivity][onCreate]")
         supportActionBar?.elevation = 0f
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -97,25 +102,17 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
         setProfileActionView()
 
         if (!connected || (!isHost && !clientHelper.connected)) {
-            d("creating new connection")
             choice()
-            UpdateManager().checkForUpdate(this)
-        } else {
-            d("using old connection")
+//            UpdateManager().checkForUpdate(this)
+            quickAccessViewModel.refreshData()
         }
         fileToShare()
         updateTransferringProgressBar()
-        PrivacyDialog(this).isPolicyAccepted
-        quickAccessViewModel.refreshData()
-
-        if (BuildConfig.DEBUG) {
-            historyViewModel.insert(
-                    HistoryInfo("requestInfo.rid", "requestInfo.name", Uri.parse(""), 1)
-            )
-        }
+//        PrivacyDialog(this).isPolicyAccepted
     }
 
     private fun setProfileActionView() {
+        Logger.d("[MainActivity][setProfileActionView]")
         val menuView: BottomNavigationMenuView = navView.getChildAt(0) as BottomNavigationMenuView
         val profileMenuItemView: BottomNavigationItemView = menuView.getChildAt(4) as BottomNavigationItemView
         val profileActionView = LayoutInflater.from(this).inflate(R.layout.profile_action_view, menuView, false)
@@ -382,6 +379,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     CoroutineScope(IO).launch {
                         PrepareDb().prepareAll()
+                        quickAccessViewModel.refreshData()
                     }
                     navController.navigate(R.id.navigation_media)
                 } else {
@@ -391,6 +389,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     CoroutineScope(IO).launch {
                         PrepareDb().prepareAll()
+                        quickAccessViewModel.refreshData()
                     }
                     fileToShare()
                 } else {
@@ -400,6 +399,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     CoroutineScope(IO).launch {
                         PrepareDb().prepareAll()
+                        quickAccessViewModel.refreshData()
                     }
                 } else {
                     Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
@@ -462,6 +462,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
                 }
             }
         } else {
+            d("[MainActivity][sendFiles]  requests else= ${requests.size}")
             pendingRequest.addAll(requests)
             requestViewModel.notifyPendingCountChange()
             if (requests.isNotEmpty()) {
@@ -560,6 +561,7 @@ class MainActivity : AppCompatActivity(), OnNavigationVisibilityListener, OnUser
     }
 
     private fun updateTransferringProgressBar() {
+        Logger.d("[MainActivity][updateTransferringProgressBar]")
         requestViewModel.pendingRequestCountLiveData.observe(this, {
             val visible = if (it == 0 && pendingRequest.size == 0) View.GONE else View.VISIBLE
             transferringProgressBar?.visibility = visible

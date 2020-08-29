@@ -11,6 +11,9 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions"/>
 
     <uses-feature android:name="android.hardware.wifi" />
 
@@ -42,7 +45,6 @@
         <activity
             android:name="com.vkpapps.sendkr.ui.activity.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity

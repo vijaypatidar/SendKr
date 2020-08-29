@@ -17,7 +17,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.R
@@ -153,7 +152,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
     }
 
     private fun openQuickAccess(type: Int = QuickAccessFragment.TYPE_DOCUMENTS) {
-        findNavController().navigate(object : NavDirections {
+        navController?.navigate(object : NavDirections {
             override fun getActionId(): Int {
                 return R.id.action_navigation_home_to_quickAccessFragment
             }
@@ -327,6 +326,6 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
     private fun hideShowSendButton() {
         onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
-        selectionView.changeVisibility(selectedCount)
+        selectionView?.changeVisibility(selectedCount)
     }
 }

@@ -228,7 +228,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogF
 
     private fun hideShowSendButton() {
         onNavigationVisibilityListener?.onNavVisibilityChange(selectCount == 0)
-        selectionView.changeVisibility(selectCount)
+        selectionView?.changeVisibility(selectCount)
     }
 
     override fun onFileDeselected(fileInfo: FileInfo) {

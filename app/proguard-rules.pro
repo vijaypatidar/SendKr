@@ -18,7 +18,35 @@
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-renamesourcefileattribute SourceFile
 -keep class com.vkpapps.sendkr.model.*{
     *;
 }
+#-printmapping out.map
+#-keepparameternames
+#-renamesourcefileattribute SourceFile
+#-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,EnclosingMethod
+#
+## Preserve all annotations.
+#
+-keepattributes *Annotation*
+#
+## Preserve all public classes, and their public and protected fields and
+## methods.
+#
+#-keep public class * {
+#    public protected *;
+#}
+#
+## Preserve all .class method names.
+#
+#-keepclassmembernames class * {
+#    java.lang.Class class$(java.lang.String);
+#    java.lang.Class class$(java.lang.String, boolean);
+#}
+#
+## Preserve all native method names and the names of their classes.
+#
+#-keepclasseswithmembernames class * {
+#    native <methods>;
+#}

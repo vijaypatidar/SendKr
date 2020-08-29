@@ -7,8 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.navigation.NavDirections
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -51,6 +52,7 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
     private var typeToShow = 0
     private var adapter: FileAdapter? = null
     private var fileInfos: ArrayList<FileInfo>? = null
+    private var controller: NavController? = null
     private val quickAccessViewModel: QuickAccessViewModel by lazy { ViewModelProvider(requireActivity()).get(QuickAccessViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,7 +86,7 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-
+        controller = Navigation.findNavController(view)
         mySwipeRefreshLayout?.setOnRefreshListener(this)
         quickList?.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
@@ -171,20 +173,24 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
         this.fileInfos = list
         selectCount = 0
         CoroutineScope(IO).launch {
-            list.forEach {
-                it.isSelected = false
-            }
-            withContext(Main) {
-                adapter = FileAdapter(this@QuickAccessFragment, findNavController(), list)
-                quickList?.adapter = adapter
-                loadingFile?.visibility = View.GONE
-                if (fileInfos?.size == 0) {
-                    emptyQuickList?.visibility = View.VISIBLE
-                } else {
-                    emptyQuickList?.visibility = View.GONE
+            try {
+                list.forEach {
+                    it.isSelected = false
                 }
+                withContext(Main) {
+                    adapter = FileAdapter(this@QuickAccessFragment, controller!!, list)
+                    quickList?.adapter = adapter
+                    loadingFile?.visibility = View.GONE
+                    if (fileInfos?.size == 0) {
+                        emptyQuickList?.visibility = View.VISIBLE
+                    } else {
+                        emptyQuickList?.visibility = View.GONE
+                    }
+                }
+                mySwipeRefreshLayout.hide()
+            }catch (e:java.lang.Exception){
+                e.printStackTrace()
             }
-            mySwipeRefreshLayout.hide()
         }
         hideShowSendButton()
     }
@@ -203,7 +209,7 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
         super.onCreateOptionsMenu(menu, inflater)
         val findItem = menu.findItem(R.id.menu_transferring)
         findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
-            findNavController().navigate(object : NavDirections {
+            controller?.navigate(object : NavDirections {
                 override fun getArguments(): Bundle {
                     return Bundle()
                 }
@@ -238,7 +244,7 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
 
     private fun hideShowSendButton() {
         onNavigationVisibilityListener?.onNavVisibilityChange(selectCount == 0)
-        selectionView.changeVisibility(selectCount)
+        selectionView?.changeVisibility(selectCount)
     }
 
     override fun onFileDeselected(fileInfo: FileInfo) {
@@ -247,7 +253,7 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
     }
 
     override fun onFileLongClickListener(fileInfo: FileInfo) {
-        findNavController().navigate(object : NavDirections {
+        controller?.navigate(object : NavDirections {
             override fun getArguments(): Bundle {
                 return Bundle().apply {
                     putString(FilePropertyDialogFragment.PARAM_FILE_ID, fileInfo.id)

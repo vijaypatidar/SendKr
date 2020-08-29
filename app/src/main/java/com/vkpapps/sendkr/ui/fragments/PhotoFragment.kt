@@ -204,7 +204,7 @@ class PhotoFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRe
 
     private fun hideShowSendButton() {
         onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
-        selectionView.changeVisibility(selectedCount)
+        selectionView?.changeVisibility(selectedCount)
     }
 
     override fun onMediaLongClickListener(mediaInfo: MediaInfo) {

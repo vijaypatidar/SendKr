@@ -209,7 +209,7 @@ class VideoFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRe
     }
 
     private fun hideShowSendButton() {
-        selectionView.changeVisibility(selectedCount)
+        selectionView?.changeVisibility(selectedCount)
         onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
     }
 
@@ -249,11 +249,11 @@ class VideoFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRe
                 sort()
                 withContext(Main) {
                     adapter?.notifyDataSetChanged()
-                    emptyVideo.visibility = View.GONE
+                    emptyVideo?.visibility = View.GONE
                 }
             } else {
                 withContext(Main) {
-                    emptyVideo.visibility = View.VISIBLE
+                    emptyVideo?.visibility = View.VISIBLE
                 }
             }
         }

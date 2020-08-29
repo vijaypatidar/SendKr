@@ -27,6 +27,7 @@ object MyThumbnailUtils {
                     Picasso.get().load(file).into(imageView)
                 }
                 BitmapUtils.bitmapToFile(bitmap, file)
+                mmr.release()
             } else {
                 imageView?.run {
                     Picasso.get().load(file).into(imageView)
@@ -48,6 +49,7 @@ object MyThumbnailUtils {
                     imageView?.setImageBitmap(this)
                     BitmapUtils.bitmapToFile(this, file)
                 }
+                mmr.release()
             } else {
                 imageView?.run {
                     Picasso.get().load(file).into(imageView)
