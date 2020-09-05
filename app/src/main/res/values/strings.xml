@@ -12,8 +12,7 @@
     <string name="developer">Developer Profile</string>
     <string name="app_description">An app for sending and receiving files without internet via Wi-Fi network.</string>
     <string name="privacy_policy">Privacy Policy</string>
-    <string name="privacy_policy_url">https://vkp.page.link/skpp</string>
-    <string name="accept_policy">By using the app you agree to the SendKr <a href="https://vkp.page.link/skpp">privacy policy</a></string>
+    <string name="accept_policy">By using the app you agree to the SendKr &lt;a href="https://vkp.page.link/skpp">privacy policy&lt;/a></string>
     <string name="cancel">Cancel</string>
     <string name="i_agree">I Agree</string>
     <string name="github_url">https://github.com/vijaypatidar</string>
@@ -47,7 +46,6 @@
     <string name="media">Media</string>
     <string name="clear_history">Clear history</string>
     <string name="privacy">Privacy</string>
-    <string name="create_hotspot">Create Hotspot</string>
     <string name="retry">Retry</string>
     <string name="create_group">Create Group</string>
     <string name="alert_dialog_connection_failed_detail">Error occurred while joining group.</string>
@@ -98,4 +96,12 @@
     <string name="choose">Choose</string>
     <string name="select_directory">Select directory</string>
     <string name="privacy_policy_and_developer">Privacy policy and developer</string>
+    <string name="close_group_discription">This will also cancel the ongoing transferring of files.</string>
+    <string name="disable">Disable</string>
+    <string name="path">Path</string>
+    <string name="size">Size</string>
+    <string name="type">Type</string>
+    <string name="last_modified_on">Last modified on</string>
+    <string name="close_leave_group">Close/Leave group</string>
+    <string name="failed_to_join_group">Failed to join group</string>
 </resources>

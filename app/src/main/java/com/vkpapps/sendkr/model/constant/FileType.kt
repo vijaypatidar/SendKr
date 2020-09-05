@@ -8,4 +8,5 @@ object FileType {
     const val FILE_TYPE_ANY = 5
     const val FILE_TYPE_FOLDER = 6
     const val FILE_TYPE_DOCUMENTS = 7
+    const val FILE_TYPE_ZIPS = 8
 }

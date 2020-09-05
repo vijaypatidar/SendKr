@@ -119,7 +119,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
         try {
             val statFs = StatFs(StorageManager(requireContext()).internal.path)
-            internalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSizeGb(statFs.totalBytes.toDouble())}GB"
+            internalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
             val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
             progressBarInternal.progress = progress
         } catch (e: Exception) {
@@ -134,7 +134,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
                     if (indexOf != -1)
                         externalStoragePath = externalStoragePath.subSequence(0, indexOf).toString()
                     val statFs = StatFs(it.path)
-                    externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSizeGb(statFs.totalBytes.toDouble())}GB"
+                    externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
                     val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
                     progressBarExternal.progress = progress
                     KeyValue(requireContext()).externalStoragePath = externalStoragePath
@@ -248,7 +248,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             }
         }
         val historyInfos = ArrayList<HistoryInfo>()
-        historyViewModel.historyInfos.observe(requireActivity(), androidx.lifecycle.Observer {
+        historyViewModel.historyInfos.observe(requireActivity(), {
             CoroutineScope(IO).launch {
                 historyInfos.clear()
                 historyInfos.addAll(it)

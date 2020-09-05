@@ -219,7 +219,7 @@ class AudioFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRe
     }
 
     private fun hideShowSendButton() {
-        selectionView.changeVisibility(selectedCount)
+        selectionView?.changeVisibility(selectedCount)
         onNavigationVisibilityListener?.onNavVisibilityChange(selectedCount == 0)
     }
 

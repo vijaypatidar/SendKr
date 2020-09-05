@@ -96,8 +96,12 @@ object WifiApUtils {
             }
             try {
                 val wifiConfiguration = WifiConfiguration()
-                wifiConfiguration.SSID = "\"${ssid}\""
-                wifiConfiguration.preSharedKey = "\"${password}\""
+                wifiConfiguration.SSID = ssid
+                wifiConfiguration.preSharedKey = password
+                wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED)
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN)
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA)
+                wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK)
                 wifiManager.isWifiEnabled = false
                 setWifiApEnabled(wifiConfiguration, true)
                 BarCodeUtils().createQR("${ssid}\n${password}", File(StorageManager(App.context).userDir, "code.png").absolutePath)

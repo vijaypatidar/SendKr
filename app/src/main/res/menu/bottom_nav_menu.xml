@@ -18,7 +18,6 @@
         android:icon="@drawable/ic_dashboard"
         android:title="@string/title_dashboard" />
     <item
-        android:id="@+id/navigation_profile"
         android:checkable="false"
         android:icon="@drawable/ic_male_avatar"
         android:title="@string/title_profile" />

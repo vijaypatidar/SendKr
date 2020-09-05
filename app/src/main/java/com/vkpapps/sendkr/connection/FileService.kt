@@ -44,7 +44,7 @@ class FileService(private val send: Boolean,
         //confirm user is same as for which rid is created
         if (socket.inetAddress.hostAddress != clientHelper.hostAddress) {
             socket.close()
-            throw Exception("invalid request for file")
+            throw Exception("invalid user for file")
         }
         return socket
     }

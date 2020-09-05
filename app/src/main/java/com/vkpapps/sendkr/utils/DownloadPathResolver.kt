@@ -19,6 +19,8 @@ object DownloadPathResolver {
             FileType.FILE_TYPE_PHOTO -> File(root, "images")
             FileType.FILE_TYPE_VIDEO -> File(root, "videos")
             FileType.FILE_TYPE_FOLDER -> File(root, "folders")
+            FileType.FILE_TYPE_ZIPS -> File(root, "zips")
+            FileType.FILE_TYPE_DOCUMENTS -> File(root, "documents")
             else -> File(root, "others")
         }
         file.exists().run {

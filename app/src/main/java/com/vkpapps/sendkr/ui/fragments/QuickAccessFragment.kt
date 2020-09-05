@@ -19,6 +19,7 @@ import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.sendkr.model.FileInfo
 import com.vkpapps.sendkr.model.RawRequestInfo
+import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.room.liveViewModel.QuickAccessViewModel
 import com.vkpapps.sendkr.ui.adapter.FileAdapter
 import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
@@ -39,9 +40,9 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
     companion object {
         private var sortBy = FilterDialogFragment.SORT_BY_NAME
         const val PARAM_TYPE = "com.vkpapps.sendkr.TYPE_TO_SHOW"
-        const val TYPE_DOCUMENTS = 0
-        const val TYPE_ZIPS = 1
-        const val TYPE_APK = 2
+        const val TYPE_DOCUMENTS = FileType.FILE_TYPE_DOCUMENTS
+        const val TYPE_ZIPS = FileType.FILE_TYPE_ZIPS
+        const val TYPE_APK = FileType.FILE_TYPE_APP
     }
 
 
@@ -49,9 +50,9 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
     private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var selectCount = 0
     private var title: String? = "default"
-    private var typeToShow = 0
+    private var typeToShow = TYPE_DOCUMENTS
     private var adapter: FileAdapter? = null
-    private var fileInfos: ArrayList<FileInfo>? = null
+    private var fileInfos: ArrayList<FileInfo> = ArrayList()
     private var controller: NavController? = null
     private val quickAccessViewModel: QuickAccessViewModel by lazy { ViewModelProvider(requireActivity()).get(QuickAccessViewModel::class.java) }
 
@@ -119,12 +120,12 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
             if (selectCount == 0) return@setOnClickListener
             CoroutineScope(IO).launch {
                 val selected = ArrayList<RawRequestInfo>()
-                fileInfos?.forEach {
+                fileInfos.forEach {
                     try {
                         if (it.isSelected) {
                             it.isSelected = false
                             selected.add(RawRequestInfo(
-                                    it.name, it.uri, it.type, it.size
+                                    it.name, it.uri, typeToShow, it.size
                             ))
                         }
                     } catch (e: Exception) {
@@ -143,7 +144,7 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
         selectionView.btnSelectAll.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectCount = 0
-                fileInfos?.forEach {
+                fileInfos.forEach {
                     it.isSelected = true
                     selectCount++
                 }
@@ -156,7 +157,7 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
         selectionView.btnSelectNon.setOnClickListener {
             CoroutineScope(IO).launch {
                 selectCount = 0
-                fileInfos?.forEach {
+                fileInfos.forEach {
                     it.isSelected = false
                 }
                 withContext(Main) {
@@ -170,7 +171,7 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
 
     private fun setAdapter(list: ArrayList<FileInfo>) {
         Logger.d("[QuickAccessFragments][setAdapter]")
-        this.fileInfos = list
+        this.fileInfos = ArrayList(list)
         selectCount = 0
         CoroutineScope(IO).launch {
             try {
@@ -178,10 +179,10 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
                     it.isSelected = false
                 }
                 withContext(Main) {
-                    adapter = FileAdapter(this@QuickAccessFragment, controller!!, list)
+                    adapter = FileAdapter(this@QuickAccessFragment, controller!!, fileInfos)
                     quickList?.adapter = adapter
                     loadingFile?.visibility = View.GONE
-                    if (fileInfos?.size == 0) {
+                    if (fileInfos.size == 0) {
                         emptyQuickList?.visibility = View.VISIBLE
                     } else {
                         emptyQuickList?.visibility = View.GONE

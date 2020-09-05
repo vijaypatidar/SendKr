@@ -1,5 +1,6 @@
 package com.vkpapps.sendkr.connection
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnClientConnectionStateListener
@@ -21,7 +22,7 @@ class ClientHelper(private val socket: Socket, private val onFileRequestListener
         private val signalExecutors = Executors.newSingleThreadExecutor()
 
         @JvmStatic
-        val gson = GsonBuilder().apply {
+        val gson: Gson = GsonBuilder().apply {
             serializeNulls()
             excludeFieldsWithoutExposeAnnotation()
         }.create()

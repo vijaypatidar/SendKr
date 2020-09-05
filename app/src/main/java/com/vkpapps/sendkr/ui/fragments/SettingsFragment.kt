@@ -44,16 +44,16 @@ class SettingsFragment : Fragment() {
         }
 
         btnChangeCustomPath.setOnClickListener {
-            DialogsUtils(requireContext()).selectDir(object : OnSuccessListener<File> {
-                override fun onSuccess(t: File) {
-                    keyValue.customStoragePath = DocumentFile.fromFile(File(t, "SendKr")).uri.toFile().absolutePath
-                    if (!DocumentFile.fromFile(StorageManager(requireContext()).downloadDir).exists()) {
+            DialogsUtils(requireContext()).selectDir(object : OnSuccessListener<DocumentFile> {
+                override fun onSuccess(t: DocumentFile) {
+                    if (t.canWrite()) {
+                        keyValue.customStoragePath = DocumentFile.fromFile(File(t.uri.toFile(), "SendKr")).uri.toFile().absolutePath
+                        Toast.makeText(requireContext(), "Download location changed", Toast.LENGTH_SHORT).show()
+                    } else {
                         KeyValue(requireContext()).customStoragePath = null
                         Toast.makeText(requireContext(), "Invalid Download location", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), "Download location changed", Toast.LENGTH_SHORT).show()
-                        customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
                     }
+                    customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
                 }
             }, null)
         }

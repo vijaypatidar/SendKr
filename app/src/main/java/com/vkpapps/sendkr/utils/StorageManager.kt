@@ -37,7 +37,4 @@ class StorageManager(private val context: Context) {
             return file
         }
 
-    val profiles: File
-        get() = context.getDir("profiles", Context.MODE_PRIVATE)
-
 }

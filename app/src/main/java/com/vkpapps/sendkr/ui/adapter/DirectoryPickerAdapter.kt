@@ -18,11 +18,10 @@ import kotlin.collections.ArrayList
 /***
  * @author VIJAY PATIDAR
  */
-class DirectoryPickerAdapter(val currentSelection: AppCompatTextView) : RecyclerView.Adapter<DirectoryPickerAdapter.DirHolder>() {
+class DirectoryPickerAdapter(private val currentSelection: AppCompatTextView) : RecyclerView.Adapter<DirectoryPickerAdapter.DirHolder>() {
     var dirSelected: DocumentFile? = null
     private var currentTree = ArrayList<DocumentFile>()
-    val stack = Stack<ArrayList<DocumentFile>>().apply {
-    }
+    private val stack = Stack<ArrayList<DocumentFile>>()
 
     init {
         try {
