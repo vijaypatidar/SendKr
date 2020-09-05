@@ -20,6 +20,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.R
+import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.sendkr.model.HistoryInfo
@@ -85,7 +86,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         }
 
         internal.setOnClickListener {
-            val internal = StorageManager(requireContext()).internal
+            val internal = StorageManager.internal
             Navigation.findNavController(view).navigate(object : NavDirections {
                 override fun getActionId(): Int {
                     return R.id.fileFragment
@@ -118,36 +119,42 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         AdsUtils.getAdRequest(adView)
 
         try {
-            val statFs = StatFs(StorageManager(requireContext()).internal.path)
+            val statFs = StatFs(StorageManager.internal.path)
             internalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
             val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
             progressBarInternal.progress = progress
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        try {
-            ContextCompat.getExternalFilesDirs(requireContext(), null).forEach {
-                if (!it.absoluteFile.startsWith("/storage/emulated/0/")) {
-                    external.visibility = View.VISIBLE
-                    externalStoragePath = it.absolutePath
-                    val indexOf = externalStoragePath.indexOf("/Android")
-                    if (indexOf != -1)
-                        externalStoragePath = externalStoragePath.subSequence(0, indexOf).toString()
-                    val statFs = StatFs(it.path)
-                    externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
-                    val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
-                    progressBarExternal.progress = progress
-                    KeyValue(requireContext()).externalStoragePath = externalStoragePath
-                } else {
-                    KeyValue(requireContext()).externalStoragePath = null
-                    if (!DocumentFile.fromFile(StorageManager(requireContext()).downloadDir).exists()) {
-                        KeyValue(requireContext()).customStoragePath = null
+
+        if (StorageManager.isExternalStorageWritable()) {
+            external.visibility = View.VISIBLE
+            try {
+                ContextCompat.getExternalFilesDirs(requireContext(), null).forEach {
+                    Logger.d("[HomeFragment][onCreate][getExternalFilesDirs] ${it.absolutePath}")
+                    if (!it.absoluteFile.startsWith("/storage/emulated/0/")) {
+                        external.visibility = View.VISIBLE
+                        externalStoragePath = it.absolutePath
+                        val indexOf = externalStoragePath.indexOf("/Android")
+                        if (indexOf != -1)
+                            externalStoragePath = externalStoragePath.subSequence(0, indexOf).toString()
+                        val statFs = StatFs(it.path)
+                        externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
+                        val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
+                        progressBarExternal.progress = progress
+                        KeyValue(requireContext()).externalStoragePath = externalStoragePath
+                    } else {
+                        KeyValue(requireContext()).externalStoragePath = null
+                        if (!DocumentFile.fromFile(StorageManager.downloadDir).exists()) {
+                            KeyValue(requireContext()).customStoragePath = null
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
+        } else {
             external.visibility = View.GONE
-            e.printStackTrace()
         }
     }
 

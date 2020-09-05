@@ -19,10 +19,8 @@
     <string name="empty_directory">Directory is empty</string>
     <string name="title_apps">Apps</string>
     <string name="made_in_india">Made with ❤ in India</string>
-    <string name="empty_photo">No images found</string>
     <string name="empty_video">No videos found</string>
     <string name="Setting">Settings</string>
-    <string name="empty_music">No audio found</string>
     <string name="empty_request">Oops!You have not transfer anything yet.</string>
     <string name="transferring">Transferring</string>
     <string name="history">History</string>

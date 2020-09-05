@@ -104,7 +104,7 @@ object WifiApUtils {
                 wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK)
                 wifiManager.isWifiEnabled = false
                 setWifiApEnabled(wifiConfiguration, true)
-                BarCodeUtils().createQR("${ssid}\n${password}", File(StorageManager(App.context).userDir, "code.png").absolutePath)
+                BarCodeUtils().createQR("${ssid}\n${password}", File(StorageManager.userDir, "code.png").absolutePath)
                 onSuccessListener.onSuccess("created")
             } catch (e: Exception) {
                 e.printStackTrace()

@@ -1,12 +1,15 @@
 package com.vkpapps.sendkr.utils
 
 import android.content.Context
+import android.os.Environment
+import com.vkpapps.sendkr.App.Companion.context
 import java.io.File
 
 /**
  * @author VIJAY PATIDAR
  */
-class StorageManager(private val context: Context) {
+object StorageManager {
+
     val userDir: File
         get() = context.getDir("userData", Context.MODE_PRIVATE)
 
@@ -36,5 +39,12 @@ class StorageManager(private val context: Context) {
             if (!file.exists()) file.mkdirs()
             return file
         }
+
+
+    // Checks if a volume containing external storage is available
+    // for read and write.
+    fun isExternalStorageWritable(): Boolean {
+        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+    }
 
 }

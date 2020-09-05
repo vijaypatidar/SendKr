@@ -8,7 +8,6 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.RecyclerView
-import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.utils.StorageManager
 import java.io.File
@@ -25,8 +24,8 @@ class DirectoryPickerAdapter(private val currentSelection: AppCompatTextView) : 
 
     init {
         try {
-            currentTree.add(DocumentFile.fromFile(StorageManager(App.context).internal))
-            StorageManager(App.context).external?.run {
+            currentTree.add(DocumentFile.fromFile(StorageManager.internal))
+            StorageManager.external?.run {
                 currentTree.add(DocumentFile.fromFile(this))
             }
             stack.push(currentTree)
@@ -79,7 +78,7 @@ class DirectoryPickerAdapter(private val currentSelection: AppCompatTextView) : 
         try {
             currentSelection.text = File(dirSelected!!.uri.toFile(), "SendKr").absolutePath
         } catch (e: java.lang.Exception) {
-            currentSelection.text = StorageManager(currentSelection.context).downloadDir.absolutePath
+            currentSelection.text = StorageManager.downloadDir.absolutePath
             e.printStackTrace()
         }
     }

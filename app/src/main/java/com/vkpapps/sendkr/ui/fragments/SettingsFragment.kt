@@ -34,7 +34,7 @@ class SettingsFragment : Fragment() {
         setHasOptionsMenu(true)
 
         val keyValue = KeyValue(requireContext())
-        customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
+        customDownloadPath.text = StorageManager.downloadDir.absolutePath
 
         btnClearHistory.setOnClickListener {
             DialogsUtils(requireContext()).clearHistoryDialog({
@@ -53,7 +53,7 @@ class SettingsFragment : Fragment() {
                         KeyValue(requireContext()).customStoragePath = null
                         Toast.makeText(requireContext(), "Invalid Download location", Toast.LENGTH_SHORT).show()
                     }
-                    customDownloadPath.text = StorageManager(requireContext()).downloadDir.absolutePath
+                    customDownloadPath.text = StorageManager.downloadDir.absolutePath
                 }
             }, null)
         }
