@@ -1,6 +1,5 @@
 package com.vkpapps.sendkr.ui.adapter
 
-import android.content.Context
 import android.content.Intent
 import android.media.MediaScannerConnection
 import android.view.LayoutInflater
@@ -23,12 +22,11 @@ import com.vkpapps.sendkr.utils.MyThumbnailUtils
 /**
  * @author VIJAY PATIDAR
  */
-class AudioAdapter(private val mediaInfos: MutableList<MediaInfo>, private val onMediaSelectListener: OnMediaSelectListener, context: Context) : RecyclerView.Adapter<AudioViewHolder>() {
-    private val inflater: LayoutInflater = LayoutInflater.from(context)
+class AudioAdapter(private val mediaInfos: MutableList<MediaInfo>, private val onMediaSelectListener: OnMediaSelectListener) : RecyclerView.Adapter<AudioViewHolder>() {
     private val myThumbnailUtils = MyThumbnailUtils
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AudioViewHolder {
-        val inflate = inflater.inflate(R.layout.audio_list_item, parent, false)
+        val inflate = LayoutInflater.from(parent.context).inflate(R.layout.audio_list_item, parent, false)
         return AudioViewHolder(inflate)
     }
 

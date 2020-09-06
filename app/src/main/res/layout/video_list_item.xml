@@ -43,7 +43,7 @@
             android:ellipsize="end"
             android:orientation="vertical"
             android:textSize="16sp"
-            tools:text="vjfjhjahf">
+            tools:text="@string/app_name">
 
             <TextView
                 android:id="@+id/title"
@@ -56,7 +56,7 @@
                 android:clickable="false"
                 android:textColor="@color/black"
                 android:textSize="16sp"
-                tools:text="vjfjhjahf" />
+                tools:text="@string/app_name" />
 
             <TextView
                 android:id="@+id/size"

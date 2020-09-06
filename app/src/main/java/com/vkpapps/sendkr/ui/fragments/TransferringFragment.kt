@@ -26,8 +26,8 @@ import kotlinx.coroutines.launch
  * @author VIJAY PATIDAR
  */
 class TransferringFragment : Fragment() {
-    var job: Job? = null
-    var onFileStatusChangeListener: OnFileStatusChangeListener? = null
+    private var job: Job? = null
+    private var onFileStatusChangeListener: OnFileStatusChangeListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

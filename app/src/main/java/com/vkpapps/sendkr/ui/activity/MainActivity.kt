@@ -30,7 +30,6 @@ import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.App.Companion.user
 import com.vkpapps.sendkr.BuildConfig
 import com.vkpapps.sendkr.R
-import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.analitics.Logger.d
 import com.vkpapps.sendkr.connection.ClientHelper
 import com.vkpapps.sendkr.connection.FileService
@@ -83,9 +82,9 @@ class MainActivity : MyAppCompatActivity(), OnNavigationVisibilityListener, OnUs
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Logger.d("[MainActivity][onCreate]")
+        d("[MainActivity][onCreate]")
         setContentView(R.layout.activity_main)
-        Logger.d("[MainActivity][onCreate]")
+        d("[MainActivity][onCreate]")
         supportActionBar?.elevation = 0f
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -109,7 +108,7 @@ class MainActivity : MyAppCompatActivity(), OnNavigationVisibilityListener, OnUs
     }
 
     private fun setProfileActionView() {
-        Logger.d("[MainActivity][setProfileActionView]")
+        d("[MainActivity][setProfileActionView]")
         val menuView: BottomNavigationMenuView = navView.getChildAt(0) as BottomNavigationMenuView
         val profileMenuItemView: BottomNavigationItemView = menuView.getChildAt(4) as BottomNavigationItemView
         val profileActionView = LayoutInflater.from(this).inflate(R.layout.profile_action_view, menuView, false)
@@ -559,7 +558,7 @@ class MainActivity : MyAppCompatActivity(), OnNavigationVisibilityListener, OnUs
     }
 
     private fun updateTransferringProgressBar() {
-        Logger.d("[MainActivity][updateTransferringProgressBar]")
+        d("[MainActivity][updateTransferringProgressBar]")
         requestViewModel.pendingRequestCountLiveData.observe(this, {
             val visible = if (it == 0 && pendingRequest.size == 0) View.GONE else View.VISIBLE
             transferringProgressBar?.visibility = visible

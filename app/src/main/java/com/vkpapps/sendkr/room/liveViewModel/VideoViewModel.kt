@@ -18,7 +18,7 @@ class VideoViewModel(application: Application) : AndroidViewModel(application) {
     val videoInfosLiveData = MutableLiveData(videoInfos)
 
     private fun notifyDataChange() {
-        videoInfosLiveData.postValue(VideoViewModel.videoInfos)
+        videoInfosLiveData.postValue(videoInfos)
     }
 
     fun refreshData() {

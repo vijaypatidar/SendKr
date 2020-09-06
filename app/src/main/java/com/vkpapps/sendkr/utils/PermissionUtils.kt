@@ -14,6 +14,11 @@ import androidx.core.app.ActivityCompat
 object PermissionUtils {
     @JvmStatic
     fun checkStoragePermission(context: Context?): Boolean {
+//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            Environment.isExternalStorageManager()
+//        } else {
+//            ActivityCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+//        }
         return ActivityCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -62,6 +67,5 @@ object PermissionUtils {
             intent.data = Uri.parse("package:${activity.packageName}")
             startActivity(intent)
         }
-
     }
 }

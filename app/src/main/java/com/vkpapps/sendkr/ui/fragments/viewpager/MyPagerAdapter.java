@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyPagerAdapter extends FragmentStatePagerAdapter {
-    private List<Fragment> fragmentList;
-    private List<String> names;
+    private final List<Fragment> fragmentList;
+    private final List<String> names;
 
     public MyPagerAdapter(@NonNull FragmentManager fm) {
         super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);

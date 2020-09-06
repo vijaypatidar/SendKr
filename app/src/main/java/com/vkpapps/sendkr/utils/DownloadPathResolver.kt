@@ -1,17 +1,15 @@
 package com.vkpapps.sendkr.utils
 
-import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.model.RequestInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import java.io.File
-
 
 /**
  * @author VIJAY PATIDAR
  *
  */
 object DownloadPathResolver {
-    private val root: File = StorageManager(App.context).downloadDir
+    private val root: File = StorageManager.downloadDir
     private fun getDirectory(type: Int): File {
         val file = when (type) {
             FileType.FILE_TYPE_MUSIC -> File(root, "musics")
@@ -19,6 +17,8 @@ object DownloadPathResolver {
             FileType.FILE_TYPE_PHOTO -> File(root, "images")
             FileType.FILE_TYPE_VIDEO -> File(root, "videos")
             FileType.FILE_TYPE_FOLDER -> File(root, "folders")
+            FileType.FILE_TYPE_ZIPS -> File(root, "zips")
+            FileType.FILE_TYPE_DOCUMENTS -> File(root, "documents")
             else -> File(root, "others")
         }
         file.exists().run {

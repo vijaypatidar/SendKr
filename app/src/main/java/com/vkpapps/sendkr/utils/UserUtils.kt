@@ -16,7 +16,7 @@ class UserUtils(val context: Context) {
         try {
             val objectInputStream = ObjectInputStream(
                     FileInputStream(
-                            File(StorageManager(this.context).userDir, "user")
+                            File(StorageManager.userDir, "user")
                     )
             )
             val user = ClientHelper.gson.fromJson(objectInputStream.readObject() as String, User::class.java)
@@ -36,7 +36,7 @@ class UserUtils(val context: Context) {
 
     fun setUser(user: User) {
         try {
-            val file = File(StorageManager(this.context).userDir, "user")
+            val file = File(StorageManager.userDir, "user")
             val outputStream = ObjectOutputStream(FileOutputStream(file))
             outputStream.writeObject(ClientHelper.gson.toJson(user))
             outputStream.flush()

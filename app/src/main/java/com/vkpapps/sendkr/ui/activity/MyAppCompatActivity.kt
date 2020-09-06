@@ -13,7 +13,7 @@ open class MyAppCompatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = if (isPhone) {
-            ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         } else {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         }

@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.squareup.picasso.Picasso
-import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.connection.ClientHelper
 import com.vkpapps.sendkr.interfaces.OnFragmentAttachStatusListener
@@ -62,7 +61,7 @@ class DashboardFragment : Fragment(), OnUsersUpdateListener {
         }
         recyclerView.adapter = clientAdapter
         updateList()
-        val code = File(StorageManager(App.context).userDir, "code.png")
+        val code = File(StorageManager.userDir, "code.png")
         val picasso = Picasso.get()
         picasso.invalidate(code)
         picasso.load(code).fit().into(barCodeImage)

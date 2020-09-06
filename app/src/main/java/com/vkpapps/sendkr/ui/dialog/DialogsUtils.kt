@@ -8,18 +8,18 @@ import android.graphics.drawable.ColorDrawable
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFailureListener
 import com.vkpapps.sendkr.interfaces.OnSuccessListener
 import com.vkpapps.sendkr.ui.adapter.DirectoryPickerAdapter
+import com.vkpapps.sendkr.ui.views.MyAlertView
 import com.vkpapps.sendkr.utils.StorageManager
 import java.io.File
 
@@ -43,7 +43,6 @@ class DialogsUtils(private val context: Context) {
         }
     }
 
-
     fun displayQRCode() {
         val ab = AlertDialog.Builder(context)
         val view = LayoutInflater.from(context).inflate(R.layout.alert_display_qr_code, null)
@@ -53,49 +52,57 @@ class DialogsUtils(private val context: Context) {
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
         val barCodeImage = view.findViewById<AppCompatImageView>(R.id.barCodeImage)
-        val code = File(StorageManager(App.context).userDir, "code.png")
+        val code = File(StorageManager.userDir, "code.png")
         val picasso = Picasso.get()
         picasso.invalidate(code)
         picasso.load(code).fit().into(barCodeImage)
     }
 
     fun joinHotspotFailed(retry: View.OnClickListener, createGroup: View.OnClickListener) {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_join_hotspot_failed, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        alertDialog.show()
-        view.findViewById<View>(R.id.btnRetry).setOnClickListener {
-            alertDialog.cancel()
-            retry.onClick(it)
-        }
-        view.findViewById<View>(R.id.btnCreateGroup).setOnClickListener {
-            alertDialog.cancel()
-            createGroup.onClick(it)
+        with(myAlertView) {
+            setFeatureImage(R.drawable.ic_baseline_wifi)
+            setTitle(R.string.failed_to_join_group)
+            setFeatureImageSize(100, 100)
+            setDescription(R.string.alert_dialog_connection_failed_detail)
+            setPositiveButton(R.string.retry) {
+                retry.onClick(it)
+                alertDialog.dismiss()
+            }
+            setNegativeButton(R.string.create_group) {
+                createGroup.onClick(it)
+                alertDialog.dismiss()
+            }
         }
     }
 
     fun clearHistoryDialog(clear: View.OnClickListener, cancel: View.OnClickListener?) {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_clear_all_history, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
-        view.findViewById<View>(R.id.btnClear).setOnClickListener {
+        myAlertView.setTitle(R.string.clear_transferring_history)
+        myAlertView.setDescription(R.string.clear_transferring_history_detail)
+        myAlertView.setFeatureImage(R.drawable.ic_clear_history)
+        myAlertView.setPositiveButton(R.string.clear) {
             clear.onClick(it)
             alertDialog.dismiss()
         }
-        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+        myAlertView.setNegativeButton(R.string.cancel) {
             cancel?.onClick(it)
             alertDialog.dismiss()
         }
     }
 
-    fun selectDir(onSelect: OnSuccessListener<File>, cancel: View.OnClickListener?) {
+    fun selectDir(onSelect: OnSuccessListener<DocumentFile>, cancel: View.OnClickListener?) {
         val ab = AlertDialog.Builder(context)
         val view = LayoutInflater.from(context).inflate(R.layout.alert_picker_directory, null)
         ab.setView(view)
@@ -109,9 +116,13 @@ class DialogsUtils(private val context: Context) {
         dirListView.adapter = directoryPickerAdapter
         view.findViewById<View>(R.id.btnChoose).setOnClickListener {
             directoryPickerAdapter.dirSelected?.run {
-                onSelect.onSuccess(this.uri.toFile())
+                if (this.canWrite()) {
+                    onSelect.onSuccess(this)
+                    alertDialog.dismiss()
+                } else {
+                    Toast.makeText(it.context, "Invalid path", Toast.LENGTH_SHORT).show()
+                }
             }
-            alertDialog.dismiss()
         }
         view.findViewById<View>(R.id.btnCancel).setOnClickListener {
             cancel?.onClick(it)
@@ -120,36 +131,40 @@ class DialogsUtils(private val context: Context) {
     }
 
     fun clearSelectedHistoryDialog(message: String, clear: View.OnClickListener) {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_clear_selected_history, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
-        view.findViewById<AppCompatTextView>(R.id.message).text = message
-        view.findViewById<View>(R.id.btnClear).setOnClickListener {
+        myAlertView.setTitle(R.string.clear_transferring_history)
+        myAlertView.setDescription(message)
+        myAlertView.setFeatureImage(R.drawable.ic_clear_history)
+        myAlertView.setPositiveButton(R.string.clear) {
             clear.onClick(it)
             alertDialog.dismiss()
         }
-        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+        myAlertView.setNegativeButton(R.string.cancel) {
             alertDialog.dismiss()
         }
     }
 
     fun exitAppAlert(exit: View.OnClickListener, cancel: View.OnClickListener?) {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_exit_app, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
-        view.findViewById<View>(R.id.btnExit).setOnClickListener {
+        myAlertView.setTitle(R.string.exit_app)
+        myAlertView.setDescription(R.string.exit_app_message)
+        myAlertView.setPositiveButton(R.string.exit) {
             exit.onClick(it)
             alertDialog.dismiss()
         }
-        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+        myAlertView.setNegativeButton(R.string.cancel) {
             cancel?.onClick(it)
             alertDialog.dismiss()
         }
@@ -157,105 +172,139 @@ class DialogsUtils(private val context: Context) {
 
     fun waitingForReceiver(count: Int) {
         Logger.d("[DialogUtils][waitingForReceiver]")
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_waiting_for_receiver, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
-        view.findViewById<AppCompatTextView>(R.id.message).text = String.format(context.getString(R.string.waiting_for_receiver_detail), count)
-        view.findViewById<View>(R.id.btnOk).setOnClickListener {
-            alertDialog.dismiss()
+        with(myAlertView) {
+            setTitle(R.string.waiting_for_receiver)
+            setDescription(String.format(context.getString(R.string.waiting_for_receiver_detail), count))
+            setPositiveButton(R.string.ok) {
+                alertDialog.dismiss()
+            }
         }
     }
 
     fun alertCameraPermissionRequire(ask: View.OnClickListener, cancel: View.OnClickListener?) {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_camera_permission_need, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
-        view.findViewById<View>(R.id.btnAsk).setOnClickListener {
-            alertDialog.dismiss()
-            ask.onClick(it)
-        }
-        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
-            alertDialog.dismiss()
-            cancel?.onClick(it)
+        with(myAlertView) {
+            setDescription(R.string.camera_permission_required_description)
+            setPositiveButton(R.string.ask) {
+                alertDialog.dismiss()
+                ask.onClick(it)
+            }
+            setNegativeButton(R.string.cancel) {
+                alertDialog.dismiss()
+                cancel?.onClick(it)
+            }
         }
     }
 
     fun alertGpsProviderRequire(): AlertDialog {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_gps_provider_require, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        view.findViewById<View>(R.id.btnEnable).setOnClickListener {
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            context.startActivity(intent)
-            alertDialog.cancel()
-        }
-        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
-            alertDialog.cancel()
+        with(myAlertView) {
+            setTitle(R.string.enable_gps)
+            setDescription(R.string.enable_gps_description)
+            setFeatureImage(R.drawable.ic_location_on)
+            setFeatureImageSize(100, 100)
+            setPositiveButton(R.string.enable) {
+                alertDialog.dismiss()
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                context.startActivity(intent)
+                alertDialog.cancel()
+            }
+            setNegativeButton(R.string.cancel) {
+                alertDialog.dismiss()
+            }
+
         }
         return alertDialog
     }
 
     fun alertEnableWifi(onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<String>): AlertDialog {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_enable_wifi, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        view.findViewById<View>(R.id.btnEnable).setOnClickListener {
-            onSuccessListener.onSuccess("enable wifi")
-            alertDialog.cancel()
-        }
-        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
-            onFailureListener.onFailure("close this")
-            alertDialog.cancel()
+        with(myAlertView) {
+            setFeatureImage(R.drawable.ic_baseline_wifi)
+            setTitle(R.string.enable_wi_fi)
+            setFeatureImageSize(100, 100)
+            setDescription(R.string.enable_wifi_description)
+            setPositiveButton(R.string.enable) {
+                alertDialog.dismiss()
+                onSuccessListener.onSuccess("enable wifi")
+                alertDialog.cancel()
+            }
+            setNegativeButton(R.string.cancel) {
+                alertDialog.dismiss()
+                onFailureListener.onFailure("close this")
+                alertDialog.cancel()
+            }
         }
         return alertDialog
     }
 
     fun alertDisableHotspot(onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<String>): AlertDialog {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_disable_hotspot, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        view.findViewById<View>(R.id.btnTurnOff).setOnClickListener {
-            onSuccessListener.onSuccess("disable hotspot")
-            alertDialog.cancel()
-        }
-        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
-            onFailureListener.onFailure("close")
-            alertDialog.cancel()
+        with(myAlertView) {
+            setTitle(R.string.turn_off_hotspot)
+            setFeatureImage(R.drawable.ic_portable_wifi_off)
+            setFeatureImageSize(100, 100)
+            setDescription(R.string.turn_off_hotspot_description)
+            setPositiveButton(R.string.turn_off) {
+                onSuccessListener.onSuccess("disable hotspot")
+                alertDialog.cancel()
+            }
+            setNegativeButton(R.string.cancel) {
+                onFailureListener.onFailure("close")
+                alertDialog.cancel()
+            }
         }
         return alertDialog
     }
 
     fun alertDisableWifi(onSuccessListener: OnSuccessListener<String>, onFailureListener: OnFailureListener<String>): AlertDialog {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog_disable_wifi, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        view.findViewById<View>(R.id.btnTurnOff).setOnClickListener {
-            onSuccessListener.onSuccess("disable wifi")
-            alertDialog.cancel()
-        }
-        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
-            onFailureListener.onFailure("close")
-            alertDialog.cancel()
+        with(myAlertView) {
+            setTitle(R.string.disable_wi_fi)
+            setFeatureImage(R.drawable.ic_wifi_off)
+            setFeatureImageSize(100, 100)
+            setDescription(R.string.disable_wifi_description)
+            setPositiveButton(R.string.disable) {
+                onSuccessListener.onSuccess("disable wifi")
+                alertDialog.cancel()
+            }
+            setNegativeButton(R.string.cancel) {
+                onFailureListener.onFailure("close")
+                alertDialog.cancel()
+            }
         }
         return alertDialog
     }
@@ -271,21 +320,26 @@ class DialogsUtils(private val context: Context) {
     }
 
     fun closeGroup(close: View.OnClickListener, cancel: View.OnClickListener?) {
+        val myAlertView = MyAlertView(context)
         val ab = AlertDialog.Builder(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.alert_close_group, null)
-        ab.setView(view)
+        ab.setView(myAlertView)
         ab.setCancelable(false)
         val alertDialog = ab.create()
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        with(myAlertView) {
+            setTitle(R.string.close_leave_group)
+            setFeatureImage(R.drawable.ic_warning_image)
+            setDescription(R.string.close_group_discription)
+            setPositiveButton(R.string.Continue) {
+                close.onClick(it)
+                alertDialog.dismiss()
+            }
+            setNegativeButton(R.string.cancel) {
+                cancel?.onClick(it)
+                alertDialog.dismiss()
+            }
+        }
         alertDialog.show()
-        view.findViewById<View>(R.id.btnClose).setOnClickListener {
-            close.onClick(it)
-            alertDialog.cancel()
-        }
-        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
-            cancel?.onClick(it)
-            alertDialog.cancel()
-        }
     }
 
 }

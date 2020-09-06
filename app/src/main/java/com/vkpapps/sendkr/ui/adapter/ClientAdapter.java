@@ -45,12 +45,7 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.MyHolder> 
         if (profileByteArray.length > 0) {
             holder.profilePic.setImageBitmap(BitmapUtils.INSTANCE.byteArrayToBitmap(user.getProfileByteArray()));
         }
-        holder.btnDisconnect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clientHelper.shutDown();
-            }
-        });
+        holder.btnDisconnect.setOnClickListener(v -> clientHelper.shutDown());
     }
 
     @Override
@@ -64,9 +59,9 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.MyHolder> 
     }
 
     static class MyHolder extends RecyclerView.ViewHolder {
-        private TextView userName;
-        private ImageView profilePic;
-        private ImageButton btnDisconnect;
+        private final TextView userName;
+        private final ImageView profilePic;
+        private final ImageButton btnDisconnect;
 
         MyHolder(@NonNull View itemView) {
             super(itemView);

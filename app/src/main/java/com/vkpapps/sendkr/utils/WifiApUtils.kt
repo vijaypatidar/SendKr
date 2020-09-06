@@ -45,16 +45,10 @@ object WifiApUtils {
                         super.onStarted(reservation)
                         WifiApUtils.reservation = reservation
                         try {
-                            ssid = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                reservation!!.softApConfiguration.ssid!!
-                            } else {
-                                reservation!!.wifiConfiguration!!.SSID
-                            }
-                            password = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                reservation.softApConfiguration.passphrase!!
-                            } else {
-                                reservation.wifiConfiguration!!.preSharedKey
-                            }
+                            ssid = reservation!!.wifiConfiguration!!.SSID
+
+                            password = reservation.wifiConfiguration!!.preSharedKey
+
                             onSuccessListener.onSuccess("ap created automatically")
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -96,11 +90,15 @@ object WifiApUtils {
             }
             try {
                 val wifiConfiguration = WifiConfiguration()
-                wifiConfiguration.SSID = "\"${ssid}\""
-                wifiConfiguration.preSharedKey = "\"${password}\""
+                wifiConfiguration.SSID = ssid
+                wifiConfiguration.preSharedKey = password
+                wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED)
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN)
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA)
+                wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK)
                 wifiManager.isWifiEnabled = false
                 setWifiApEnabled(wifiConfiguration, true)
-                BarCodeUtils().createQR("${ssid}\n${password}", File(StorageManager(App.context).userDir, "code.png").absolutePath)
+                BarCodeUtils().createQR("${ssid}\n${password}", File(StorageManager.userDir, "code.png").absolutePath)
                 onSuccessListener.onSuccess("created")
             } catch (e: Exception) {
                 e.printStackTrace()

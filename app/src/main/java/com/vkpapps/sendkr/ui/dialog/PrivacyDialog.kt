@@ -4,9 +4,9 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.text.method.LinkMovementMethod
-import android.widget.TextView
+import android.text.SpannableString
 import com.vkpapps.sendkr.R
+import com.vkpapps.sendkr.ui.views.MyAlertView
 import com.vkpapps.sendkr.utils.KeyValue
 
 /***
@@ -24,22 +24,26 @@ class PrivacyDialog(private val activity: Activity) {
         }
 
     fun promptUser() {
-        val builder = AlertDialog.Builder(activity)
-        val view = activity.layoutInflater.inflate(R.layout.dialog_accept_policy, null, false)
-        builder.setView(view)
-        builder.setCancelable(false)
-        val create = builder.create()
-        create.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        create.show()
-        view.findViewById<TextView>(R.id.message).movementMethod = LinkMovementMethod.getInstance()
-        view.findViewById<TextView>(R.id.btnCancel).setOnClickListener {
+        val myAlertView = MyAlertView(activity)
+        val ab = AlertDialog.Builder(activity)
+        ab.setView(myAlertView)
+        ab.setCancelable(false)
+        val alertDialog = ab.create()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+        myAlertView.setTitle(R.string.privacy_policy)
+        myAlertView.setFeatureImage(R.drawable.ic_policy)
+        myAlertView.setFeatureImageSize(100, 100)
+        val description = SpannableString(activity.getString(R.string.accept_policy))
+        myAlertView.setDescription(description)
+        myAlertView.setPositiveButton(R.string.i_agree) {
+            KeyValue(activity).policy = true
+            alertDialog.dismiss()
+        }
+        myAlertView.setNegativeButton(R.string.cancel) {
             KeyValue(activity).policy = false
             activity.finish()
-        }
-        view.findViewById<TextView>(R.id.btnAgree).setOnClickListener {
-            KeyValue(activity).policy = true
-            create.hide()
-            create.dismiss()
+            alertDialog.dismiss()
         }
     }
 

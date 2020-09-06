@@ -9,7 +9,6 @@ import android.os.StatFs
 import android.view.*
 import android.widget.Toast
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
@@ -85,7 +84,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         }
 
         internal.setOnClickListener {
-            val internal = StorageManager(requireContext()).internal
+            val internal = StorageManager.internal
             Navigation.findNavController(view).navigate(object : NavDirections {
                 override fun getActionId(): Int {
                     return R.id.fileFragment
@@ -118,36 +117,31 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         AdsUtils.getAdRequest(adView)
 
         try {
-            val statFs = StatFs(StorageManager(requireContext()).internal.path)
-            internalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSizeGb(statFs.totalBytes.toDouble())}GB"
+            val statFs = StatFs(StorageManager.internal.path)
+            internalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
             val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
             progressBarInternal.progress = progress
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        try {
-            ContextCompat.getExternalFilesDirs(requireContext(), null).forEach {
-                if (!it.absoluteFile.startsWith("/storage/emulated/0/")) {
-                    external.visibility = View.VISIBLE
-                    externalStoragePath = it.absolutePath
-                    val indexOf = externalStoragePath.indexOf("/Android")
-                    if (indexOf != -1)
-                        externalStoragePath = externalStoragePath.subSequence(0, indexOf).toString()
-                    val statFs = StatFs(it.path)
-                    externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())}/${MathUtils.longToStringSizeGb(statFs.totalBytes.toDouble())}GB"
-                    val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
-                    progressBarExternal.progress = progress
-                    KeyValue(requireContext()).externalStoragePath = externalStoragePath
-                } else {
-                    KeyValue(requireContext()).externalStoragePath = null
-                    if (!DocumentFile.fromFile(StorageManager(requireContext()).downloadDir).exists()) {
-                        KeyValue(requireContext()).customStoragePath = null
-                    }
-                }
+        if (StorageManager.isRemovableSdCardMounted()) {
+            external.visibility = View.VISIBLE
+            try {
+                externalStoragePath = StorageManager.removableSdCardRootPath()
+                val statFs = StatFs(externalStoragePath)
+                externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
+                val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
+                progressBarExternal.progress = progress
+                KeyValue(requireContext()).externalStoragePath = externalStoragePath
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
+        } else {
             external.visibility = View.GONE
-            e.printStackTrace()
+            KeyValue(requireContext()).externalStoragePath = null
+            if (!DocumentFile.fromFile(StorageManager.downloadDir).exists()) {
+                KeyValue(requireContext()).customStoragePath = null
+            }
         }
     }
 
@@ -248,7 +242,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
             }
         }
         val historyInfos = ArrayList<HistoryInfo>()
-        historyViewModel.historyInfos.observe(requireActivity(), androidx.lifecycle.Observer {
+        historyViewModel.historyInfos.observe(requireActivity(), {
             CoroutineScope(IO).launch {
                 historyInfos.clear()
                 historyInfos.addAll(it)

@@ -4,30 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:cardElevation="0dp"
     app:cardBackgroundColor="@color/backgroundColor"
-    app:cardPreventCornerOverlap="true"
-    app:cardCornerRadius="@dimen/top_corner_radius">
+    app:cardCornerRadius="@dimen/top_corner_radius"
+    app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.vkpapps.sendkr.ui.views.MySwipeRefreshLayout
-            android:id="@+id/swipeRefreshVideoList"
+            android:id="@+id/swipeRefreshMidiaList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/videoList"
+                android:id="@+id/mediaList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:listitem="@layout/video_list_item" />
         </com.vkpapps.sendkr.ui.views.MySwipeRefreshLayout>
 
         <RelativeLayout
-            android:id="@+id/emptyVideo"
+            android:id="@+id/emptyMedia"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"

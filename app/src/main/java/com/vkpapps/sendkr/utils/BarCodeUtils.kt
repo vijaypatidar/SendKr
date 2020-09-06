@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import com.google.gson.GsonBuilder
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
-import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.model.ConnectionBarCode
 import java.io.File
 import java.io.FileOutputStream
@@ -27,6 +26,6 @@ class BarCodeUtils {
     }
 
     fun createQR(connectionBarCode: ConnectionBarCode) {
-        BarCodeUtils().createQR(GsonBuilder().create().toJson(connectionBarCode), File(StorageManager(App.context).userDir, "code.png").absolutePath)
+        BarCodeUtils().createQR(GsonBuilder().create().toJson(connectionBarCode), File(StorageManager.userDir, "code.png").absolutePath)
     }
 }

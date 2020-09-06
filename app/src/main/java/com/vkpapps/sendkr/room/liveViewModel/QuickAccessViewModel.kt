@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.model.FileInfo
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.sendkr.utils.StorageManager
@@ -39,7 +38,7 @@ class QuickAccessViewModel(application: Application) : AndroidViewModel(applicat
             loading = true
             CoroutineScope(IO).launch {
                 clearList()
-                scan(DocumentFile.fromFile(StorageManager(App.context).internal))
+                scan(DocumentFile.fromFile(StorageManager.internal))
                 try {
                     external?.run {
                         scan(DocumentFile.fromFile(File(this)))

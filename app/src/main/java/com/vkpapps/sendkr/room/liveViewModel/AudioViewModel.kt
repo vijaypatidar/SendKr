@@ -15,7 +15,7 @@ class AudioViewModel(application: Application) : AndroidViewModel(application) {
         var audioInfos = ArrayList<MediaInfo>()
     }
 
-    val mediaInfosLiveData: MutableLiveData<List<MediaInfo>> = MutableLiveData(audioInfos)
+    val mediaInfosLiveData = MutableLiveData(audioInfos)
 
     private fun notifyDataChange() {
         mediaInfosLiveData.postValue(audioInfos)
