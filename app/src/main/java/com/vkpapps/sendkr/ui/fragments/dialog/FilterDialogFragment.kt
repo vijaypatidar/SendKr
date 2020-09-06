@@ -1,17 +1,13 @@
 package com.vkpapps.sendkr.ui.fragments.dialog
 
-import android.app.Dialog
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.vkpapps.sendkr.R
 import kotlinx.android.synthetic.main.fragment_filter_dialog.*
 
-class FilterDialogFragment(private val sortBy: Int, private val onFilterListener: OnFilterListener) : BottomSheetDialogFragment() {
+class FilterDialogFragment(private val sortBy: Int, private val onFilterListener: OnFilterListener) : MyBottomSheetDialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -19,17 +15,6 @@ class FilterDialogFragment(private val sortBy: Int, private val onFilterListener
         return inflater.inflate(R.layout.fragment_filter_dialog, container, false)
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState).apply {
-            this.setOnShowListener {
-                (it as BottomSheetDialog)
-                        .findViewById<View>(R.id.design_bottom_sheet)
-                        ?.apply {
-                            setBackgroundColor(Color.TRANSPARENT)
-                        }
-            }
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

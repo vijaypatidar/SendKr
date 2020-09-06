@@ -73,9 +73,6 @@
             app:exitAnim="@anim/slide_out_to_bottom"
             app:popEnterAnim="@anim/slide_in_from_bottom"
             app:popExitAnim="@anim/slide_out_to_bottom" />
-        <action
-            android:id="@+id/action_navigation_media_to_filePropertyDialogFragment"
-            app:destination="@id/filePropertyDialogFragment" />
     </fragment>
 
 
@@ -133,20 +130,12 @@
             app:exitAnim="@anim/slide_out_to_bottom"
             app:popEnterAnim="@anim/slide_in_from_bottom"
             app:popExitAnim="@anim/slide_out_to_bottom" />
-        <action
-            android:id="@+id/action_fileFragment_to_filePropertyDialogFragment"
-            app:destination="@id/filePropertyDialogFragment" />
     </fragment>
     <fragment
         android:id="@+id/transferringFragment"
         android:name="com.vkpapps.sendkr.ui.fragments.TransferringFragment"
         android:label="@string/transferring" />
 
-    <dialog
-        android:id="@+id/filePropertyDialogFragment"
-        android:name="com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment"
-        android:label="Property"
-        tools:layout="@layout/fragment_file_property_dialog" />
     <fragment
         android:id="@+id/quickAccessFragment"
         android:name="com.vkpapps.sendkr.ui.fragments.QuickAccessFragment"

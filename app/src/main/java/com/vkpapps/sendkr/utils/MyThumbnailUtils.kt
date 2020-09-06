@@ -40,7 +40,6 @@ object MyThumbnailUtils {
                         }
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
                     withContext(Main) {
                         imageView?.setImageResource(R.drawable.ic_default_audio_icon)
                     }

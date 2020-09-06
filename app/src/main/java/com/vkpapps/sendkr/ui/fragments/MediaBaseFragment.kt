@@ -6,11 +6,11 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
-import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -182,18 +182,12 @@ abstract class MediaBaseFragment : Fragment(), OnMediaSelectListener, SwipeRefre
     }
 
     override fun onMediaLongClickListener(mediaInfo: MediaInfo) {
-        controller?.navigate(object : NavDirections {
-            override fun getArguments(): Bundle {
-                return Bundle().apply {
-                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, mediaInfo.id)
-                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, mediaInfo.uri.toString())
-                }
-            }
-
-            override fun getActionId(): Int {
-                return R.id.filePropertyDialogFragment
-            }
-        })
+        try {
+            FilePropertyDialogFragment(mediaInfo.uri, mediaInfo.id, mediaInfo.size).show(requireActivity().supportFragmentManager, "Property")
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "error occurred, unable to display property", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onMediaSelected(mediaInfo: MediaInfo) {

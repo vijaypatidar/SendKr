@@ -3,6 +3,7 @@ package com.vkpapps.sendkr.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
@@ -24,7 +25,6 @@ import com.vkpapps.sendkr.room.liveViewModel.QuickAccessViewModel
 import com.vkpapps.sendkr.ui.adapter.FileAdapter
 import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
-import com.vkpapps.sendkr.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_quick_access.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -189,7 +189,7 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
                     }
                 }
                 mySwipeRefreshLayout.hide()
-            }catch (e:java.lang.Exception){
+            } catch (e: java.lang.Exception) {
                 e.printStackTrace()
             }
         }
@@ -254,19 +254,12 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
     }
 
     override fun onFileLongClickListener(fileInfo: FileInfo) {
-        controller?.navigate(object : NavDirections {
-            override fun getArguments(): Bundle {
-                return Bundle().apply {
-                    putString(FilePropertyDialogFragment.PARAM_FILE_ID, fileInfo.id)
-                    putString(FilePropertyDialogFragment.PARAM_FILE_URI, fileInfo.uri.toString())
-                    putString(FilePropertyDialogFragment.PARAM_FILE_SIZE, MathUtils.longToStringSize(fileInfo.size.toDouble()))
-                }
-            }
-
-            override fun getActionId(): Int {
-                return R.id.filePropertyDialogFragment
-            }
-        })
+        try {
+            FilePropertyDialogFragment(fileInfo.uri, fileInfo.id, fileInfo.size).show(requireActivity().supportFragmentManager, "Property")
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "error occurred, unable to display property", Toast.LENGTH_SHORT).show()
+        }
     }
 
 

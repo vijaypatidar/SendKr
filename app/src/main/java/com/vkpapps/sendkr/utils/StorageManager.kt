@@ -1,7 +1,8 @@
 package com.vkpapps.sendkr.utils
 
-import android.content.Context
 import android.os.Environment
+import androidx.core.content.ContextCompat
+import androidx.core.os.EnvironmentCompat
 import com.vkpapps.sendkr.App.Companion.context
 import java.io.File
 
@@ -11,13 +12,15 @@ import java.io.File
 object StorageManager {
 
     val userDir: File
-        get() = context.getDir("userData", Context.MODE_PRIVATE)
+        get() = File(context.noBackupFilesDir, "userData").apply {
+            mkdirs()
+        }
 
     /**
      * @Return File  private directory of thumbnails
      */
     val thumbnails: File
-        get() = context.getDir("thumbnails", Context.MODE_PRIVATE)
+        get() = File(context.cacheDir, "thumbnails").apply { mkdirs() }
 
     val internal: File
         get() = File("/storage/emulated/0/")
@@ -43,8 +46,17 @@ object StorageManager {
 
     // Checks if a volume containing external storage is available
     // for read and write.
-    fun isExternalStorageWritable(): Boolean {
-        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+    fun isRemovableSdCardMounted(): Boolean {
+        val externalFilesDirs = ContextCompat.getExternalFilesDirs(context, null)
+        return (externalFilesDirs.size >= 2 && EnvironmentCompat.getStorageState(File(removableSdCardRootPath())) == Environment.MEDIA_MOUNTED)
+    }
+
+    fun removableSdCardRootPath(): String {
+        val sdCard = ContextCompat.getExternalFilesDirs(context, null)[1].absolutePath
+        val indexOf = sdCard.indexOf("/Android")
+        return if (indexOf != -1)
+            sdCard.subSequence(0, indexOf).toString()
+        else sdCard
     }
 
 }
