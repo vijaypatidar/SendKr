@@ -45,16 +45,10 @@ object WifiApUtils {
                         super.onStarted(reservation)
                         WifiApUtils.reservation = reservation
                         try {
-                            ssid = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                reservation!!.softApConfiguration.ssid!!
-                            } else {
-                                reservation!!.wifiConfiguration!!.SSID
-                            }
-                            password = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                reservation.softApConfiguration.passphrase!!
-                            } else {
-                                reservation.wifiConfiguration!!.preSharedKey
-                            }
+                            ssid = reservation!!.wifiConfiguration!!.SSID
+
+                            password = reservation.wifiConfiguration!!.preSharedKey
+
                             onSuccessListener.onSuccess("ap created automatically")
                         } catch (e: Exception) {
                             e.printStackTrace()
