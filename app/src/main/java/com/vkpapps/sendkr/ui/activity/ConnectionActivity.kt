@@ -136,7 +136,7 @@ class ConnectionActivity : MyAppCompatActivity() {
             Logger.d("[ConnectionActivity][connect] scan result = $input")
             BarCodeUtils().createQR(connectionBarCode)
             if (connectionBarCode.connectionType == ConnectionBarCode.CONNECTION_INTERNAL_AP) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                     val networkSpecifier = WifiNetworkSpecifier.Builder()
                             .setSsid(connectionBarCode.ssid!!)
                             .setWpa2Passphrase(connectionBarCode.password!!)

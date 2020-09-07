@@ -18,6 +18,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
@@ -116,6 +117,7 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
 
         AdsUtils.getAdRequest(adView)
 
+
         try {
             val statFs = StatFs(StorageManager.internal.path)
             internalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
@@ -124,24 +126,29 @@ class HomeFragment : Fragment(), HistoryAdapter.OnHistorySelectListener {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        if (StorageManager.isRemovableSdCardMounted()) {
-            external.visibility = View.VISIBLE
-            try {
-                externalStoragePath = StorageManager.removableSdCardRootPath()
-                val statFs = StatFs(externalStoragePath)
-                externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
-                val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
-                progressBarExternal.progress = progress
-                KeyValue(requireContext()).externalStoragePath = externalStoragePath
-            } catch (e: Exception) {
-                e.printStackTrace()
+        try {
+            if (StorageManager.isRemovableSdCardMounted()) {
+                external.visibility = View.VISIBLE
+                try {
+                    externalStoragePath = StorageManager.removableSdCardRootPath()
+                    val statFs = StatFs(externalStoragePath)
+                    externalProgressText.text = "${MathUtils.longToStringSizeGb(statFs.availableBytes.toDouble())} GB free"
+                    val progress = ((statFs.totalBytes - statFs.availableBytes) * 100 / statFs.totalBytes).toInt()
+                    progressBarExternal.progress = progress
+                    KeyValue(requireContext()).externalStoragePath = externalStoragePath
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            } else {
+                external.visibility = View.GONE
+                KeyValue(requireContext()).externalStoragePath = null
+                if (!DocumentFile.fromFile(StorageManager.downloadDir).exists()) {
+                    KeyValue(requireContext()).customStoragePath = null
+                }
             }
-        } else {
-            external.visibility = View.GONE
-            KeyValue(requireContext()).externalStoragePath = null
-            if (!DocumentFile.fromFile(StorageManager.downloadDir).exists()) {
-                KeyValue(requireContext()).customStoragePath = null
-            }
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            e.printStackTrace()
         }
     }
 
