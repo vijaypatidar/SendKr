@@ -6,10 +6,10 @@ import com.vkpapps.sendkr.room.liveViewModel.VideoViewModel
 
 class PrepareDb {
     fun prepareAll() {
+        PrepareAppList.appList
         prepareAudio()
         prepareVideo()
         preparePhoto()
-        PrepareAppList.appList
     }
 
     fun prepareAudio() {
