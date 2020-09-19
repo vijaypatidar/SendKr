@@ -39,7 +39,7 @@ class KeyValue(context: Context) {
         }
 
     var showHiddenFile: Boolean
-        get() = sharedPreferences.getBoolean("showHiddenFile", true)
+        get() = sharedPreferences.getBoolean("showHiddenFile", false)
         set(policy) {
             sharedPreferences.edit().putBoolean("showHiddenFile", policy).apply()
         }

@@ -28,16 +28,6 @@ object MathUtils {
         return "${roundTo(length / (1073741824))}"
     }
 
-    fun getFileDisplaySize(file: DocumentFile): String {
-        var res = "0 byte"
-        try {
-            res = longToStringSize(getFileSize(file).toDouble())
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return res
-    }
-
     fun getFileSize(file: DocumentFile): Long {
         var res: Long = 0
         try {

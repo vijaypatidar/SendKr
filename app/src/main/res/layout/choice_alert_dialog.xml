@@ -26,11 +26,12 @@
             app:cardCornerRadius="40dp"
             tools:ignore="RtlHardcoded">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:rotation="180"
-                android:src="@drawable/ic_create_group"
+                android:rotation="270"
+                android:scaleType="center"
+                android:src="@drawable/ic_forward_24px"
                 tools:ignore="ContentDescription" />
         </androidx.cardview.widget.CardView>
 
@@ -59,10 +60,13 @@
             app:cardCornerRadius="40dp"
             tools:ignore="RtlHardcoded">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_join_group"
+                android:src="@drawable/ic_forward_24px"
+                android:rotation="90"
+                android:tint="#039be5"
+                android:scaleType="center"
                 tools:ignore="ContentDescription" />
         </androidx.cardview.widget.CardView>
 

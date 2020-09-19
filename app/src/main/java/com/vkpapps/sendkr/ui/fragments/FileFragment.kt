@@ -22,6 +22,7 @@ import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.sendkr.model.FileInfo
 import com.vkpapps.sendkr.model.RawRequestInfo
 import com.vkpapps.sendkr.ui.adapter.FileAdapter
+import com.vkpapps.sendkr.ui.fragments.base.MyFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.sendkr.utils.KeyValue
@@ -36,7 +37,7 @@ import java.io.File
 /***
  * @author VIJAY PATIDAR
  */
-class FileFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogFragment.OnFilterListener {
+class FileFragment : MyFragment(), FileAdapter.OnFileSelectListener, FilterDialogFragment.OnFilterListener {
 
     companion object {
         const val FILE_ROOT = "FILE_ROOT"
@@ -44,15 +45,12 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogF
         private var sortBy = FilterDialogFragment.SORT_BY_NAME
     }
 
-    private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
-    private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private val files: MutableList<FileInfo> = ArrayList()
     private val folders: MutableList<FileInfo> = ArrayList()
     private val fileInfos: MutableList<FileInfo> = ArrayList()
     private var selectCount = 0
     private var init = false
     private var title: String? = "default"
-    private var navController: NavController? = null
     private var rootDir: String = DocumentFile.fromFile(File("/storage/emulated/0/")).uri.toString()
     private var myView: View? = null
     private var adapter: FileAdapter? = null
@@ -88,93 +86,97 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogF
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-        navController = Navigation.findNavController(view)
 
-        if (!init) {
-            init = true
-            // show list and detail
-            adapter = FileAdapter(this, navController!!, fileInfos)
-            val recyclerView: RecyclerView = view.findViewById(R.id.fileList)
-            recyclerView.adapter = adapter
-            recyclerView.onFlingListener = object : OnFlingListener() {
-                override fun onFling(velocityX: Int, velocityY: Int): Boolean {
-                    if (selectCount == 0)
-                        onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
-                    return false
-                }
-            }
-
-            val isPhone = resources.getBoolean(R.bool.isPhone)
-            val spanCount = if (isPhone) 1 else 2
-            recyclerView.layoutManager = GridLayoutManager(requireContext(), spanCount)
-            val showHiddenFile = KeyValue(requireContext()).showHiddenFile
-            CoroutineScope(IO).launch {
-                val listFiles = DocumentFile.fromFile(Uri.parse(rootDir).toFile()).listFiles()
-                listFiles.forEach {
-                    if (showHiddenFile || it.name?.startsWith(".") == false) {
-                        if (it.isDirectory) {
-                            folders.add(FileInfo(it))
-                        } else {
-                            files.add(FileInfo(it))
-                        }
+        try {
+            if (!init) {
+                init = true
+                // show list and detail
+                adapter = FileAdapter(this, controller!!, fileInfos)
+                val recyclerView: RecyclerView = view.findViewById(R.id.fileList)
+                recyclerView.adapter = adapter
+                recyclerView.onFlingListener = object : OnFlingListener() {
+                    override fun onFling(velocityX: Int, velocityY: Int): Boolean {
+                        if (selectCount == 0)
+                            onNavigationVisibilityListener?.onNavVisibilityChange(velocityY < 0)
+                        return false
                     }
                 }
-                sort()
-            }
 
-            selectionView.btnSendFiles.setOnClickListener {
-                if (selectCount == 0) return@setOnClickListener
+                val isPhone = resources.getBoolean(R.bool.isPhone)
+                val spanCount = if (isPhone) 1 else 2
+                recyclerView.layoutManager = GridLayoutManager(requireContext(), spanCount)
+                val showHiddenFile = KeyValue(requireContext()).showHiddenFile
                 CoroutineScope(IO).launch {
-                    val selected = ArrayList<RawRequestInfo>()
-                    fileInfos.forEach {
-                        try {
-                            if (it.isSelected) {
-                                it.isSelected = false
-                                selected.add(RawRequestInfo(
-                                        it.name, it.uri, it.type, it.size
-                                ))
+                    val listFiles = DocumentFile.fromFile(Uri.parse(rootDir).toFile()).listFiles()
+                    listFiles.forEach {
+                        if (showHiddenFile || it.name?.startsWith(".") == false) {
+                            if (it.isDirectory) {
+                                folders.add(FileInfo(it))
+                            } else {
+                                files.add(FileInfo(it))
                             }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
                         }
+                    }
+                    sort()
+                }
+            }
+        }catch (e:Exception){
+            //exception
+        }
+    }
 
-                    }
-                    selectCount = 0
-                    withContext(Main) {
-                        adapter?.notifyDataSetChanged()
-                        hideShowSendButton()
-                    }
-                    onFileRequestPrepareListener?.sendFiles(selected)
-                }
-            }
-            selectionView.btnSelectAll.setOnClickListener {
-                CoroutineScope(IO).launch {
-                    selectCount = 0
-                    fileInfos.forEach {
-                        it.isSelected = true
-                        selectCount++
-                    }
-                    withContext(Main) {
-                        adapter?.notifyDataSetChanged()
-                        hideShowSendButton()
-                    }
-                }
-            }
-            selectionView.btnSelectNon.setOnClickListener {
-                CoroutineScope(IO).launch {
-                    selectCount = 0
-                    fileInfos.forEach {
+    override fun onSendSelected() {
+        if (selectCount == 0) return
+        CoroutineScope(IO).launch {
+            val selected = ArrayList<RawRequestInfo>()
+            fileInfos.forEach {
+                try {
+                    if (it.isSelected) {
                         it.isSelected = false
+                        selected.add(RawRequestInfo(
+                                it.name, it.uri, it.type, it.size
+                        ))
                     }
-                    withContext(Main) {
-                        adapter?.notifyDataSetChanged()
-                        hideShowSendButton()
-                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
+
+            }
+            selectCount = 0
+            withContext(Main) {
+                adapter?.notifyDataSetChanged()
+                hideShowSendButton()
+            }
+            onFileRequestPrepareListener?.sendFiles(selected)
+        }
+    }
+
+    override fun onSelectAll() {
+        CoroutineScope(IO).launch {
+            selectCount = 0
+            fileInfos.forEach {
+                it.isSelected = true
+                selectCount++
+            }
+            withContext(Main) {
+                adapter?.notifyDataSetChanged()
+                hideShowSendButton()
             }
         }
     }
 
+    override fun onSelectNon() {
+        CoroutineScope(IO).launch {
+            selectCount = 0
+            fileInfos.forEach {
+                it.isSelected = false
+            }
+            withContext(Main) {
+                adapter?.notifyDataSetChanged()
+                hideShowSendButton()
+            }
+        }
+    }
 
     override fun onResume() {
         super.onResume()
@@ -190,7 +192,7 @@ class FileFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogF
         super.onCreateOptionsMenu(menu, inflater)
         val findItem = menu.findItem(R.id.menu_transferring)
         findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
-            navController?.navigate(object : NavDirections {
+            controller?.navigate(object : NavDirections {
                 override fun getArguments(): Bundle {
                     return Bundle()
                 }

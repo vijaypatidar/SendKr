@@ -1,4 +1,4 @@
-package com.vkpapps.sendkr.ui.activity
+package com.vkpapps.sendkr.ui.activity.base
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -8,7 +8,7 @@ import com.vkpapps.sendkr.App.Companion.isPhone
 /**
  * @author VIJAY PATIDAR
  */
-open class MyAppCompatActivity : AppCompatActivity() {
+abstract class MyAppCompatActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

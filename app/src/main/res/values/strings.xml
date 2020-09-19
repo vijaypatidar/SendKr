@@ -94,7 +94,7 @@
     <string name="choose">Choose</string>
     <string name="select_directory">Select directory</string>
     <string name="privacy_policy_and_developer">Privacy policy and developer</string>
-    <string name="close_group_discription">This will also cancel the ongoing transferring of files.</string>
+    <string name="close_group_description">This will also cancel the ongoing transferring of files.</string>
     <string name="disable">Disable</string>
     <string name="path">Path</string>
     <string name="size">Size</string>
@@ -102,4 +102,5 @@
     <string name="last_modified_on">Last modified on</string>
     <string name="close_leave_group">Close/Leave group</string>
     <string name="failed_to_join_group">Failed to join group</string>
+    <string name="no_file">No File</string>
 </resources>

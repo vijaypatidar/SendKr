@@ -12,6 +12,7 @@ import com.vkpapps.sendkr.analitics.Logger
 import com.vkpapps.sendkr.interfaces.OnFailureListener
 import com.vkpapps.sendkr.interfaces.OnSuccessListener
 import com.vkpapps.sendkr.model.ConnectionBarCode
+import com.vkpapps.sendkr.ui.activity.base.MyAppCompatActivity
 import com.vkpapps.sendkr.ui.dialog.DialogsUtils
 import com.vkpapps.sendkr.utils.BarCodeUtils
 import com.vkpapps.sendkr.utils.IPManager

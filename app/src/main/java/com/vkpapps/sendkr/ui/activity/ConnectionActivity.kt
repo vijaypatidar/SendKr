@@ -29,9 +29,11 @@ import com.vkpapps.sendkr.interfaces.OnFailureListener
 import com.vkpapps.sendkr.interfaces.OnSuccessListener
 import com.vkpapps.sendkr.model.ConnectionBarCode
 import com.vkpapps.sendkr.model.constant.Constants
+import com.vkpapps.sendkr.ui.activity.base.MyAppCompatActivity
 import com.vkpapps.sendkr.ui.dialog.DialogsUtils
 import com.vkpapps.sendkr.utils.BarCodeUtils
-import com.vkpapps.sendkr.utils.PermissionUtils
+import com.vkpapps.sendkr.utils.PermissionUtils.askCameraPermission
+import com.vkpapps.sendkr.utils.PermissionUtils.checkLCameraPermission
 import kotlinx.android.synthetic.main.activity_connection.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -65,7 +67,7 @@ class ConnectionActivity : MyAppCompatActivity() {
     }
 
     private fun startScanner() {
-        if (PermissionUtils.checkLCameraPermission(this)) {
+        if (checkLCameraPermission(this)) {
             scanner.startCamera()
         } else {
             showCameraPermissionAskDialog()
@@ -75,7 +77,7 @@ class ConnectionActivity : MyAppCompatActivity() {
 
     private fun showCameraPermissionAskDialog() {
         DialogsUtils(this).alertCameraPermissionRequire({
-            PermissionUtils.askCameraPermission(this, Constants.CONNECTION_ACTIVITY_ASK_CAMERA_PERMISSION)
+            askCameraPermission(this,Constants.CONNECTION_ACTIVITY_ASK_CAMERA_PERMISSION)
         }, {
             cameraPermissionDenied.visibility = View.VISIBLE
         })
@@ -209,6 +211,9 @@ class ConnectionActivity : MyAppCompatActivity() {
             connectivityManager.requestNetwork(networkRequest, networkCallback, maxWaitTime)
         } else {
             connectivityManager.requestNetwork(networkRequest, networkCallback)
+            /***
+             * cancel connection request manually after maxWaitTime
+             */
             CoroutineScope(Main).launch {
                 delay(maxWaitTime.toLong())
                 networkCallback.onUnavailable()

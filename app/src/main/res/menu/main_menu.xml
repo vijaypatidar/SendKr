@@ -9,7 +9,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/menu_sorting"
-        android:icon="@drawable/ic_baseline_sort_24"
+        android:icon="@drawable/ic_sort"
         android:title="@string/filtering"
         app:showAsAction="ifRoom" />
 </menu>

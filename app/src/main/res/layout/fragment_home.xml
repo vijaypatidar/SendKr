@@ -128,7 +128,6 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?android:attr/selectableItemBackground"
-                        android:visibility="gone"
                         tools:visibility="visible"
                         app:cardCornerRadius="@dimen/home_card_radius"
                         app:cardElevation="5dp">
@@ -219,7 +218,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#2196f3"
+                            android:background="@color/photoFeatureColor"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -230,7 +229,7 @@
                                 android:scaleType="centerCrop"
                                 android:layout_marginStart="3dp"
                                 android:src="@drawable/ic_photo"
-                                android:tint="@color/white" />
+                                android:tint="@color/white"/>
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -261,7 +260,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#e91e63"
+                            android:background="@color/audioFeatureColor"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -270,8 +269,7 @@
                                 android:layout_height="30dp"
                                 android:layout_marginStart="3dp"
                                 android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_music"
-                                android:tint="@color/white" />
+                                android:src="@drawable/ic_default_audio_icon" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:layout_width="wrap_content"
@@ -311,7 +309,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#009688"
+                            android:background="@color/videoFeatureColor"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -354,7 +352,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#7C4DFF"
+                            android:background="@color/zipFeatureColor"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -404,7 +402,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#FF5722"
+                            android:background="@color/documentFeatureColor"
                             android:orientation="horizontal"
                             android:padding="5dp">
 
@@ -448,7 +446,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="#4CAF50"
+                            android:background="@color/apkFeatureColor"
                             android:orientation="horizontal"
                             android:padding="5dp">
 

@@ -11,6 +11,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.vkpapps.sendkr.App
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.loader.PrepareDb
+import com.vkpapps.sendkr.ui.activity.base.MyAppCompatActivity
 import com.vkpapps.sendkr.utils.PermissionUtils
 import kotlinx.android.synthetic.main.activity_splash.*
 import kotlinx.coroutines.CoroutineScope

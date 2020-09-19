@@ -131,20 +131,6 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_margin="10dp"
-            android:background="?android:attr/listDivider" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:gravity="center_horizontal"
-            android:text="@string/made_in_india"
-            android:textAlignment="gravity"
-            android:textColor="@color/black"
-            android:textSize="16sp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -1,8 +1,9 @@
 package com.vkpapps.sendkr.utils
 
 import android.os.Environment
-import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
 import androidx.core.os.EnvironmentCompat
+import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.sendkr.App.Companion.context
 import java.io.File
 
@@ -28,12 +29,12 @@ object StorageManager {
 
     val external: File?
         get() {
-            val externalStoragePath = KeyValue(context).externalStoragePath
-            return if (externalStoragePath == null) {
-                null
-            } else {
-                File(externalStoragePath)
+            DocumentFile.fromFile(File("/storage/")).listFiles().forEach {
+                if (Environment.isExternalStorageRemovable(it.uri.toFile().absoluteFile)) {
+                    return it.uri.toFile()
+                }
             }
+            return null
         }
 
     val downloadDir: File
@@ -47,16 +48,15 @@ object StorageManager {
     // Checks if a volume containing external storage is available
     // for read and write.
     fun isRemovableSdCardMounted(): Boolean {
-        val externalFilesDirs = ContextCompat.getExternalFilesDirs(context, null)
-        return (externalFilesDirs.size >= 2 && EnvironmentCompat.getStorageState(File(removableSdCardRootPath())) == Environment.MEDIA_MOUNTED)
+        return try {
+            EnvironmentCompat.getStorageState(File(removableSdCardRootPath())) == Environment.MEDIA_MOUNTED
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun removableSdCardRootPath(): String {
-        val sdCard = ContextCompat.getExternalFilesDirs(context, null)[1].absolutePath
-        val indexOf = sdCard.indexOf("/Android")
-        return if (indexOf != -1)
-            sdCard.subSequence(0, indexOf).toString()
-        else sdCard
+        return external?.absolutePath ?: ""
     }
 
 }

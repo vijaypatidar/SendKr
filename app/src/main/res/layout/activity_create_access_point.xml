@@ -189,7 +189,7 @@
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
                                 android:layout_gravity="center_vertical|end"
-                                app:srcCompat="@drawable/ic_baseline_wifi" />
+                                app:srcCompat="@drawable/ic_router" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>

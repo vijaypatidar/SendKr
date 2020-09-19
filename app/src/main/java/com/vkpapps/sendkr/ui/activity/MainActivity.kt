@@ -47,6 +47,7 @@ import com.vkpapps.sendkr.model.constant.StatusType
 import com.vkpapps.sendkr.room.liveViewModel.HistoryViewModel
 import com.vkpapps.sendkr.room.liveViewModel.QuickAccessViewModel
 import com.vkpapps.sendkr.room.liveViewModel.RequestViewModel
+import com.vkpapps.sendkr.ui.activity.base.MyAppCompatActivity
 import com.vkpapps.sendkr.ui.dialog.DialogsUtils
 import com.vkpapps.sendkr.ui.dialog.PrivacyDialog
 import com.vkpapps.sendkr.ui.fragments.DashboardFragment

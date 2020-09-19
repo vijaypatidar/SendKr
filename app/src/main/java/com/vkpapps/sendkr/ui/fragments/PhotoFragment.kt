@@ -8,6 +8,7 @@ import com.vkpapps.sendkr.App.Companion.isPhone
 import com.vkpapps.sendkr.room.liveViewModel.PhotoViewModel
 import com.vkpapps.sendkr.ui.adapter.PhotoAdapter
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
+import com.vkpapps.sendkr.ui.fragments.base.MediaBaseFragment
 
 /***
  * @author VIJAY PATIDAR

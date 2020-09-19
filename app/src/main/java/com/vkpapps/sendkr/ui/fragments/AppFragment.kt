@@ -1,26 +1,21 @@
 package com.vkpapps.sendkr.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import androidx.cardview.widget.CardView
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
-import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
 import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.vkpapps.sendkr.App.Companion.isPhone
 import com.vkpapps.sendkr.R
-import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
-import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.sendkr.loader.PrepareAppList
 import com.vkpapps.sendkr.model.AppInfo
 import com.vkpapps.sendkr.model.RawRequestInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.ui.adapter.AppAdapter
+import com.vkpapps.sendkr.ui.fragments.base.MyFragment
 import com.vkpapps.sendkr.utils.MathUtils
 import kotlinx.android.synthetic.main.fragment_app.*
 import kotlinx.coroutines.CoroutineScope
@@ -32,14 +27,11 @@ import kotlinx.coroutines.withContext
 /***
  * @author VIJAY PATIDAR
  */
-class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
+class AppFragment : MyFragment(), AppAdapter.OnAppSelectListener {
 
     private val appInfos = ArrayList<AppInfo>()
     private var adapter: AppAdapter = AppAdapter(appInfos, this)
-    private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
-    private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     var selectedCount = 0
-    private var navController: NavController? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -49,7 +41,6 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-        navController = Navigation.findNavController(view)
         appList.adapter = adapter
         val spanCount = if (isPhone) 1 else 2
         appList.layoutManager = GridLayoutManager(requireContext(), spanCount)
@@ -133,11 +124,15 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
         }
     }
 
+    override fun onRefresh() {
+        //todo refresh list
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         val findItem = menu.findItem(R.id.menu_transferring)
         findItem?.actionView?.findViewById<CardView>(R.id.transferringActionView)?.setOnClickListener {
-            navController?.navigate(object : NavDirections {
+            controller?.navigate(object : NavDirections {
                 override fun getArguments(): Bundle {
                     return Bundle()
                 }
@@ -150,22 +145,6 @@ class AppFragment : Fragment(), AppAdapter.OnAppSelectListener {
         }
         menu.findItem(R.id.menu_sorting).isVisible = false
 
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnNavigationVisibilityListener) {
-            onNavigationVisibilityListener = context
-        }
-        if (context is OnFileRequestPrepareListener) {
-            onFileRequestPrepareListener = context
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        onNavigationVisibilityListener = null
-        onFileRequestPrepareListener = null
     }
 
     override fun onAppSelected(appInfo: AppInfo) {

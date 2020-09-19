@@ -15,4 +15,10 @@
     <color name="white_alpha">#80FFFFFF</color>
     <color name="red">#FF1100</color>
     <color name="textCategory">#1b1f23</color>
+    <color name="audioFeatureColor">#e91e63</color>
+    <color name="zipFeatureColor">#7C4DFF</color>
+    <color name="photoFeatureColor">#2196f3</color>
+    <color name="videoFeatureColor">#009688</color>
+    <color name="documentFeatureColor">#FF5722</color>
+    <color name="apkFeatureColor">#4CAF50</color>
 </resources>
