@@ -34,6 +34,7 @@ import com.vkpapps.sendkr.ui.dialog.DialogsUtils
 import com.vkpapps.sendkr.utils.BarCodeUtils
 import com.vkpapps.sendkr.utils.PermissionUtils.askCameraPermission
 import com.vkpapps.sendkr.utils.PermissionUtils.checkLCameraPermission
+import com.vkpapps.sendkr.utils.VibrateUtils
 import kotlinx.android.synthetic.main.activity_connection.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -61,6 +62,7 @@ class ConnectionActivity : MyAppCompatActivity() {
 
         scanner.setFormats(Collections.singletonList(BarcodeFormat.QR_CODE))
         scanner.setResultHandler {
+            VibrateUtils().vibrate()
             connect(it.text)
         }
         startScanner()

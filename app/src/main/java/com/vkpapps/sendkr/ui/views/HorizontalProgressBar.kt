@@ -10,12 +10,11 @@ import android.view.View
 class HorizontalProgressBar : View {
     private var progress: Float = 0f
 
-    private val paint: Paint by lazy {
-        val paint = Paint().apply {
+    companion object {
+        val paint: Paint = Paint().apply {
             color = Color.parseColor("#3AFC820F")
             style = Paint.Style.FILL
         }
-        paint
     }
 
     constructor(context: Context?) : super(context)
@@ -27,8 +26,7 @@ class HorizontalProgressBar : View {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val i = widthOnePercent * progress
-        canvas.drawRect(0f, 0f, i, height.toFloat(), paint)
+        canvas.drawRect(0f, 0f, widthOnePercent * progress, height.toFloat(), paint)
     }
 
     fun setProgress(progress: Float) {
