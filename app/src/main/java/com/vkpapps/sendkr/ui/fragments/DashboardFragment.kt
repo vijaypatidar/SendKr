@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
 import com.squareup.picasso.Picasso
+import com.vkpapps.apmanager.APManager
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.connection.ClientHelper
 import com.vkpapps.sendkr.interfaces.OnFragmentAttachStatusListener
@@ -22,7 +23,6 @@ import com.vkpapps.sendkr.ui.dialog.DialogsUtils
 import com.vkpapps.sendkr.ui.fragments.base.MyFragment
 import com.vkpapps.sendkr.utils.AdsUtils
 import com.vkpapps.sendkr.utils.StorageManager
-import com.vkpapps.sendkr.utils.WifiApUtils
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 import java.io.File
 
@@ -67,7 +67,7 @@ class DashboardFragment : MyFragment(), OnUsersUpdateListener {
             DialogsUtils(requireContext()).closeGroup({
                 controller?.popBackStack()
                 if (MainActivity.isHost) {
-                    WifiApUtils.disableWifiAp()
+                    APManager.getApManager(requireContext()).disableWifiAp()
                     MainActivity.serverHelper.shutDown()
                 } else {
                     MainActivity.clientHelper.shutDown()

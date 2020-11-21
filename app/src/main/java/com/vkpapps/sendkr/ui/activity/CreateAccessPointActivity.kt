@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.MenuItem
 import android.view.View
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.vkpapps.apmanager.APManager
 import com.vkpapps.sendkr.BuildConfig
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
@@ -17,14 +19,15 @@ import com.vkpapps.sendkr.ui.dialog.DialogsUtils
 import com.vkpapps.sendkr.utils.BarCodeUtils
 import com.vkpapps.sendkr.utils.IPManager
 import com.vkpapps.sendkr.utils.PermissionUtils
-import com.vkpapps.sendkr.utils.WifiApUtils
 import kotlinx.android.synthetic.main.activity_create_access_point.*
+import java.lang.Exception
 
-class CreateAccessPointActivity : MyAppCompatActivity(), OnFailureListener<Int>, OnSuccessListener<String> {
+class CreateAccessPointActivity : MyAppCompatActivity(), APManager.OnFailureListener, APManager.OnSuccessListener {
     private var progressDialog: AlertDialog? = null
     private var alertGpsProviderRequire: AlertDialog? = null
     private var alertDisableHotspot: AlertDialog? = null
     private var alertDisableWifi: AlertDialog? = null
+    private val apManager: APManager by lazy { APManager.getApManager(this@CreateAccessPointActivity) }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -45,7 +48,7 @@ class CreateAccessPointActivity : MyAppCompatActivity(), OnFailureListener<Int>,
         initAlertsDialog()
         btnCreateHotspot.setOnClickListener {
             progressDialog?.show()
-            WifiApUtils.turnOnHotspot(this, this, this)
+            apManager.turnOnHotspot(this, this, this)
         }
         btnUseExisting.setOnClickListener {
             progressDialog?.show()
@@ -68,21 +71,21 @@ class CreateAccessPointActivity : MyAppCompatActivity(), OnFailureListener<Int>,
         Logger.d("[CreateAccessPointActivity][onResume]")
         createHotspot()
         if (BuildConfig.DEBUG) {
-            useExistingSection.visibility = if (WifiApUtils.isWifiApEnabled()) View.VISIBLE else View.GONE
-            useRouterSection.visibility = if (WifiApUtils.wifiManager.isWifiEnabled
-                    && IPManager(this@CreateAccessPointActivity).deviceIp() != "0.0.0.0") View.VISIBLE else View.GONE
+            useExistingSection.visibility = if (apManager.isWifiApEnabled) View.VISIBLE else View.GONE
+            useRouterSection.visibility = if (apManager.wifiManager.isWifiEnabled
+                    && apManager.isDeviceConnectedToWifi) View.VISIBLE else View.GONE
         }
     }
 
     private fun createHotspot() {
         Logger.d("[CreateAccessPointActivity][createHotspot]")
         progressDialog?.show()
-        if (!WifiApUtils.isWifiApEnabled() && !(WifiApUtils.wifiManager.isWifiEnabled && IPManager(this@CreateAccessPointActivity).deviceIp() != "0.0.0.0")) {
-            WifiApUtils.turnOnHotspot(this, this, this)
-        } else if (WifiApUtils.isWifiApEnabled()) {
-            onFailure(WifiApUtils.ERROR_DISABLE_HOTSPOT)
+        if (!apManager.isWifiApEnabled && !(apManager.wifiManager.isWifiEnabled && apManager.isDeviceConnectedToWifi)) {
+            apManager.turnOnHotspot(this, this, this)
+        } else if (apManager.isWifiApEnabled) {
+            onFailure(APManager.ERROR_DISABLE_HOTSPOT, null)
         } else {
-            onFailure(WifiApUtils.ERROR_DISABLE_WIFI)
+            onFailure(APManager.ERROR_DISABLE_WIFI, null)
         }
     }
 
@@ -93,33 +96,37 @@ class CreateAccessPointActivity : MyAppCompatActivity(), OnFailureListener<Int>,
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onFailure(t: Int) {
+    override fun onFailure(t: Int, e: Exception?) {
         progressDialog?.hide()
         when (t) {
-            WifiApUtils.ERROR_LOCATION_PERMISSION_DENIED -> {
+            APManager.ERROR_LOCATION_PERMISSION_DENIED -> {
                 PermissionUtils.askLocationPermission(this, MainActivity.ASK_LOCATION_PERMISSION)
             }
-            WifiApUtils.ERROR_ENABLE_GPS_PROVIDER -> {
+            APManager.ERROR_GPS_PROVIDER_DISABLED -> {
                 alertGpsProviderRequire?.show()
             }
-            WifiApUtils.ERROR_WRITE_PERMITSiON_REQUIRED -> {
+            APManager.ERROR_WRITE_SETTINGS_PERMISSION_REQUIRED -> {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                     PermissionUtils.askWriteSettingPermission(this, 11111)
                 }
             }
-            WifiApUtils.ERROR_DISABLE_HOTSPOT -> {
+            APManager.ERROR_DISABLE_HOTSPOT -> {
                 alertDisableHotspot?.show()
             }
-            WifiApUtils.ERROR_DISABLE_WIFI -> {
+            APManager.ERROR_DISABLE_WIFI -> {
                 alertDisableWifi?.show()
             }
         }
+
+        e?.let { it ->
+            it.message?.let { msg -> FirebaseCrashlytics.getInstance().log(msg) }
+        }
     }
 
-    override fun onSuccess(t: String) {
+    override fun onSuccess(ssid: String, password: String) {
         val connectionBarCode = ConnectionBarCode(ConnectionBarCode.CONNECTION_INTERNAL_AP)
-        connectionBarCode.ssid = WifiApUtils.ssid
-        connectionBarCode.password = WifiApUtils.password
+        connectionBarCode.ssid = ssid
+        connectionBarCode.password = password
         BarCodeUtils().createQR(connectionBarCode)
         setResult(RESULT_OK)
         finish()
@@ -130,7 +137,7 @@ class CreateAccessPointActivity : MyAppCompatActivity(), OnFailureListener<Int>,
         progressDialog = DialogsUtils(this).alertLoadingDialog()
         alertDisableHotspot = DialogsUtils(this).alertDisableHotspot(object : OnSuccessListener<String> {
             override fun onSuccess(t: String) {
-                startActivity(WifiApUtils.getTetheringSettingIntent())
+                startActivity(apManager.utils.tetheringSettingIntent)
             }
         }, object : OnFailureListener<String> {
             override fun onFailure(t: String) {
