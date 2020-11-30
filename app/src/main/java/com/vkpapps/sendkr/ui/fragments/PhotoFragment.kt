@@ -5,10 +5,11 @@ import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.App.Companion.isPhone
+import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.room.liveViewModel.PhotoViewModel
 import com.vkpapps.sendkr.ui.adapter.PhotoAdapter
-import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.sendkr.ui.fragments.base.MediaBaseFragment
+import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 
 /***
  * @author VIJAY PATIDAR
@@ -27,6 +28,10 @@ class PhotoFragment : MediaBaseFragment() {
         photoViewModel.photoInfosLiveData.observe(requireActivity(), {
             onDataChanged(it)
         })
+    }
+
+    override fun getFileType(): Int {
+        return FileType.FILE_TYPE_PHOTO
     }
 
     override fun getSpanCount(): Int {

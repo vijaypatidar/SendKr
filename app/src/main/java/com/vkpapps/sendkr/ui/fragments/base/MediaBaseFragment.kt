@@ -12,13 +12,11 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.sendkr.App.Companion.isPhone
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.interfaces.OnMediaSelectListener
 import com.vkpapps.sendkr.model.MediaInfo
 import com.vkpapps.sendkr.model.RawRequestInfo
-import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.sendkr.utils.MathUtils
@@ -71,7 +69,7 @@ abstract class MediaBaseFragment : MyFragment(), OnMediaSelectListener, FilterDi
                 if (it.isSelected) {
                     it.isSelected = false
                     selected.add(RawRequestInfo(
-                            it.name, it.uri, FileType.FILE_TYPE_VIDEO, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
+                            it.name, it.uri, getFileType(), MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
                     ))
                 }
             }
@@ -83,6 +81,8 @@ abstract class MediaBaseFragment : MyFragment(), OnMediaSelectListener, FilterDi
             onFileRequestPrepareListener?.sendFiles(selected)
         }
     }
+
+    abstract fun getFileType(): Int
 
     override fun onSelectAll() {
         CoroutineScope(IO).launch {
