@@ -107,7 +107,7 @@ class CreateAccessPointActivity : MyAppCompatActivity(), APManager.OnFailureList
             }
             APManager.ERROR_WRITE_SETTINGS_PERMISSION_REQUIRED -> {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    PermissionUtils.askWriteSettingPermission(this, 11111)
+                    apManager.utils.askWriteSettingPermission(this)
                 }
             }
             APManager.ERROR_DISABLE_HOTSPOT -> {

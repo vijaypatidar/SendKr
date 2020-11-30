@@ -5,32 +5,24 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
-import androidx.annotation.RequiresApi
+import android.os.Environment
+import android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
 import androidx.core.app.ActivityCompat
 
 object PermissionUtils {
     @JvmStatic
     fun checkStoragePermission(context: Context?): Boolean {
-//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            Environment.isExternalStorageManager()
-//        } else {
-//            ActivityCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-//        }
-        return ActivityCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Environment.isExternalStorageManager()
+        } else {
+            ActivityCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        }
     }
 
     @JvmStatic
     fun checkLocationPermission(context: Context?): Boolean {
         return ActivityCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    @JvmStatic
-    fun checkWriteSettingPermission(context: Context?): Boolean {
-        return Settings.System.canWrite(context)
     }
 
     @JvmStatic
@@ -40,9 +32,13 @@ object PermissionUtils {
 
     @JvmStatic
     fun askStoragePermission(activity: Activity?, code: Int) {
-        ActivityCompat.requestPermissions(activity!!, arrayOf(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ), code)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity?.startActivityForResult(Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION),code)
+        } else {
+            ActivityCompat.requestPermissions(activity!!, arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ), code)
+        }
     }
 
     @JvmStatic
@@ -59,13 +55,4 @@ object PermissionUtils {
         ), code)
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    @JvmStatic
-    fun askWriteSettingPermission(activity: Activity?, code: Int) {
-        activity?.run {
-            val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
-            intent.data = Uri.parse("package:${activity.packageName}")
-            startActivity(intent)
-        }
-    }
 }
