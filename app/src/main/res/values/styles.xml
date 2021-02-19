@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:navigationBarColor">@color/colorPrimary</item>
         <item name="actionModeStyle">@style/ActionMode</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic_home_as_up_indicator</item>
     </style>
 
     <style name="AppThemeNoAction" parent="AppTheme">

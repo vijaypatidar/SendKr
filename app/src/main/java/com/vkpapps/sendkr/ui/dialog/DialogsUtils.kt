@@ -329,7 +329,7 @@ class DialogsUtils(private val context: Context) {
         with(myAlertView) {
             setTitle(R.string.close_leave_group)
             setFeatureImage(R.drawable.ic_warning_image)
-            setDescription(R.string.close_group_discription)
+            setDescription(R.string.close_group_description)
             setPositiveButton(R.string.Continue) {
                 close.onClick(it)
                 alertDialog.dismiss()

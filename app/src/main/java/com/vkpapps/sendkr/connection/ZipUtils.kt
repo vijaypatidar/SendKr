@@ -1,6 +1,8 @@
 package com.vkpapps.sendkr.connection
 
 import androidx.documentfile.provider.DocumentFile
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Transformation
 import com.vkpapps.sendkr.model.RequestInfo
 import java.io.*
 import java.util.zip.ZipEntry

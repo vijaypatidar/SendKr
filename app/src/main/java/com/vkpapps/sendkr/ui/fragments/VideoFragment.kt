@@ -6,8 +6,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.vkpapps.sendkr.App.Companion.isPhone
 import com.vkpapps.sendkr.analitics.Logger
+import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.room.liveViewModel.VideoViewModel
 import com.vkpapps.sendkr.ui.adapter.VideoAdapter
+import com.vkpapps.sendkr.ui.fragments.base.MediaBaseFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 
 /***
@@ -41,8 +43,9 @@ class VideoFragment : MediaBaseFragment() {
     override fun getSortBy(): Int {
         return sortBy
     }
-
-
+    override fun getFileType(): Int {
+        return FileType.FILE_TYPE_VIDEO
+    }
     override fun setAdapter(recyclerView: RecyclerView) {
         recyclerView.adapter = VideoAdapter(mediaInfos, this)
     }

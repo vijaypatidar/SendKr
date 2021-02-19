@@ -21,7 +21,7 @@ import java.util.concurrent.Executors
 
 object MyThumbnailUtils {
     private val thumbnails = StorageManager.thumbnails
-    private val loader = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private val loader = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
 
     fun loadAudioThumbnail(id: String, uri: Uri, imageView: AppCompatImageView?) {
         val file = File(thumbnails, id)

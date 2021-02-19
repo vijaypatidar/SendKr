@@ -12,6 +12,7 @@ import android.widget.ImageView.ScaleType
 import androidx.documentfile.provider.DocumentFile
 import com.vkpapps.sendkr.App.Companion.user
 import com.vkpapps.sendkr.R
+import com.vkpapps.sendkr.ui.activity.base.MyAppCompatActivity
 import com.vkpapps.sendkr.utils.BitmapUtils
 import com.vkpapps.sendkr.utils.UserUtils
 import kotlinx.android.synthetic.main.activity_profile.*

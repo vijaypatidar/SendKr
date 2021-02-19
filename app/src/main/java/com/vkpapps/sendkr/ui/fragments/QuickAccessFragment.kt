@@ -1,28 +1,22 @@
 package com.vkpapps.sendkr.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
 import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.sendkr.R
 import com.vkpapps.sendkr.analitics.Logger
-import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
-import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.sendkr.model.FileInfo
 import com.vkpapps.sendkr.model.RawRequestInfo
 import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.room.liveViewModel.QuickAccessViewModel
 import com.vkpapps.sendkr.ui.adapter.FileAdapter
+import com.vkpapps.sendkr.ui.fragments.base.MyFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 import kotlinx.android.synthetic.main.fragment_quick_access.*
@@ -35,7 +29,7 @@ import kotlinx.coroutines.withContext
 /***
  * @author VIJAY PATIDAR
  */
-class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, FilterDialogFragment.OnFilterListener, SwipeRefreshLayout.OnRefreshListener {
+class QuickAccessFragment : MyFragment(), FileAdapter.OnFileSelectListener, FilterDialogFragment.OnFilterListener {
 
     companion object {
         private var sortBy = FilterDialogFragment.SORT_BY_NAME
@@ -45,21 +39,17 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
         const val TYPE_APK = FileType.FILE_TYPE_APP
     }
 
-
-    private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
-    private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
     private var selectCount = 0
     private var title: String? = "default"
     private var typeToShow = TYPE_DOCUMENTS
     private var adapter: FileAdapter? = null
     private var fileInfos: ArrayList<FileInfo> = ArrayList()
-    private var controller: NavController? = null
     private val quickAccessViewModel: QuickAccessViewModel by lazy { ViewModelProvider(requireActivity()).get(QuickAccessViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (requireArguments().containsKey(PARAM_TYPE)) {
-            typeToShow = arguments?.getInt(PARAM_TYPE, 0)!!
+            typeToShow = arguments?.getInt(PARAM_TYPE, 0) ?: TYPE_DOCUMENTS
         }
         title = when (typeToShow) {
             TYPE_APK -> {
@@ -77,7 +67,6 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
         }
     }
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -87,7 +76,6 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-        controller = Navigation.findNavController(view)
         mySwipeRefreshLayout?.setOnRefreshListener(this)
         quickList?.onFlingListener = object : OnFlingListener() {
             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
@@ -116,57 +104,60 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
             }
         }
 
-        selectionView.btnSendFiles.setOnClickListener {
-            if (selectCount == 0) return@setOnClickListener
-            CoroutineScope(IO).launch {
-                val selected = ArrayList<RawRequestInfo>()
-                fileInfos.forEach {
-                    try {
-                        if (it.isSelected) {
-                            it.isSelected = false
-                            selected.add(RawRequestInfo(
-                                    it.name, it.uri, typeToShow, it.size
-                            ))
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+
+    }
+
+    override fun onSelectAll() {
+        CoroutineScope(IO).launch {
+            selectCount = 0
+            fileInfos.forEach {
+                it.isSelected = true
+                selectCount++
+            }
+            withContext(Main) {
+                adapter?.notifyDataSetChanged()
+                hideShowSendButton()
+            }
+        }
+    }
+
+    override fun onSelectNon() {
+        CoroutineScope(IO).launch {
+            selectCount = 0
+            fileInfos.forEach {
+                it.isSelected = false
+            }
+            withContext(Main) {
+                adapter?.notifyDataSetChanged()
+                hideShowSendButton()
+            }
+        }
+    }
+
+    override fun onSendSelected() {
+        if (selectCount == 0) return
+        CoroutineScope(IO).launch {
+            val selected = ArrayList<RawRequestInfo>()
+            fileInfos.forEach {
+                try {
+                    if (it.isSelected) {
+                        it.isSelected = false
+                        selected.add(RawRequestInfo(
+                                it.name, it.uri, typeToShow, it.size
+                        ))
                     }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
 
-                }
-                selectCount = 0
-                withContext(Main) {
-                    adapter?.notifyDataSetChanged()
-                    hideShowSendButton()
-                }
-                onFileRequestPrepareListener?.sendFiles(selected)
             }
-        }
-        selectionView.btnSelectAll.setOnClickListener {
-            CoroutineScope(IO).launch {
-                selectCount = 0
-                fileInfos.forEach {
-                    it.isSelected = true
-                    selectCount++
-                }
-                withContext(Main) {
-                    adapter?.notifyDataSetChanged()
-                    hideShowSendButton()
-                }
+            selectCount = 0
+            withContext(Main) {
+                adapter?.notifyDataSetChanged()
+                hideShowSendButton()
             }
+            onFileRequestPrepareListener?.sendFiles(selected)
         }
-        selectionView.btnSelectNon.setOnClickListener {
-            CoroutineScope(IO).launch {
-                selectCount = 0
-                fileInfos.forEach {
-                    it.isSelected = false
-                }
-                withContext(Main) {
-                    adapter?.notifyDataSetChanged()
-                    hideShowSendButton()
-                }
-            }
-        }
-
     }
 
     private fun setAdapter(list: ArrayList<FileInfo>) {
@@ -205,7 +196,6 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
         }
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         val findItem = menu.findItem(R.id.menu_transferring)
@@ -231,18 +221,6 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
 
     }
 
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnNavigationVisibilityListener) {
-            onNavigationVisibilityListener = context
-        }
-        if (context is OnFileRequestPrepareListener) {
-            onFileRequestPrepareListener = context
-        }
-    }
-
-
     private fun hideShowSendButton() {
         onNavigationVisibilityListener?.onNavVisibilityChange(selectCount == 0)
         selectionView?.changeVisibility(selectCount)
@@ -262,12 +240,10 @@ class QuickAccessFragment : Fragment(), FileAdapter.OnFileSelectListener, Filter
         }
     }
 
-
     override fun onFileSelected(fileInfo: FileInfo) {
         selectCount++
         hideShowSendButton()
     }
-
 
     override fun onFilterBy(sortBy: Int) {
         QuickAccessViewModel.sortBy = sortBy

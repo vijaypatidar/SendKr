@@ -1,6 +1,5 @@
-package com.vkpapps.sendkr.ui.fragments
+package com.vkpapps.sendkr.ui.fragments.base
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -9,21 +8,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toFile
 import androidx.documentfile.provider.DocumentFile
-import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnFlingListener
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vkpapps.sendkr.App.Companion.isPhone
 import com.vkpapps.sendkr.R
-import com.vkpapps.sendkr.interfaces.OnFileRequestPrepareListener
 import com.vkpapps.sendkr.interfaces.OnMediaSelectListener
-import com.vkpapps.sendkr.interfaces.OnNavigationVisibilityListener
 import com.vkpapps.sendkr.model.MediaInfo
 import com.vkpapps.sendkr.model.RawRequestInfo
-import com.vkpapps.sendkr.model.constant.FileType
 import com.vkpapps.sendkr.ui.fragments.dialog.FilePropertyDialogFragment
 import com.vkpapps.sendkr.ui.fragments.dialog.FilterDialogFragment
 import com.vkpapps.sendkr.utils.MathUtils
@@ -37,13 +30,10 @@ import kotlinx.coroutines.withContext
 /***
  * @author VIJAY PATIDAR
  */
-abstract class MediaBaseFragment : Fragment(), OnMediaSelectListener, SwipeRefreshLayout.OnRefreshListener, FilterDialogFragment.OnFilterListener {
+abstract class MediaBaseFragment : MyFragment(), OnMediaSelectListener, FilterDialogFragment.OnFilterListener {
 
     protected val mediaInfos: MutableList<MediaInfo> = ArrayList()
-    private var onNavigationVisibilityListener: OnNavigationVisibilityListener? = null
     private var selectedCount = 0
-    private var controller: NavController? = null
-    private var onFileRequestPrepareListener: OnFileRequestPrepareListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -69,53 +59,55 @@ abstract class MediaBaseFragment : Fragment(), OnMediaSelectListener, SwipeRefre
         }
         swipeRefreshMidiaList?.setOnRefreshListener(this)
 
-        selectionView?.btnSendFiles?.setOnClickListener {
+    }
 
-            if (selectedCount == 0) return@setOnClickListener
-            CoroutineScope(IO).launch {
-                val selected = ArrayList<RawRequestInfo>()
-                mediaInfos.forEach {
-                    if (it.isSelected) {
-                        it.isSelected = false
-                        selected.add(RawRequestInfo(
-                                it.name, it.uri, FileType.FILE_TYPE_VIDEO, MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
-                        ))
-                    }
-                }
-                selectedCount = 0
-                withContext(Main) {
-                    mediaList?.adapter?.notifyDataSetChanged()
-                    hideShowSendButton()
-                }
-                onFileRequestPrepareListener?.sendFiles(selected)
-            }
-        }
-
-        selectionView?.btnSelectNon?.setOnClickListener {
-            if (selectedCount == 0) return@setOnClickListener
-            CoroutineScope(IO).launch {
-                mediaInfos.forEach {
+    override fun onSendSelected() {
+        if (selectedCount == 0) return
+        CoroutineScope(IO).launch {
+            val selected = ArrayList<RawRequestInfo>()
+            mediaInfos.forEach {
+                if (it.isSelected) {
                     it.isSelected = false
-                }
-                selectedCount = 0
-                withContext(Main) {
-                    mediaList?.adapter?.notifyDataSetChanged()
-                    hideShowSendButton()
+                    selected.add(RawRequestInfo(
+                            it.name, it.uri, getFileType(), MathUtils.getFileSize(DocumentFile.fromFile(it.uri.toFile()))
+                    ))
                 }
             }
+            selectedCount = 0
+            withContext(Main) {
+                mediaList?.adapter?.notifyDataSetChanged()
+                hideShowSendButton()
+            }
+            onFileRequestPrepareListener?.sendFiles(selected)
         }
+    }
 
-        selectionView?.btnSelectAll?.setOnClickListener {
-            CoroutineScope(IO).launch {
-                selectedCount = 0
-                mediaInfos.forEach {
-                    it.isSelected = true
-                    selectedCount++
-                }
-                withContext(Main) {
-                    mediaList?.adapter?.notifyDataSetChanged()
-                    hideShowSendButton()
-                }
+    abstract fun getFileType(): Int
+
+    override fun onSelectAll() {
+        CoroutineScope(IO).launch {
+            selectedCount = 0
+            mediaInfos.forEach {
+                it.isSelected = true
+                selectedCount++
+            }
+            withContext(Main) {
+                mediaList?.adapter?.notifyDataSetChanged()
+                hideShowSendButton()
+            }
+        }
+    }
+
+    override fun onSelectNon() {
+        if (selectedCount == 0) return
+        CoroutineScope(IO).launch {
+            mediaInfos.forEach {
+                it.isSelected = false
+            }
+            selectedCount = 0
+            withContext(Main) {
+                mediaList?.adapter?.notifyDataSetChanged()
+                hideShowSendButton()
             }
         }
     }
@@ -158,16 +150,6 @@ abstract class MediaBaseFragment : Fragment(), OnMediaSelectListener, SwipeRefre
 
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnNavigationVisibilityListener) {
-            onNavigationVisibilityListener = context
-        }
-        if (context is OnFileRequestPrepareListener) {
-            onFileRequestPrepareListener = context
-        }
-    }
-
     abstract fun getSpanCount(): Int
 
     abstract fun setSortBy(sortBy: Int)
@@ -175,11 +157,6 @@ abstract class MediaBaseFragment : Fragment(), OnMediaSelectListener, SwipeRefre
     abstract fun getSortBy(): Int
 
     abstract fun setAdapter(recyclerView: RecyclerView)
-
-    override fun onDetach() {
-        super.onDetach()
-        onNavigationVisibilityListener = null
-    }
 
     override fun onMediaLongClickListener(mediaInfo: MediaInfo) {
         try {
